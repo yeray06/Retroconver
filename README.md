@@ -9,10 +9,10 @@ Retroconver es una aplicación móvil Android desarrollada con una estética ret
 
 ## Tecnologías Base
 - **Plataforma:** Android (Nativo)
-- **Lenguaje:** Kotlin[cite: 1]
-- **Interfaz de usuario:** Jetpack Compose[cite: 1]
-- **Persistencia y Datos:** Room (base de datos local) y DataStore (preferencias de usuario)[cite: 2, 4]
-- **Multimedia:** Gestión y visualización de fotografías y galería personal[cite: 2, 5]
+- **Lenguaje:** Kotlin
+- **Interfaz de usuario:** Jetpack Compose
+- **Persistencia y Datos:** Room (base de datos local) y DataStore (preferencias de usuario
+- **Multimedia:** Gestión y visualización de fotografías y galería personal
 
 ## Funcionalidades Principales (MVP)
 1. **Perfil de Usuario:** Personalización de datos, biografía y avatar al más puro estilo clásico.
