@@ -84,7 +84,7 @@ Todavía no hay código. El proyecto Android se crea en la entrega 2 ([#7](https
 ## Cómo trabajamos
 
 - **Tablero Kanban** con las columnas Backlog, Por hacer, En curso, En revisión y Hecho.
-- **Una issue por tarea**, con responsable, criterios de terminado y dependencias.
+- **Una issue por tarea**, con responsable, criterios de terminado y dependencias. Las tareas grandes se dividen en subtareas (*sub-issues*) y el tablero muestra su progreso.
 - **Una rama por issue** (`feature/14-pantalla-perfil`, `docs/5-memoria`…), nunca commits directos a `main`.
 - **Pull Request enlazada a la issue** (`Closes #14`). La revisa y la aprueba el otro integrante.
 
