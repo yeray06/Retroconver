@@ -4,8 +4,8 @@ Reparto por módulos: cada integrante se encarga de sus módulos de principio a 
 
 | Integrante | Módulos |
 |---|---|
-| Yeray ([@yeray06](https://github.com/yeray06)) | Organización del repo, base del proyecto, navegación, Room, **Perfil** y **Galería** |
-| David ([@DavidNC26](https://github.com/DavidNC26)) | Guía de estilo y tema retro, bocetos, esquema de datos, **Muro** y **Mensajes** |
+| Yeray ([@yeray06](https://github.com/yeray06)) | Organización del repo, planificación, base del proyecto, navegación, Room, **Perfil** y **Galería** |
+| David ([@DavidNC26](https://github.com/DavidNC26)) | README, memoria, guía de estilo y tema retro, bocetos, esquema de datos, **Muro** y **Mensajes** |
 
 El estado real de cada tarea se sigue en el [tablero Kanban](https://github.com/users/yeray06/projects/2). Las dependencias también están marcadas en cada issue como *Blocked by*.
 
@@ -13,15 +13,15 @@ El estado real de cada tarea se sigue en el [tablero Kanban](https://github.com/
 
 | Entrega | Yeray | David |
 |---|---|---|
-| Entrega 1 · Organización | 5 | 1 |
+| Entrega 1 · Organización | 3 | 3 |
 | Entrega 2 · Diseño y base técnica | 3 | 3 |
 | Entrega 3 · Flujo principal | 4 | 3 |
 | Entrega 4 · Versión candidata | 3 | 3 |
 | Entrega final | 1 | 1 |
 | Si hay tiempo (extras) | 1 | 2 |
-| **Total sin extras** | **16** | **11** |
+| **Total sin extras** | **14** | **13** |
 
-La entrega 1 recae más en Yeray porque prepara la organización del repositorio. A partir de la entrega 2 el reparto se equilibra por módulos.
+El reparto queda equilibrado: cada integrante tiene un número parecido de tareas en todas las entregas.
 
 ## Tareas por entrega
 
@@ -30,10 +30,10 @@ La entrega 1 recae más en Yeray porque prepara la organización del repositorio
 | Issue | Tarea | Responsable | Depende de |
 |---|---|---|---|
 | [#1](https://github.com/yeray06/Retroconver/issues/1) | Configurar GitHub Project (tablero Kanban) | Yeray | — |
-| [#2](https://github.com/yeray06/Retroconver/issues/2) | README inicial del repositorio | Yeray | [#1](https://github.com/yeray06/Retroconver/issues/1) |
+| [#2](https://github.com/yeray06/Retroconver/issues/2) | README inicial del repositorio | David | [#1](https://github.com/yeray06/Retroconver/issues/1) |
 | [#3](https://github.com/yeray06/Retroconver/issues/3) | Plantillas de issues y PR, guía de contribución y .gitignore | Yeray | — |
 | [#4](https://github.com/yeray06/Retroconver/issues/4) | Planificación inicial y dependencias entre tareas | Yeray | — |
-| [#5](https://github.com/yeray06/Retroconver/issues/5) | Primera versión de la memoria (Word) | Yeray | [#4](https://github.com/yeray06/Retroconver/issues/4) |
+| [#5](https://github.com/yeray06/Retroconver/issues/5) | Primera versión de la memoria (Word) | David | [#4](https://github.com/yeray06/Retroconver/issues/4) |
 | [#6](https://github.com/yeray06/Retroconver/issues/6) | Guía de estilo retro (paleta, tipografía y referencias) | David | — |
 
 ### Entrega 2 · Diseño y base técnica · hasta el 01/11/2026
@@ -171,8 +171,8 @@ flowchart LR
   I25 --> I27
   classDef yeray fill:#dbeafe,stroke:#1d4ed8,color:#0f172a
   classDef david fill:#dcfce7,stroke:#15803d,color:#0f172a
-  class I1,I2,I3,I4,I5,I7,I8,I9,I13,I14,I19,I20,I21,I23,I24,I26 yeray
-  class I6,I10,I11,I12,I15,I16,I17,I18,I22,I25,I27 david
+  class I1,I3,I4,I7,I8,I9,I13,I14,I19,I20,I21,I23,I24,I26 yeray
+  class I2,I5,I6,I10,I11,I12,I15,I16,I17,I18,I22,I25,I27 david
 ```
 
 ## Puntos críticos

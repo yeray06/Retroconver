@@ -15,8 +15,8 @@ Red social para Android con la estética y la sencillez de las redes de finales 
 
 | Integrante | GitHub | Se encarga de |
 |---|---|---|
-| Yeray Sánchez | [@yeray06](https://github.com/yeray06) | Base del proyecto, navegación, Room, módulo **Perfil** y módulo **Galería** |
-| David Nicolás | [@DavidNC26](https://github.com/DavidNC26) | Estilo retro y tema de Compose, módulo **Muro** (publicaciones y comentarios) y módulo **Mensajes** |
+| Yeray Sánchez | [@yeray06](https://github.com/yeray06) | Organización del repositorio y planificación, base del proyecto, navegación, Room, módulo **Perfil** y módulo **Galería** |
+| David Nicolás | [@DavidNC26](https://github.com/DavidNC26) | README y memoria, estilo retro y tema de Compose, módulo **Muro** (publicaciones y comentarios) y módulo **Mensajes** |
 
 Cada integrante es responsable de sus módulos de principio a fin (datos, pantallas y pruebas). Todas las Pull Requests las revisa y aprueba el otro integrante.
 
