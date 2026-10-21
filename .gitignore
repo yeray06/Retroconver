@@ -1,0 +1,35 @@
+# Android Studio / Gradle
+*.iml
+.gradle/
+/local.properties
+local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+/.idea/deploymentTargetDropDown.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/other.xml
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+.kotlin/
+
+# Firmas: nunca se suben
+*.jks
+*.keystore
+keystore.properties
+
+# APKs y AABs: se publican en las Releases, no en el repositorio
+*.apk
+*.aab
+
+# Sistema y temporales
+.DS_Store
+Thumbs.db
+~$*.docx
+~$*.pptx

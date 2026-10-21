@@ -1,0 +1,50 @@
+name: Tarea
+description: Una tarea concreta del proyecto, con responsable y criterios de terminado
+title: "E?-?? · [Módulo] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cambia `E?-??` por el código de orden: el siguiente libre de su entrega (`E3-10`) o, si es una subtarea, el siguiente de su tarea principal (`E3-06.4`). Consulta [CONTRIBUTING.md](https://github.com/yeray06/Retroconver/blob/main/CONTRIBUTING.md#tareas-nuevas).
+  - type: input
+    id: principal
+    attributes:
+      label: Tarea principal
+      description: Si es una subtarea, el número de su tarea principal. Añádela también como sub-issue.
+      placeholder: "#14"
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción
+      description: Qué hay que hacer y para qué.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de terminado
+      description: Lista comprobable. La tarea está terminada cuando se cumplen todos.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: Dependencias
+      description: Issues que tienen que estar terminadas antes. Márcalas también como "Blocked by" en la issue.
+      placeholder: "- Depende de #7"
+  - type: dropdown
+    id: entrega
+    attributes:
+      label: Entrega
+      options:
+        - Entrega 1 · Organización
+        - Entrega 2 · Diseño y base técnica
+        - Entrega 3 · Flujo principal
+        - Entrega 4 · Versión candidata
+        - Entrega final
+        - Si hay tiempo
+    validations:
+      required: true
