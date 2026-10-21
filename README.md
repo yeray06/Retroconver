@@ -54,9 +54,9 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 
 ### Si hay tiempo
 
-- Mensajes directos entre usuarios ([#28](https://github.com/yeray06/Retroconver/issues/28))
-- Comentarios anidados o respuestas ([#29](https://github.com/yeray06/Retroconver/issues/29))
-- Temas clásicos y tipografías seleccionables por perfil ([#30](https://github.com/yeray06/Retroconver/issues/30))
+- Mensajes directos entre usuarios (EX-01, [#28](https://github.com/yeray06/Retroconver/issues/28))
+- Comentarios anidados o respuestas (EX-02, [#29](https://github.com/yeray06/Retroconver/issues/29))
+- Temas clásicos y tipografías seleccionables por perfil (EX-03, [#30](https://github.com/yeray06/Retroconver/issues/30))
 - Vídeos cortos, también limitados a 720p
 
 ### Fuera de alcance
@@ -79,14 +79,16 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 
 **Entrega 1 · Organización.** Repositorio, tablero Kanban, issues, planificación, README y primera versión de la memoria.
 
-Todavía no hay código. El proyecto Android se crea en la entrega 2 ([#7](https://github.com/yeray06/Retroconver/issues/7)), y las instrucciones para ejecutarlo se añadirán aquí entonces.
+Todavía no hay código. El proyecto Android se crea al empezar la entrega 2 (E2-01, [#7](https://github.com/yeray06/Retroconver/issues/7)), y las instrucciones para ejecutarlo se añadirán aquí entonces.
 
 ## Cómo trabajamos
 
 - **Tablero Kanban** con las columnas Backlog, Por hacer, En curso, En revisión y Hecho.
-- **Una issue por tarea**, con responsable, criterios de terminado y dependencias. Las tareas grandes se dividen en subtareas (*sub-issues*) y el tablero muestra su progreso.
-- **Una rama por issue** (`feature/14-pantalla-perfil`, `docs/5-memoria`…), nunca commits directos a `main`.
-- **Pull Request enlazada a la issue** (`Closes #14`). La revisa y la aprueba el otro integrante.
+- **82 issues en orden de avance.** Cada título empieza por un código: `E2-01` es la primera tarea principal de la entrega 2 y `E2-01.1` su primera subtarea. `EF` es la entrega final y `EX`, los extras. El tablero está ordenado por este código, así que se lee de arriba abajo en el orden en que hay que avanzar.
+- **Tareas principales y subtareas.** Las tareas grandes se dividen en subtareas (*sub-issues*). Se trabaja sobre las subtareas, y la tarea principal se cierra cuando están todas terminadas. El tablero muestra el progreso de cada tarea principal.
+- **Cada issue tiene** responsable, criterios de terminado, entrega (milestone) y dependencias (*Blocked by*).
+- **Una rama por subtarea**, o por tarea si no tiene subtareas. La rama lleva el número de GitHub de la issue (`feature/53-vista-perfil`). Nunca se hacen commits directos a `main`.
+- **Pull Request enlazada a la issue** (`Closes #53`). La revisa y la aprueba el otro integrante.
 
 Los detalles están en [CONTRIBUTING.md](CONTRIBUTING.md).
 
