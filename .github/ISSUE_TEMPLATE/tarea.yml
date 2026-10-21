@@ -1,7 +1,17 @@
 name: Tarea
 description: Una tarea concreta del proyecto, con responsable y criterios de terminado
-title: "[Módulo] "
+title: "E?-?? · [Módulo] "
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Cambia `E?-??` por el código de orden: el siguiente libre de su entrega (`E3-10`) o, si es una subtarea, el siguiente de su tarea principal (`E3-06.4`). Consulta [CONTRIBUTING.md](https://github.com/yeray06/Retroconver/blob/main/CONTRIBUTING.md#tareas-nuevas).
+  - type: input
+    id: principal
+    attributes:
+      label: Tarea principal
+      description: Si es una subtarea, el número de su tarea principal. Añádela también como sub-issue.
+      placeholder: "#14"
   - type: textarea
     id: descripcion
     attributes:
