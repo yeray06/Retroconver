@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retroconver — Prototipo Tuenti Classic Edition</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Lucida Grande / Helvetica Neue feel -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #1a1e24;
+      color: #333333;
+    }
+
+    /* Tuenti iOS Classic Glossy Blue Gradient Header */
+    .tuenti-header-gradient {
+      background: linear-gradient(180deg, #308ed6 0%, #1b6cb8 50%, #0d4b8e 51%, #165ca6 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid #082950;
+    }
+
+    .tuenti-btn-gloss {
+      background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.15) 51%, rgba(0,0,0,0.2) 100%);
+      border: 1px solid rgba(0, 0, 0, 0.35);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    /* Subheader dark blue navigation bar */
+    .tuenti-subnav {
+      background: linear-gradient(180deg, #184b7d 0%, #0d2e50 100%);
+      border-bottom: 1px solid #081a2e;
+    }
+
+    /* Shaking animation for MSN Nudge / Zumbido */
+    @keyframes nudgeShake {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      10% { transform: translate(-8px, -6px) rotate(-2deg); }
+      20% { transform: translate(8px, 6px) rotate(2deg); }
+      30% { transform: translate(-8px, 6px) rotate(-1deg); }
+      40% { transform: translate(8px, -6px) rotate(1deg); }
+      50% { transform: translate(-6px, -4px) rotate(0deg); }
+      60% { transform: translate(6px, 4px) rotate(0deg); }
+      70% { transform: translate(-4px, 2px) rotate(0deg); }
+      80% { transform: translate(4px, -2px) rotate(0deg); }
+      90% { transform: translate(-2px, 0) rotate(0deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .shake {
+      animation: nudgeShake 0.5s ease-in-out infinite;
+    }
+
+    /* Custom iOS 5/6 Retro Cards styling */
+    .tuenti-card {
+      background: #ffffff;
+      border: 1px solid #c8d1dc;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e5e9f0;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #9faec2;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
+
+  <!-- Mobile Frame Container simulating iPhone / Mobile Device -->
+  <div id="app-window" class="w-full sm:max-w-md h-[100vh] sm:h-[840px] bg-[#e9edf2] flex flex-col shadow-2xl sm:rounded-3xl overflow-hidden relative border-0 sm:border-8 sm:border-gray-800">
+
+    <!-- TOP STATUS BAR SIMULATION -->
+    <div class="bg-black text-white text-[11px] px-4 py-0.5 flex justify-between items-center select-none z-30 font-semibold tracking-tight">
+      <div class="flex items-center space-x-1">
+        <span>•••••</span>
+        <span class="text-[10px]">Tuenti 3G</span>
+      </div>
+      <div id="status-clock">11:17</div>
+      <div class="flex items-center space-x-1">
+        <span class="text-[9px]">100%</span>
+        <div class="w-4 h-2 border border-white rounded-sm p-0.5 flex justify-end">
+          <div class="bg-white w-full h-full"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CLASSIC TUENTI GLOSSY BLUE HEADER -->
+    <header class="tuenti-header-gradient px-3 py-2 text-white flex justify-between items-center relative z-20 select-none">
+      <div class="flex items-center space-x-2">
+        <span class="text-xs uppercase font-bold tracking-wider text-blue-200 opacity-80 cursor-pointer" onclick="switchTab('mensajes')">CHAT</span>
+      </div>
+      
+      <!-- Classic Tuenti Logo -->
+      <div class="flex items-center cursor-pointer" onclick="switchTab('muro')">
+        <span class="text-2xl font-black lowercase tracking-tighter drop-shadow-md">tuenti</span>
+        <span class="text-[9px] bg-sky-400 text-blue-950 px-1 py-0.2 rounded font-extrabold ml-1 shadow-inner">13</span>
+      </div>
+
+      <div class="flex items-center">
+        <button onclick="openNewPostModal()" class="tuenti-btn-gloss text-white font-bold w-7 h-7 rounded flex items-center justify-center text-lg active:scale-95 transition-transform">
+          +
+        </button>
+      </div>
+    </header>
+
+    <!-- CLASSIC SUBNAV BAR -->
+    <div class="tuenti-subnav px-4 py-1.5 flex justify-around text-xs font-bold text-blue-200 border-t border-blue-400/20 select-none">
+      <button id="subtab-muro" onclick="switchTab('muro')" class="text-white border-b-2 border-white pb-0.5 transition-all">MOMENTOS</button>
+      <button id="subtab-perfil" onclick="switchTab('perfil')" class="hover:text-white pb-0.5 transition-all">MI PERFIL</button>
+      <button id="subtab-galeria" onclick="switchTab('galeria')" class="hover:text-white pb-0.5 transition-all">FOTOS</button>
+      <button id="subtab-mensajes" onclick="switchTab('mensajes')" class="hover:text-white pb-0.5 transition-all">MENSAJES</button>
+    </div>
+
+    <!-- APP CONTENT AREA (SCROLLABLE) -->
+    <main class="flex-1 overflow-y-auto relative bg-[#e9edf2] p-2 space-y-3" id="main-content">
+
+      <!-- ==================== VISTA 1: MURO / MOMENTOS ==================== -->
+      <section id="view-muro" class="space-y-3">
+
+        <!-- Featured Moment Banner -->
+        <div class="relative rounded-lg overflow-hidden shadow-sm h-36 bg-gray-900 border border-gray-400">
+          <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=720&q=80" class="w-full h-full object-cover opacity-75" alt="Momento destacado">
+          <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3">
+            <p class="text-white text-sm font-semibold truncate drop-shadow">Tachando de mi lista "encontrar la mejor terraza de Madrid"... 🍹</p>
+            <span class="text-gray-300 text-[10px] font-light">Hace 3 min por Cris Reed</span>
+          </div>
+        </div>
+
+        <!-- Post 1: Cris Reed -->
+        <article class="tuenti-card p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+              <!-- Avatar ALINEADO al lado del nombre -->
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Cris Reed" class="w-10 h-10 rounded border border-gray-300 object-cover shadow-sm">
+              <div>
+                <h3 class="font-bold text-gray-900 text-sm leading-tight hover:underline cursor-pointer">Cris Reed</h3>
+                <div class="flex items-center text-[11px] text-gray-500 space-x-1">
+                  <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/></svg>
+                  <span>Hace 1m</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-800 text-xs leading-relaxed pl-0.5">
+            ¡Adiós Nueva York! Menudo viaje, soy un poquito más pobre de lo que era, pero mereció la pena. Me encanta esta ciudad. 🗽🍎
+          </p>
+          <!-- Counter Bar matching exact screenshot -->
+          <div class="flex justify-end items-center space-x-2 pt-2 border-t border-dashed border-gray-200 text-xs text-gray-600 font-semibold select-none">
+            <button class="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded border border-gray-300 active:bg-gray-200">
+              <span class="text-gray-500">1</span>
+              <span>💬</span>
+            </button>
+            <button onclick="toggleLike(this)" class="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded border border-gray-300 active:bg-gray-200">
+              <span class="like-count text-sky-600 font-bold">12</span>
+              <span class="text-sky-500">♥</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Post 2: Simon Garcia -->
+        <article class="tuenti-card p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+              <!-- Avatar ALINEADO al lado del nombre -->
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Simon Garcia" class="w-10 h-10 rounded border border-gray-300 object-cover shadow-sm">
+              <div>
+                <h3 class="font-bold text-gray-900 text-sm leading-tight hover:underline cursor-pointer">Simon Garcia</h3>
+                <div class="flex items-center text-[11px] text-gray-500 space-x-1">
+                  <span>Hace 3m</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-800 text-xs leading-relaxed pl-0.5">
+            Desayunando de reuniones. ¡Viernes por fin! ¿Alguien sale hoy por Huertas? 🍻
+          </p>
+          <div class="flex justify-end items-center space-x-2 pt-2 border-t border-dashed border-gray-200 text-xs text-gray-600 font-semibold select-none">
+            <button class="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded border border-gray-300 active:bg-gray-200">
+              <span class="text-gray-500">0</span>
+              <span>💬</span>
+            </button>
+            <button onclick="toggleLike(this)" class="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded border border-gray-300 active:bg-gray-200">
+              <span class="like-count text-sky-600 font-bold">4</span>
+              <span class="text-sky-500">♥</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Post 3: Angela Capel -->
+        <article class="tuenti-card p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" alt="Angela Capel" class="w-10 h-10 rounded border border-gray-300 object-cover shadow-sm">
+              <div>
+                <h3 class="font-bold text-gray-900 text-sm leading-tight hover:underline cursor-pointer">Angela Capel</h3>
+                <div class="flex items-center text-[11px] text-gray-500 space-x-1">
+                  <span>Hace 1h</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-800 text-xs leading-relaxed pl-0.5">
+            Ok, nos vemos en la entrada del concierto. ¡Traed las entradas impresas! 🎟️
+          </p>
+          <div class="mt-2 rounded overflow-hidden border border-gray-300">
+            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=720&q=80" class="w-full h-32 object-cover" alt="Concierto">
+          </div>
+          <div class="flex justify-end items-center space-x-2 pt-2 border-t border-dashed border-gray-200 text-xs text-gray-600 font-semibold select-none">
+            <button class="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded border border-gray-300 active:bg-gray-200">
+              <span class="text-gray-500">5</span>
+              <span>💬</span>
+            </button>
+            <button onclick="toggleLike(this)" class="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded border border-gray-300 active:bg-gray-200">
+              <span class="like-count text-sky-600 font-bold">28</span>
+              <span class="text-sky-500">♥</span>
+            </button>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ==================== VISTA 2: PERFIL PERSONALIZABLE ==================== -->
+      <section id="view-perfil" class="space-y-3 hidden">
+        <!-- Profile Header Custom Card -->
+        <div id="profile-card" class="tuenti-card p-4 transition-colors duration-300 space-y-3" style="border-top: 4px solid #1b6cb8;">
+          <div class="flex items-center space-x-3">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80" class="w-16 h-16 rounded-lg border-2 border-white shadow-md object-cover" alt="Tu foto">
+            <div>
+              <h2 class="text-lg font-bold text-gray-900 leading-tight">Alex Moreno (Tú)</h2>
+              <p class="text-xs text-gray-600 italic">"Escuchando El Canto del Loco y pensando en las vacaciones 🎧"</p>
+              <span class="inline-block mt-1 text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">● En línea</span>
+            </div>
+          </div>
+
+          <!-- MySpace Style Accent Theme Selector -->
+          <div class="bg-gray-50 p-2.5 rounded border border-gray-200 text-xs">
+            <span class="font-bold text-gray-700 block mb-1.5">🎨 Personalizar estilo de Perfil (DataStore):</span>
+            <div class="flex space-x-2">
+              <button onclick="setProfileTheme('#1b6cb8')" class="w-6 h-6 rounded-full bg-[#1b6cb8] border-2 border-white shadow ring-1 ring-gray-300 active:scale-95"></button>
+              <button onclick="setProfileTheme('#059669')" class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white shadow ring-1 ring-gray-300 active:scale-95"></button>
+              <button onclick="setProfileTheme('#7c3aed')" class="w-6 h-6 rounded-full bg-purple-600 border-2 border-white shadow ring-1 ring-gray-300 active:scale-95"></button>
+              <button onclick="setProfileTheme('#dc2626')" class="w-6 h-6 rounded-full bg-red-600 border-2 border-white shadow ring-1 ring-gray-300 active:scale-95"></button>
+              <button onclick="setProfileTheme('#db2777')" class="w-6 h-6 rounded-full bg-pink-600 border-2 border-white shadow ring-1 ring-gray-300 active:scale-95"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio & Details -->
+        <div class="tuenti-card p-3 space-y-2 text-xs">
+          <h4 class="font-bold text-gray-800 border-b pb-1 text-sm">Información</h4>
+          <div class="grid grid-cols-2 gap-2 text-gray-600">
+            <div><strong class="text-gray-800">Ciudad:</strong> Madrid</div>
+            <div><strong class="text-gray-800">Red:</strong> Universidad</div>
+            <div><strong class="text-gray-800">Fotos:</strong> 142</div>
+            <div><strong class="text-gray-800">Amigos:</strong> 385</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VISTA 3: GALERÍA DE FOTOS (720p Restricción) ==================== -->
+      <section id="view-galeria" class="space-y-3 hidden">
+        <div class="flex justify-between items-center bg-white p-2.5 rounded border border-gray-300 shadow-sm">
+          <div>
+            <h3 class="font-bold text-xs text-gray-800">Álbum: Verano 2009</h3>
+            <p class="text-[10px] text-gray-500">Optimizado a máxima res 720p</p>
+          </div>
+          <button onclick="triggerPhotoUpload()" class="tuenti-btn-gloss bg-sky-600 text-white text-xs font-bold px-3 py-1.5 rounded active:scale-95">
+            + Subir Foto
+          </button>
+        </div>
+
+        <!-- 720p Notice Banner -->
+        <div class="bg-amber-50 border-l-4 border-amber-400 p-2 rounded text-[11px] text-amber-800">
+          ⚠️ <strong>Requisito TFG:</strong> Las imágenes subidas se redimensionan automáticamente a 720p para respetar la eficiencia de la DB local.
+        </div>
+
+        <!-- Photo Grid -->
+        <div class="grid grid-cols-2 gap-2" id="gallery-grid">
+          <div class="relative group rounded overflow-hidden border border-gray-300 bg-black h-32">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=720&q=80" class="w-full h-full object-cover" alt="Playa">
+            <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">720p</span>
+          </div>
+          <div class="relative group rounded overflow-hidden border border-gray-300 bg-black h-32">
+            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=720&q=80" class="w-full h-full object-cover" alt="Fiesta">
+            <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">720p</span>
+          </div>
+          <div class="relative group rounded overflow-hidden border border-gray-300 bg-black h-32">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=720&q=80" class="w-full h-full object-cover" alt="Evento">
+            <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">720p</span>
+          </div>
+          <div class="relative group rounded overflow-hidden border border-gray-300 bg-black h-32">
+            <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=720&q=80" class="w-full h-full object-cover" alt="Universidad">
+            <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">720p</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VISTA 4: MENSAJERÍA ESTILO MSN ==================== -->
+      <section id="view-mensajes" class="space-y-3 hidden">
+        
+        <!-- Contact List View (Matching visual reference left side) -->
+        <div id="chat-list" class="space-y-2">
+          <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider px-1">Amigos y contactos</div>
+          
+          <div onclick="openChat('Angela Capel', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80')" class="tuenti-card p-2.5 flex items-center space-x-3 cursor-pointer hover:bg-sky-50 transition-colors">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" class="w-11 h-11 rounded border border-gray-300 object-cover" alt="Angela Capel">
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-sm text-gray-900 truncate">Angela Capel</h4>
+              <p class="text-xs text-gray-500 truncate">Ok, nos vemos en la entrada...</p>
+            </div>
+            <span class="w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></span>
+          </div>
+
+          <div onclick="openChat('Joe Wright', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80')" class="tuenti-card p-2.5 flex items-center space-x-3 cursor-pointer hover:bg-sky-50 transition-colors">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80" class="w-11 h-11 rounded border border-gray-300 object-cover" alt="Joe Wright">
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-sm text-gray-900 truncate">Joe Wright</h4>
+              <p class="text-xs text-gray-500 truncate">Estoy en la biblioteca estudiando</p>
+            </div>
+            <span class="w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></span>
+          </div>
+
+          <div onclick="openChat('Cris Reed', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80')" class="tuenti-card p-2.5 flex items-center space-x-3 cursor-pointer hover:bg-sky-50 transition-colors">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-11 h-11 rounded border border-gray-300 object-cover" alt="Cris Reed">
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-sm text-gray-900 truncate">Cris Reed</h4>
+              <p class="text-xs text-gray-500 truncate">¡Zumbido recibido!</p>
+            </div>
+            <span class="w-2.5 h-2.5 bg-gray-400 rounded-full border border-white"></span>
+          </div>
+        </div>
+
+        <!-- Chat Detail Room (Hidden by default) -->
+        <div id="chat-room" class="hidden flex flex-col h-[520px] tuenti-card overflow-hidden">
+          <!-- Chat Header -->
+          <div class="bg-gradient-to-r from-sky-700 to-sky-900 text-white p-2.5 flex justify-between items-center shadow">
+            <div class="flex items-center space-x-2">
+              <button onclick="closeChat()" class="text-xs bg-sky-800 px-2 py-1 rounded border border-sky-600 font-bold">← Volver</button>
+              <img id="active-chat-avatar" src="" class="w-7 h-7 rounded border border-white object-cover" alt="Contact">
+              <span id="active-chat-name" class="font-bold text-xs">Contacto</span>
+            </div>
+            <!-- MSN Nudge / Zumbido Button -->
+            <button onclick="sendNudge()" class="tuenti-btn-gloss bg-amber-500 text-white text-xs px-2 py-1 rounded font-bold shadow active:scale-95 flex items-center space-x-1">
+              <span>🔔</span>
+              <span>¡Zumbido!</span>
+            </button>
+          </div>
+
+          <!-- Messages Stream -->
+          <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-2.5 bg-[#f4f6f9] text-xs">
+            <div class="bg-white p-2 rounded border border-gray-200 max-w-[80%] shadow-sm">
+              <p class="text-gray-800">¡Hola! ¿Nos vemos luego para tomar algo?</p>
+              <span class="text-[9px] text-gray-400 block text-right mt-1">11:02</span>
+            </div>
+          </div>
+
+          <!-- Message Input Bar -->
+          <form onsubmit="sendChatMessage(event)" class="p-2 bg-gray-100 border-t border-gray-300 flex space-x-2">
+            <input type="text" id="chat-input" placeholder="Escribe un mensaje..." class="flex-1 text-xs p-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500">
+            <button type="submit" class="tuenti-btn-gloss bg-sky-600 text-white font-bold text-xs px-3 py-2 rounded active:scale-95">
+              Enviar
+            </button>
+          </form>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- BOTTOM TAB BAR (Classic Mobile App style) -->
+    <nav class="bg-gradient-to-b from-gray-100 to-gray-200 border-t border-gray-300 flex justify-around py-2 px-1 text-center select-none z-20">
+      <button onclick="switchTab('muro')" class="nav-btn flex flex-col items-center text-sky-700 font-bold" id="nav-muro">
+        <span class="text-base">📰</span>
+        <span class="text-[10px] tracking-tight">Muro</span>
+      </button>
+      <button onclick="switchTab('perfil')" class="nav-btn flex flex-col items-center text-gray-500 hover:text-sky-700 font-semibold" id="nav-perfil">
+        <span class="text-base">👤</span>
+        <span class="text-[10px] tracking-tight">Perfil</span>
+      </button>
+      <button onclick="switchTab('galeria')" class="nav-btn flex flex-col items-center text-gray-500 hover:text-sky-700 font-semibold" id="nav-galeria">
+        <span class="text-base">🖼️</span>
+        <span class="text-[10px] tracking-tight">Fotos</span>
+      </button>
+      <button onclick="switchTab('mensajes')" class="nav-btn flex flex-col items-center text-gray-500 hover:text-sky-700 font-semibold" id="nav-mensajes">
+        <span class="text-base">💬</span>
+        <span class="text-[10px] tracking-tight">Mensajes</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- MODAL: Crear Publicación -->
+  <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4 hidden">
+    <div class="bg-white rounded-lg max-w-sm w-full p-4 shadow-xl border border-gray-300 space-y-3">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-sm text-gray-800">Nuevo Momento</h3>
+        <button onclick="closeNewPostModal()" class="text-gray-400 font-bold hover:text-gray-600 text-sm">✕</button>
+      </div>
+      <textarea id="post-text" rows="3" class="w-full border border-gray-300 rounded p-2 text-xs focus:ring-1 focus:ring-sky-500 focus:outline-none" placeholder="¿Qué está pasando?"></textarea>
+      <div class="flex justify-end space-x-2">
+        <button onclick="closeNewPostModal()" class="px-3 py-1.5 text-xs text-gray-600 font-semibold border rounded">Cancelar</button>
+        <button onclick="publishPost()" class="tuenti-btn-gloss bg-sky-600 text-white text-xs font-bold px-4 py-1.5 rounded">Publicar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIO SYNTHESIZER FOR MSN NUDGE SOUND (No external MP3 required) -->
+  <script>
+    // Live Clock Update
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('status-clock').innerText = `${hours}:${minutes}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Tab Navigation Logic
+    function switchTab(tabId) {
+      ['muro', 'perfil', 'galeria', 'mensajes'].forEach(id => {
+        document.getElementById(`view-${id}`).classList.add('hidden');
+        const navBtn = document.getElementById(`nav-${id}`);
+        const subNavBtn = document.getElementById(`subtab-${id}`);
+        
+        if (navBtn) {
+          navBtn.classList.remove('text-sky-700', 'font-bold');
+          navBtn.classList.add('text-gray-500', 'font-semibold');
+        }
+        if (subNavBtn) {
+          subNavBtn.classList.remove('text-white', 'border-b-2', 'border-white');
+          subNavBtn.classList.add('hover:text-white');
+        }
+      });
+
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.add('text-sky-700', 'font-bold');
+        activeNav.classList.remove('text-gray-500');
+      }
+
+      const activeSubNav = document.getElementById(`subtab-${tabId}`);
+      if (activeSubNav) {
+        activeSubNav.classList.add('text-white', 'border-b-2', 'border-white');
+      }
+    }
+
+    // Like Toggle Function
+    function toggleLike(btn) {
+      const countSpan = btn.querySelector('.like-count');
+      let currentLikes = parseInt(countSpan.innerText);
+      if (btn.classList.contains('liked')) {
+        currentLikes--;
+        btn.classList.remove('liked', 'bg-sky-50', 'border-sky-300');
+      } else {
+        currentLikes++;
+        btn.classList.add('liked', 'bg-sky-50', 'border-sky-300');
+      }
+      countSpan.innerText = currentLikes;
+    }
+
+    // Profile Theme Personalizer (DataStore simulator)
+    function setProfileTheme(color) {
+      document.getElementById('profile-card').style.borderTopColor = color;
+    }
+
+    // MSN Nudge / Zumbido Simulation with Web Audio API sound
+    function playNudgeSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch (e) {
+        console.log('Audio Context error: ', e);
+      }
+    }
+
+    function sendNudge() {
+      const windowEl = document.getElementById('app-window');
+      windowEl.classList.add('shake');
+      playNudgeSound();
+      
+      // Mobile Vibration API if available
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100, 50, 200]);
+      }
+
+      const chatMessages = document.getElementById('chat-messages');
+      const nudgeNotice = document.createElement('div');
+      nudgeNotice.className = 'text-center my-2 text-[11px] font-bold text-amber-700 bg-amber-100 p-1.5 rounded border border-amber-300';
+      nudgeNotice.innerText = '🔔 Has enviado un zumbido.';
+      chatMessages.appendChild(nudgeNotice);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      setTimeout(() => {
+        windowEl.classList.remove('shake');
+      }, 500);
+    }
+
+    // Chat Logic
+    function openChat(name, avatar) {
+      document.getElementById('chat-list').classList.add('hidden');
+      document.getElementById('chat-room').classList.remove('hidden');
+      document.getElementById('active-chat-name').innerText = name;
+      document.getElementById('active-chat-avatar').src = avatar;
+    }
+
+    function closeChat() {
+      document.getElementById('chat-room').classList.add('hidden');
+      document.getElementById('chat-list').classList.remove('hidden');
+    }
+
+    function sendChatMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      if (!input.value.trim()) return;
+
+      const chatMessages = document.getElementById('chat-messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'bg-sky-600 text-white p-2 rounded border border-sky-700 max-w-[80%] ml-auto shadow-sm';
+      msgDiv.innerHTML = `<p>${input.value}</p><span class="text-[9px] text-sky-200 block text-right mt-1">Ahora</span>`;
+      
+      chatMessages.appendChild(msgDiv);
+      input.value = '';
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Modal Post Logic
+    function openNewPostModal() {
+      document.getElementById('modal-post').classList.remove('hidden');
+    }
+
+    function closeNewPostModal() {
+      document.getElementById('modal-post').classList.add('hidden');
+    }
+
+    function publishPost() {
+      const text = document.getElementById('post-text').value;
+      if (!text.trim()) return;
+
+      const muro = document.getElementById('view-muro');
+      const newArticle = document.createElement('article');
+      newArticle.className = 'tuenti-card p-3 space-y-2';
+      newArticle.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" class="w-10 h-10 rounded border border-gray-300 object-cover shadow-sm">
+            <div>
+              <h3 class="font-bold text-gray-900 text-sm leading-tight">Alex Moreno</h3>
+              <div class="flex items-center text-[11px] text-gray-500 space-x-1">
+                <span>Ahora mismo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-gray-800 text-xs leading-relaxed pl-0.5">${text}</p>
+        <div class="flex justify-end items-center space-x-2 pt-2 border-t border-dashed border-gray-200 text-xs text-gray-600 font-semibold select-none">
+          <button class="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded border border-gray-300">
+            <span class="text-gray-500">0</span>
+            <span>💬</span>
+          </button>
+          <button onclick="toggleLike(this)" class="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded border border-gray-300">
+            <span class="like-count text-sky-600 font-bold">0</span>
+            <span class="text-sky-500">♥</span>
+          </button>
+        </div>
+      `;
+
+      muro.insertBefore(newArticle, muro.children[1]);
+      document.getElementById('post-text').value = '';
+      closeNewPostModal();
+    }
+
+    function triggerPhotoUpload() {
+      alert("Simulando selector de archivos de Android. La foto se procesará y recortará a un máximo de 720p antes de persistir en Room.");
+    }
+  </script>
+</body>
+</html>

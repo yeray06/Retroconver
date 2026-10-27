@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retroconver — Prototype Wireframe (Tuenti & MSN Style)</title>
+  <!-- Tone.js for retro sound effects -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <style>
+    /* ==========================================================================
+       RESET & RETRO WEB 2.0 BASE STYLES
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Verdana, Arial, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #0f141c;
+      background-image: radial-gradient(#1e293b 1px, transparent 1px);
+      background-size: 16px 16px;
+      color: #222222;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    /* Smartphone Physical Frame Wrapper */
+    .phone-container {
+      width: 100%;
+      max-width: 414px;
+      height: 840px;
+      max-height: 94vh;
+      background-color: #F4F7FA;
+      border: 10px solid #2b2b2b;
+      border-radius: 36px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #444;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Screen Shake Animation for Messenger Zumbido (Nudge) */
+    @keyframes zumbidoShake {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      10% { transform: translate(-8px, -6px) rotate(-1deg); }
+      20% { transform: translate(8px, 6px) rotate(1deg); }
+      30% { transform: translate(-8px, 6px) rotate(0deg); }
+      40% { transform: translate(8px, -6px) rotate(1deg); }
+      50% { transform: translate(-6px, 4px) rotate(-1deg); }
+      60% { transform: translate(6px, -4px) rotate(0deg); }
+      70% { transform: translate(-4px, 2px) rotate(1deg); }
+      80% { transform: translate(4px, -2px) rotate(0deg); }
+      90% { transform: translate(-2px, 0) rotate(0deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    .shaking {
+      animation: zumbidoShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    /* Mobile Status Bar */
+    .status-bar {
+      height: 24px;
+      background-color: #004c99;
+      color: #ffffff;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 14px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    /* Primary Tuenti Blue Header Bar */
+    .retro-header {
+      background-color: #0066CC;
+      color: #ffffff;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #004c99;
+      flex-shrink: 0;
+      transition: background-color 0.3s ease;
+    }
+
+    .retro-logo {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-shadow: 1px 1px 0px #003366;
+    }
+
+    .retro-logo span.badge {
+      font-size: 9px;
+      background: #ffffff;
+      color: #0066CC;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: bold;
+      text-shadow: none;
+    }
+
+    /* User Status Selector Dropdown */
+    .status-selector {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+    .status-selector option {
+      background-color: #ffffff;
+      color: #222222;
+    }
+
+    /* Main Navigation Bar (Top Tabs) */
+    .retro-nav {
+      background-color: #e6f2ff;
+      display: flex;
+      border-bottom: 1px solid #CCCCCC;
+      flex-shrink: 0;
+    }
+
+    .nav-tab {
+      flex: 1;
+      padding: 9px 2px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #0066CC;
+      background: #e6f2ff;
+      border: none;
+      border-right: 1px solid #d0e3ff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-tab:last-child {
+      border-right: none;
+    }
+
+    .nav-tab.active {
+      background-color: #F4F7FA;
+      color: #004c99;
+      border-bottom: 3px solid #0066CC;
+    }
+
+    /* Main Content Container */
+    .screen-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* Cards & Containers */
+    .retro-card {
+      background-color: #ffffff;
+      border: 1px solid #CCCCCC;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #0066CC;
+      border-bottom: 1px solid #eeeeee;
+      padding-bottom: 5px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 720p Resolution Tag Badge */
+    .tag-720p {
+      display: inline-block;
+      font-size: 8px;
+      font-weight: bold;
+      background-color: #ff9900;
+      color: #ffffff;
+      padding: 2px 5px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Forms and Buttons */
+    .btn-retro {
+      background: linear-gradient(to bottom, #0077ee, #0055bb);
+      color: #ffffff;
+      border: 1px solid #004499;
+      border-radius: 3px;
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .btn-retro:active {
+      background: #004499;
+      transform: translateY(1px);
+    }
+
+    .btn-zumbido {
+      background: linear-gradient(to bottom, #ff5555, #cc0000);
+      border-color: #990000;
+    }
+
+    /* Feed Posts */
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .avatar-box {
+      width: 38px;
+      height: 38px;
+      border: 1px solid #CCCCCC;
+      background-color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      border: 1px solid #ffffff;
+    }
+
+    .dot-online { background-color: #22c55e; }
+    .dot-away { background-color: #eab308; }
+    .dot-busy { background-color: #ef4444; }
+
+    .post-author {
+      font-size: 11px;
+      font-weight: bold;
+      color: #0066CC;
+    }
+
+    .post-date {
+      font-size: 9px;
+      color: #777777;
+    }
+
+    .post-body {
+      font-size: 11px;
+      line-height: 1.4;
+      color: #333333;
+      margin-bottom: 8px;
+    }
+
+    .post-media-box {
+      width: 100%;
+      height: 150px;
+      background-color: #111;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .post-media-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .post-actions {
+      font-size: 10px;
+      color: #0066CC;
+      display: flex;
+      gap: 12px;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 6px;
+    }
+
+    .action-link {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .action-link:hover {
+      text-decoration: underline;
+    }
+
+    .comments-section {
+      background-color: #f0f7ff;
+      border-top: 1px solid #d0e3ff;
+      margin-top: 8px;
+      padding: 6px;
+      font-size: 10px;
+      border-radius: 3px;
+    }
+
+    .comment-item {
+      padding: 3px 0;
+      border-bottom: 1px dashed #d0e3ff;
+    }
+
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+
+    .comment-author {
+      font-weight: bold;
+      color: #0066CC;
+    }
+
+    /* Profile Customization */
+    .profile-header-card {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .profile-avatar-large {
+      width: 72px;
+      height: 72px;
+      border: 2px solid #0066CC;
+      background-color: #e2e8f0;
+      font-size: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-name {
+      font-size: 14px;
+      font-weight: bold;
+      color: #111111;
+    }
+
+    .profile-subtext {
+      font-size: 10px;
+      color: #555555;
+      margin-top: 2px;
+    }
+
+    .theme-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #eee;
+    }
+
+    .theme-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px #ccc;
+    }
+
+    /* Gallery Grid */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .gallery-item {
+      height: 120px;
+      background-color: #222;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: #fff;
+      padding: 4px;
+      font-size: 9px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    /* MSN Messenger Chat Layout */
+    .contact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .contact-item:hover {
+      background-color: #e6f2ff;
+      border-color: #0066CC;
+    }
+
+    .contact-name {
+      font-size: 11px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .contact-status-msg {
+      font-size: 9px;
+      color: #666;
+    }
+
+    .chat-window {
+      display: flex;
+      flex-direction: column;
+      height: 520px;
+      background-color: #ffffff;
+      border: 1px solid #cccccc;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background-color: #e6f2ff;
+      padding: 8px;
+      border-bottom: 1px solid #cccccc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background-color: #f8fbff;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .bubble-received {
+      align-self: flex-start;
+      background-color: #ffffff;
+      border: 1px solid #cccccc;
+      color: #222;
+    }
+
+    .bubble-sent {
+      align-self: flex-end;
+      background-color: #0066CC;
+      color: #ffffff;
+      border: 1px solid #004c99;
+    }
+
+    .bubble-nudge {
+      align-self: center;
+      background-color: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .chat-input-bar {
+      padding: 6px;
+      border-top: 1px solid #cccccc;
+      background-color: #eeeeee;
+      display: flex;
+      gap: 6px;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      padding: 6px;
+      border: 1px solid #cccccc;
+      border-radius: 3px;
+      font-size: 11px;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Physical Mobile Device Frame -->
+  <div class="phone-container" id="phoneContainer">
+
+    <!-- Top Status Bar -->
+    <div class="status-bar">
+      <span>Tuenti Mobile 3G</span>
+      <span>14:20</span>
+      <span>🔋 85%</span>
+    </div>
+
+    <!-- Retro Header Bar -->
+    <header class="retro-header" id="mainHeader">
+      <div class="retro-logo">
+        Retroconver
+        <span class="badge">2008</span>
+      </div>
+      <select class="status-selector" onchange="updateUserStatus(this.value)">
+        <option value="online">🟢 Conectado</option>
+        <option value="away">🟡 Ausente</option>
+        <option value="busy">🔴 No molestar</option>
+      </select>
+    </header>
+
+    <!-- Top Navigation Tabs -->
+    <nav class="retro-nav">
+      <button class="nav-tab active" onclick="switchTab('muro', this)">
+        <span>📰</span> Muro
+      </button>
+      <button class="nav-tab" onclick="switchTab('perfil', this)">
+        <span>👤</span> Perfil
+      </button>
+      <button class="nav-tab" onclick="switchTab('galeria', this)">
+        <span>🖼️</span> Galería
+      </button>
+      <button class="nav-tab" onclick="switchTab('mensajes', this)">
+        <span>💬</span> Messenger
+      </button>
+    </nav>
+
+    <!-- Scrollable Screen Content Container -->
+    <div class="screen-container">
+
+      <!-- ===================================================================
+           SCREEN 1: MURO / FEED
+           =================================================================== -->
+      <section id="screen-muro" class="screen active">
+        <!-- New Post Input Box -->
+        <div class="retro-card">
+          <div class="card-title">¿Qué estás pensando?</div>
+          <textarea id="postInput" style="width: 100%; height: 48px; padding: 6px; border: 1px solid #ccc; font-size: 11px; resize: none; border-radius: 3px;" placeholder="Escribe algo en tu muro o comparte con tus amigos..."></textarea>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+            <span class="tag-720p">Max 720p</span>
+            <button class="btn-retro" onclick="addNewPost()">Publicar Muro</button>
+          </div>
+        </div>
+
+        <!-- Feed List Container -->
+        <div id="feedList">
+          <!-- Post 1 -->
+          <div class="retro-card">
+            <div class="post-header">
+              <div class="avatar-box">
+                👨‍💻
+                <div class="status-dot dot-online"></div>
+              </div>
+              <div>
+                <div class="post-author">Yeray Sánchez</div>
+                <div class="post-date">Hoy a las 14:15</div>
+              </div>
+            </div>
+            <div class="post-body">
+              ¡Diseño retro finalizado! La interfaz estilo Tuenti 2008 con Jetpack Compose va a quedar brutal para la defensa del TFG. 🚀
+            </div>
+            <div class="post-actions">
+              <span class="action-link" onclick="likePost(this)">Molar (3)</span>
+              <span class="action-link" onclick="focusComment(this)">Comentar</span>
+            </div>
+            <div class="comments-section">
+              <div class="comment-item">
+                <span class="comment-author">David Nicolás:</span> Vaya recuerdos, falta poner el messenger con zumbidos y queda de 10.
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 2 with 720p Photo Tag -->
+          <div class="retro-card">
+            <div class="post-header">
+              <div class="avatar-box">
+                📷
+                <div class="status-dot dot-online"></div>
+              </div>
+              <div>
+                <div class="post-author">David Nicolás</div>
+                <div class="post-date">Ayer a las 21:04</div>
+              </div>
+            </div>
+            <div class="post-body">
+              Foto de la quedada de esta tarde. Subida en máxima calidad 720p permitida.
+            </div>
+            <div class="post-media-box">
+              <span class="tag-720p" style="position: absolute; top: 6px; right: 6px; z-index: 2;">720p Max</span>
+              <img src="https://placehold.co/400x200/0066CC/FFFFFF?text=Foto+Tuenti+720p" alt="Foto Muro">
+            </div>
+            <div class="post-actions">
+              <span class="action-link" onclick="likePost(this)">Molar (7)</span>
+              <span class="action-link">Comentar (1)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           SCREEN 2: PERFIL / PROFILE
+           =================================================================== -->
+      <section id="screen-perfil" class="screen">
+        <div class="retro-card">
+          <div class="profile-header-card">
+            <div class="profile-avatar-large">
+              👨‍🎓
+              <div class="status-dot dot-online" id="profileStatusDot" style="width: 12px; height: 12px; right: 2px; bottom: 2px;"></div>
+            </div>
+            <div class="profile-info">
+              <div class="profile-name">David Nicolás</div>
+              <div class="profile-subtext" id="profileStatusText">"Escuchando música synthwave 🎧"</div>
+              <div class="profile-subtext">DAM — Android Native Developer</div>
+            </div>
+          </div>
+
+          <!-- MySpace Style Theme Customizer -->
+          <div class="theme-picker">
+            <span style="font-size: 10px; font-weight: bold; color: #555;">Color Perfil (DataStore):</span>
+            <div class="theme-dot" style="background-color: #0066CC;" onclick="changeTheme('#0066CC', '#004c99')"></div>
+            <div class="theme-dot" style="background-color: #cc0066;" onclick="changeTheme('#cc0066', '#990044')"></div>
+            <div class="theme-dot" style="background-color: #008855;" onclick="changeTheme('#008855', '#005533')"></div>
+            <div class="theme-dot" style="background-color: #7700cc;" onclick="changeTheme('#7700cc', '#440099')"></div>
+          </div>
+        </div>
+
+        <div class="retro-card">
+          <div class="card-title">Información Personal</div>
+          <div style="font-size: 11px; line-height: 1.6; color: #333;">
+            <b>Estado civil:</b> Programando TFG 💻<br>
+            <b>Intereses:</b> Kotlin, Jetpack Compose, Room, UI Retro.<br>
+            <b>Música favorita:</b> Synthwave, Pop 2000s, Rock Alt.
+          </div>
+        </div>
+
+        <div class="retro-card">
+          <div class="card-title">Álbumes de Fotos Recientes</div>
+          <div style="display: flex; gap: 6px;">
+            <div style="width: 60px; height: 60px; background: #ddd; border: 1px solid #ccc; font-size: 9px; display: flex; align-items: center; justify-content: center; text-align: center;">Fiesta '08</div>
+            <div style="width: 60px; height: 60px; background: #ddd; border: 1px solid #ccc; font-size: 9px; display: flex; align-items: center; justify-content: center; text-align: center;">Campus</div>
+            <div style="width: 60px; height: 60px; background: #ddd; border: 1px solid #ccc; font-size: 9px; display: flex; align-items: center; justify-content: center; text-align: center;">Viaje</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           SCREEN 3: GALERÍA / GALLERY
+           =================================================================== -->
+      <section id="screen-galeria" class="screen">
+        <div class="retro-card">
+          <div class="card-title">
+            Galería de Fotos & Vídeos
+            <span class="tag-720p">Límite 720p</span>
+          </div>
+          <div style="font-size: 10px; color: #666; margin-bottom: 8px;">
+            Compresión automática activada para optimización de almacenamiento Room local.
+          </div>
+          <button class="btn-retro" style="width: 100%; justify-content: center;" onclick="simulateUpload()">
+            📷 Subir nueva foto (Solicitar Permisos)
+          </button>
+        </div>
+
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <img src="https://placehold.co/300x300/0066CC/FFFFFF?text=Foto+1+(720p)" alt="Foto 1">
+            <div class="gallery-overlay">
+              <span>Álbum Tuenti</span>
+              <span class="tag-720p">720p</span>
+            </div>
+          </div>
+          <div class="gallery-item">
+            <img src="https://placehold.co/300x300/cc0066/FFFFFF?text=Foto+2+(720p)" alt="Foto 2">
+            <div class="gallery-overlay">
+              <span>Quedada</span>
+              <span class="tag-720p">720p</span>
+            </div>
+          </div>
+          <div class="gallery-item">
+            <img src="https://placehold.co/300x300/008855/FFFFFF?text=Foto+3+(720p)" alt="Foto 3">
+            <div class="gallery-overlay">
+              <span>Proyecto</span>
+              <span class="tag-720p">720p</span>
+            </div>
+          </div>
+          <div class="gallery-item">
+            <img src="https://placehold.co/300x300/7700cc/FFFFFF?text=Vídeo+(720p)" alt="Vídeo 1">
+            <div class="gallery-overlay">
+              <span>▶ Clip Retro</span>
+              <span class="tag-720p">720p</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           SCREEN 4: MENSAJES / MESSENGER CHAT
+           =================================================================== -->
+      <section id="screen-mensajes" class="screen">
+        <!-- Chat Contacts List View -->
+        <div id="messengerContactList">
+          <div class="retro-card">
+            <div class="card-title">MSN Messenger — Contactos</div>
+            <div class="contact-list">
+              <div class="contact-item" onclick="openChat('Yeray Sánchez', '🟢 Conectado', '👨‍💻')">
+                <div class="avatar-box">
+                  👨‍💻
+                  <div class="status-dot dot-online"></div>
+                </div>
+                <div>
+                  <div class="contact-name">Yeray Sánchez</div>
+                  <div class="contact-status-msg">En línea — Modificando Room Database</div>
+                </div>
+              </div>
+
+              <div class="contact-item" onclick="openChat('Profesor TFG', '🟡 Ausente', '👨‍🏫')">
+                <div class="avatar-box">
+                  👨‍🏫
+                  <div class="status-dot dot-away"></div>
+                </div>
+                <div>
+                  <div class="contact-name">Profesor TFG</div>
+                  <div class="contact-status-msg">Revisando memorias Hito 1...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Active Chat Window -->
+        <div id="messengerChatWindow" class="chat-window" style="display: none;">
+          <div class="chat-header">
+            <button onclick="closeChat()" style="background: none; border: none; cursor: pointer; font-size: 14px;">⬅️</button>
+            <div class="avatar-box" style="width: 28px; height: 28px; font-size: 14px;" id="chatHeaderAvatar">👨‍💻</div>
+            <div style="flex: 1;">
+              <div class="contact-name" id="chatHeaderName">Yeray Sánchez</div>
+              <div class="contact-status-msg" id="chatHeaderStatus">🟢 Conectado</div>
+            </div>
+            <!-- MSN Zumbido / Nudge Button -->
+            <button class="btn-retro btn-zumbido" onclick="sendZumbido()" title="Enviar Zumbido (Nudge)">
+              🔔 Zumbido
+            </button>
+          </div>
+
+          <div class="chat-messages" id="chatMessagesArea">
+            <div class="chat-bubble bubble-received">
+              ¡Hola! ¿Cómo va la implementación de la interfaz en Android Studio?
+            </div>
+            <div class="chat-bubble bubble-sent">
+              ¡Buenas! La estructura de componentes base y el diseño del Messenger ya están definidos.
+            </div>
+          </div>
+
+          <div class="chat-input-bar">
+            <input type="text" id="chatInputField" placeholder="Escribir mensaje..." onkeypress="handleChatKeyPress(event)">
+            <button class="btn-retro" onclick="sendChatMessage()">Enviar</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       JAVASCRIPT INTERACTIVE LOGIC
+       =================================================================== -->
+  <script>
+    // Tab Switcher Logic
+    function switchTab(tabName, element) {
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(s => s.classList.remove('active'));
+
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(t => t.classList.remove('active'));
+
+      document.getElementById('screen-' + tabName).classList.add('active');
+      element.classList.add('active');
+    }
+
+    // Dynamic MySpace/DataStore Theme Customizer
+    function changeTheme(primaryHex, darkHex) {
+      document.getElementById('mainHeader').style.backgroundColor = primaryHex;
+      document.querySelectorAll('.btn-retro').forEach(btn => {
+        if (!btn.classList.contains('btn-zumbido')) {
+          btn.style.background = primaryHex;
+        }
+      });
+      document.querySelectorAll('.card-title').forEach(title => {
+        title.style.color = primaryHex;
+      });
+    }
+
+    // User Status Update
+    function updateUserStatus(status) {
+      const dot = document.getElementById('profileStatusDot');
+      const text = document.getElementById('profileStatusText');
+      
+      dot.className = 'status-dot';
+      if (status === 'online') {
+        dot.classList.add('dot-online');
+        text.innerText = '"Escuchando música synthwave 🎧"';
+      } else if (status === 'away') {
+        dot.classList.add('dot-away');
+        text.innerText = '"Ausente — Vuelvo en 5 min"';
+      } else {
+        dot.classList.add('dot-busy');
+        text.innerText = '"No molestar — Programando Kotlin"';
+      }
+    }
+
+    // Add Post to Feed
+    function addNewPost() {
+      const input = document.getElementById('postInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const feed = document.getElementById('feedList');
+      const newCard = document.createElement('div');
+      newCard.className = 'retro-card';
+      newCard.innerHTML = `
+        <div class="post-header">
+          <div class="avatar-box">
+            👨‍🎓
+            <div class="status-dot dot-online"></div>
+          </div>
+          <div>
+            <div class="post-author">David Nicolás</div>
+            <div class="post-date">Justo ahora</div>
+          </div>
+        </div>
+        <div class="post-body">${escapeHTML(text)}</div>
+        <div class="post-actions">
+          <span class="action-link" onclick="likePost(this)">Molar (0)</span>
+          <span class="action-link">Comentar</span>
+        </div>
+      `;
+      feed.prepend(newCard);
+      input.value = '';
+    }
+
+    // Like Post Handler
+    function likePost(element) {
+      let currentText = element.innerText;
+      let count = parseInt(currentText.match(/\d+/)[0]) + 1;
+      element.innerText = `Molar (${count})`;
+      element.style.color = '#008855';
+    }
+
+    // MSN Messenger Chat Functions
+    let currentChatContact = 'Yeray Sánchez';
+
+    function openChat(name, status, avatar) {
+      currentChatContact = name;
+      document.getElementById('chatHeaderName').innerText = name;
+      document.getElementById('chatHeaderStatus').innerText = status;
+      document.getElementById('chatHeaderAvatar').innerText = avatar;
+
+      document.getElementById('messengerContactList').style.display = 'none';
+      document.getElementById('messengerChatWindow').style.display = 'flex';
+    }
+
+    function closeChat() {
+      document.getElementById('messengerChatWindow').style.display = 'none';
+      document.getElementById('messengerContactList').style.display = 'block';
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chatInputField');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chatArea = document.getElementById('chatMessagesArea');
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble bubble-sent';
+      bubble.innerText = text;
+      chatArea.appendChild(bubble);
+
+      input.value = '';
+      chatArea.scrollTop = chatArea.scrollHeight;
+
+      // Auto Reply simulation
+      setTimeout(() => {
+        const reply = document.createElement('div');
+        reply.className = 'chat-bubble bubble-received';
+        reply.innerText = `¡Recibido! (Mensaje guardado en Room local DB).`;
+        chatArea.appendChild(reply);
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }, 1000);
+    }
+
+    function handleChatKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendChatMessage();
+      }
+    }
+
+    // MSN Messenger Zumbido (Nudge) Shake & Audio Synthesizer
+    function sendZumbido() {
+      const phone = document.getElementById('phoneContainer');
+      const chatArea = document.getElementById('chatMessagesArea');
+
+      // Trigger Screen Shake CSS
+      phone.classList.remove('shaking');
+      void phone.offsetWidth; // Force reflow
+      phone.classList.add('shaking');
+
+      // Add Nudge bubble in chat
+      const nudgeBubble = document.createElement('div');
+      nudgeBubble.className = 'chat-bubble bubble-nudge';
+      nudgeBubble.innerText = `🔔 ¡Has enviado un ZUMBIDO a ${currentChatContact}!`;
+      chatArea.appendChild(nudgeBubble);
+      chatArea.scrollTop = chatArea.scrollHeight;
+
+      // Synthesize classic retro MSN nudge sound effect using Tone.js / Web Audio
+      try {
+        const synth = new Tone.Synth().toDestination();
+        const now = Tone.now();
+        synth.triggerAttackRelease("C5", "8n", now);
+        synth.triggerAttackRelease("G5", "8n", now + 0.1);
+        synth.triggerAttackRelease("C6", "4n", now + 0.2);
+      } catch (e) {
+        console.log("Audio play blocked until user interaction.");
+      }
+    }
+
+    function simulateUpload() {
+      alert("Simulación Android: Solicitando permiso 'READ_EXTERNAL_STORAGE' para cargar imagen en resolución máxima 720p.");
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retroconver — Prototipo Móvil Web 2.0</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Verdana, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #1e1e24;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Marco del teléfono */
+    .phone-container {
+      width: 360px;
+      height: 720px;
+      background-color: #ffffff;
+      border-radius: 36px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 0 0 8px #2b2b2b;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border: 4px solid #444;
+    }
+
+    /* Animación del zumbido MSN */
+    @keyframes nudge {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-8px, -6px) rotate(-2deg); }
+      30% { transform: translate(8px, 6px) rotate(2deg); }
+      45% { transform: translate(-6px, 4px) rotate(-1deg); }
+      60% { transform: translate(6px, -4px) rotate(1deg); }
+      75% { transform: translate(-4px, 2px) rotate(0deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .shaking {
+      animation: nudge 0.4s ease-in-out infinite;
+    }
+
+    /* Barra del sistema Android/iOS simulada */
+    .status-bar {
+      height: 24px;
+      background: #003b7a;
+      color: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    /* Cabecera Glossy Retro (Estilo App Tuenti iOS 2011) */
+    .app-header {
+      background: linear-gradient(to bottom, #2b82df 0%, #0056b3 50%, #004085 51%, #002d5e 100%);
+      border-bottom: 1px solid #001a38;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 5px rgba(0,0,0,0.3);
+      padding-top: 6px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 12px 8px 12px;
+    }
+
+    .brand-logo {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: -1px;
+      text-shadow: 0 -1px 1px rgba(0,0,0,0.6);
+      font-family: Arial, sans-serif;
+    }
+
+    .add-btn {
+      background: linear-gradient(to bottom, #3b97ff 0%, #0060cb 100%);
+      border: 1px solid #003a7d;
+      border-radius: 4px;
+      color: white;
+      width: 28px;
+      height: 26px;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+      cursor: pointer;
+    }
+
+    .sub-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.25);
+      border-top: 1px solid rgba(0, 0, 0, 0.4);
+    }
+
+    .sub-tab {
+      flex: 1;
+      text-align: center;
+      padding: 7px 0;
+      color: #b3d7ff;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      text-transform: uppercase;
+      border-bottom: 3px solid transparent;
+    }
+
+    .sub-tab.active {
+      color: #ffffff;
+      border-bottom: 3px solid #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Pantallas */
+    .content-area {
+      flex: 1;
+      background-color: #e9ebee;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      padding: 10px;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* Publicaciones / Tarjetas */
+    .post-card {
+      background: #ffffff;
+      border: 1px solid #cccccc;
+      border-radius: 2px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 3px;
+      border: 1px solid #b0c4de;
+      margin-right: 10px;
+      object-fit: cover;
+    }
+
+    .user-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #004085;
+      text-decoration: none;
+    }
+
+    .post-time {
+      font-size: 10px;
+      color: #888888;
+      margin-top: 2px;
+    }
+
+    .post-text {
+      font-size: 12px;
+      color: #333333;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .post-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 2px;
+      margin-bottom: 8px;
+      border: 1px solid #ddd;
+    }
+
+    /* Botones de interacción con borde discontinuo */
+    .post-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      border-top: 1px stroke #eee;
+      padding-top: 6px;
+    }
+
+    .counter-btn {
+      background: #f8f9fa;
+      border: 1px dashed #bbb;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: #555;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .counter-btn:hover {
+      background: #eef4ff;
+      border-color: #0066cc;
+    }
+
+    .heart-icon {
+      color: #0066cc;
+    }
+
+    /* Lista MSN Messenger */
+    .chat-item {
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      padding: 10px;
+      border-bottom: 1px solid #e0e0e0;
+      cursor: pointer;
+    }
+
+    .chat-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #28a745;
+      margin-right: 8px;
+    }
+
+    .chat-status.away {
+      background: #ffc107;
+    }
+
+    /* Barra de Navegación Inferior (Android Tabs) */
+    .bottom-nav {
+      height: 54px;
+      background: linear-gradient(to bottom, #ffffff 0%, #e6e6e6 100%);
+      border-top: 1px solid #b5b5b5;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 10px;
+      color: #555;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .nav-item.active {
+      color: #0056b3;
+    }
+
+    .nav-icon {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-container" id="phone">
+    
+    <!-- Barra Superior Android -->
+    <div class="status-bar">
+      <span>Retro Móvil</span>
+      <span>11:17</span>
+    </div>
+
+    <!-- Cabecera Glossy Retro -->
+    <div class="app-header">
+      <div class="header-top">
+        <div class="brand-logo">retroconver</div>
+        <div class="add-btn" onclick="triggerNudge()">+</div>
+      </div>
+      <div class="sub-tabs">
+        <div class="sub-tab" onclick="switchTab('mensajes')">CHAT</div>
+        <div class="sub-tab active" onclick="switchTab('muro')">MOMENTOS</div>
+      </div>
+    </div>
+
+    <!-- Zona de Contenido Interactivo -->
+    <div class="content-area">
+
+      <!-- PANTALLA: MURO -->
+      <div id="muro" class="screen active">
+        
+        <div class="post-card">
+          <div class="post-header">
+            <img class="user-avatar" src="https://picsum.photos/id/64/100/100" alt="Cris Reed">
+            <div class="user-meta">
+              <a href="#" class="user-name">Cris Reed</a>
+              <span class="post-time">⏱ hace 1m • 720p Max</span>
+            </div>
+          </div>
+          <div class="post-text">
+            ¡Adiós Nueva York! Menudo viaje, soy un poquito más pobre de lo que era, pero mereció la pena. Me encanta esta ciudad.
+          </div>
+          <img class="post-img" src="https://picsum.photos/id/43/400/250" alt="NY">
+          <div class="post-actions">
+            <div class="counter-btn">💬 1</div>
+            <div class="counter-btn" onclick="likePost(this)"><span class="heart-icon">♥</span> <span class="likes-count">12</span></div>
+          </div>
+        </div>
+
+        <div class="post-card">
+          <div class="post-header">
+            <img class="user-avatar" src="https://picsum.photos/id/91/100/100" alt="Simon Garcia">
+            <div class="user-meta">
+              <a href="#" class="user-name">Simon Garcia</a>
+              <span class="post-time">⏱ hace 3m</span>
+            </div>
+          </div>
+          <div class="post-text">
+            Desayunando en la terraza mientras escucho música en MSN. ¡Hoy va a ser un gran día de 2008!
+          </div>
+          <div class="post-actions">
+            <div class="counter-btn">💬 0</div>
+            <div class="counter-btn" onclick="likePost(this)"><span class="heart-icon">♥</span> <span class="likes-count">4</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANTALLA: PERFIL -->
+      <div id="perfil" class="screen">
+        <div class="post-card">
+          <div class="post-header">
+            <img class="user-avatar" src="https://picsum.photos/id/1005/100/100" alt="DavidNC26">
+            <div class="user-meta">
+              <span class="user-name">DavidNC26</span>
+              <span class="post-time">Conectado (MSN)</span>
+            </div>
+          </div>
+          <div class="post-text">
+            <b>Estado:</b> Programando la app nativa en Android Studio 🚀
+          </div>
+        </div>
+      </div>
+
+      <!-- PANTALLA: GALERÍA -->
+      <div id="galeria" class="screen">
+        <div class="post-card">
+          <b>Galería de Fotos (Máx 720p)</b>
+          <p class="post-text" style="margin-top: 6px;">
+            Optimizado para rendimiento retro y bajo consumo de espacio en almacenamiento local (Room).
+          </p>
+        </div>
+      </div>
+
+      <!-- PANTALLA: MENSAJES -->
+      <div id="mensajes" class="screen">
+        <div class="chat-item" onclick="triggerNudge()">
+          <div class="chat-status"></div>
+          <img class="user-avatar" src="https://picsum.photos/id/64/100/100" alt="Angela">
+          <div class="user-meta">
+            <span class="user-name">Angela Capel</span>
+            <span class="post-time">Ok, nos vemos en 5 min!</span>
+          </div>
+        </div>
+        <div class="chat-item" onclick="triggerNudge()">
+          <div class="chat-status away"></div>
+          <img class="user-avatar" src="https://picsum.photos/id/91/100/100" alt="Joe">
+          <div class="user-meta">
+            <span class="user-name">Joe Wright</span>
+            <span class="post-time">[Ausente] Comiendo...</span>
+          </div>
+        </div>
+        <div style="padding: 10px; text-align: center;">
+          <button class="counter-btn" style="margin: auto;" onclick="triggerNudge()">🔔 ¡Enviar Zumbido!</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navegación Inferior Móvil -->
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="switchTab('muro')">
+        <span class="nav-icon">🏠</span>
+        <span>Muro</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('perfil')">
+        <span class="nav-icon">👤</span>
+        <span>Perfil</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('galeria')">
+        <span class="nav-icon">🖼️</span>
+        <span>Galería</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('mensajes')">
+        <span class="nav-icon">💬</span>
+        <span>Chats</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+
+      if(tabId === 'muro') {
+        document.querySelectorAll('.sub-tab')[1].classList.add('active');
+        document.querySelectorAll('.nav-item')[0].classList.add('active');
+      } else if(tabId === 'mensajes') {
+        document.querySelectorAll('.sub-tab')[0].classList.add('active');
+        document.querySelectorAll('.nav-item')[3].classList.add('active');
+      } else if(tabId === 'perfil') {
+        document.querySelectorAll('.nav-item')[1].classList.add('active');
+      } else if(tabId === 'galeria') {
+        document.querySelectorAll('.nav-item')[2].classList.add('active');
+      }
+    }
+
+    function likePost(btn) {
+      let countSpan = btn.querySelector('.likes-count');
+      let current = parseInt(countSpan.innerText);
+      countSpan.innerText = current + 1;
+    }
+
+    function triggerNudge() {
+      const phone = document.getElementById('phone');
+      phone.classList.add('shaking');
+      setTimeout(() => {
+        phone.classList.remove('shaking');
+      }, 500);
+    }
+  </script>
+</body>
+</html>
