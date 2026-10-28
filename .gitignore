@@ -3,15 +3,8 @@
 .gradle/
 /local.properties
 local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-/.idea/deploymentTargetDropDown.xml
-/.idea/deploymentTargetSelector.xml
-/.idea/other.xml
+# Configuración local de Android Studio: cada uno tiene la suya
+.idea/
 /build
 /app/build
 /captures
