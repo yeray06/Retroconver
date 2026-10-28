@@ -1,0 +1,4 @@
+<resources>
+    <!-- Tema de la ventana mientras arranca la app. El tema visual real está en ui/theme (Compose). -->
+    <style name="Theme.Retroconver" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
