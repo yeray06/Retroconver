@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Retroconver</string>
+
+    <!-- Secciones de la barra de navegación inferior -->
+    <string name="seccion_muro">Muro</string>
+    <string name="seccion_perfil">Perfil</string>
+    <string name="seccion_galeria">Galería</string>
+    <string name="seccion_mensajes">Mensajes</string>
 </resources>
