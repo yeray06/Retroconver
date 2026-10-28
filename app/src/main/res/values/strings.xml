@@ -6,4 +6,7 @@
     <string name="seccion_perfil">Perfil</string>
     <string name="seccion_galeria">Galería</string>
     <string name="seccion_mensajes">Mensajes</string>
+
+    <!-- Pantallas provisionales -->
+    <string name="pantalla_en_construccion">Sección en construcción</string>
 </resources>
