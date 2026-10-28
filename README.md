@@ -9,6 +9,10 @@ Red social para Android con la estética y la sencillez de las redes de finales 
 | Tablero Kanban | [GitHub Project · Retroconver](https://github.com/users/yeray06/projects/2) |
 | Propuesta inicial | [docs/propuesta/Retroconver.pdf](docs/propuesta/Retroconver.pdf) |
 | Planificación | [docs/planificacion.md](docs/planificacion.md) |
+| Requisitos | [docs/requisitos.md](docs/requisitos.md) |
+| Arquitectura y tecnologías | [docs/arquitectura.md](docs/arquitectura.md) |
+| Guía de estilo y bocetos | [docs/estilo.md](docs/estilo.md) · [docs/diseño/](docs/diseño/) |
+| Navegación y recorrido principal | [docs/navegacion.md](docs/navegacion.md) · [docs/recorrido.md](docs/recorrido.md) |
 | Cómo trabajamos | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
 ## Equipo
@@ -64,7 +68,7 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 - Servidor, registro online y sincronización entre dispositivos
 - Notificaciones push
 
-## Tecnologías previstas
+## Tecnologías
 
 | Tecnología | Para qué la usaremos |
 |---|---|
@@ -77,9 +81,24 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 
 ## Estado actual
 
-**Entrega 1 · Organización.** Repositorio, tablero Kanban, issues, planificación, README y primera versión de la memoria.
+**Entrega 2 · Diseño y base técnica.**
 
-Todavía no hay código. El proyecto Android se crea al empezar la entrega 2 (E2-01, [#7](https://github.com/yeray06/Retroconver/issues/7)), y las instrucciones para ejecutarlo se añadirán aquí entonces.
+### Qué funciona
+
+| Qué | Dónde | Issue |
+|---|---|---|
+| Proyecto Android con Kotlin, Jetpack Compose y catálogo de versiones | `gradle/libs.versions.toml`, `app/` | E2-01 [#7](https://github.com/yeray06/Retroconver/issues/7) |
+| Navegación con barra inferior entre Muro, Perfil, Galería y Mensajes (pantallas provisionales) | `navigation/`, `ui/screens/` | E2-02 [#8](https://github.com/yeray06/Retroconver/issues/8) |
+| Base de datos Room con contenedor de dependencias y esquema exportado | `data/local/`, `AppContainer.kt`, `app/schemas/` | E2-03 [#9](https://github.com/yeray06/Retroconver/issues/9) |
+| Prueba unitaria de los convertidores de fechas | `app/src/test/` | E2-03.1 [#38](https://github.com/yeray06/Retroconver/issues/38) |
+| Guía de estilo, bocetos navegables, navegación y recorrido principal | `docs/` | E1-06 [#6](https://github.com/yeray06/Retroconver/issues/6), E2-04 [#10](https://github.com/yeray06/Retroconver/issues/10) |
+| Requisitos y decisiones de arquitectura | `docs/requisitos.md`, `docs/arquitectura.md` | E2-07.1 [#49](https://github.com/yeray06/Retroconver/issues/49), E2-07.2 [#50](https://github.com/yeray06/Retroconver/issues/50) |
+
+Al ejecutar la app se ve la barra inferior con las cuatro secciones. Cada una muestra de momento una pantalla provisional con su nombre.
+
+### Pendiente
+
+El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2). En la entrega 3 se sustituyen las pantallas provisionales por el flujo principal: perfil, muro y publicaciones con imagen.
 
 ## Cómo trabajamos
 
@@ -88,9 +107,53 @@ Todavía no hay código. El proyecto Android se crea al empezar la entrega 2 (E2
 - **Tareas principales y subtareas.** Las tareas grandes se dividen en subtareas (*sub-issues*). Se trabaja sobre las subtareas, y la tarea principal se cierra cuando están todas terminadas. El tablero muestra el progreso de cada tarea principal.
 - **Cada issue tiene** responsable, criterios de terminado, entrega (milestone) y dependencias (*Blocked by*).
 - **Una rama por subtarea**, o por tarea si no tiene subtareas. La rama lleva el número de GitHub de la issue (`feature/53-vista-perfil`). Nunca se hacen commits directos a `main`.
-- **Pull Request enlazada a la issue** (`Closes #53`). La revisa y la aprueba el otro integrante.
+- **Pull Request enlazada a la issue** (`Closes #53`). La revisa y la aprueba el otro integrante, y después la fusiona su autor. Las ramas no se borran: quedan como registro del trabajo.
 
 Los detalles están en [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Cómo abrir y ejecutar el proyecto
+
+### Requisitos
+
+- **Android Studio** Narwhal 3 (2025.1.3) o posterior.
+- **JDK 21 para Gradle.** Las versiones nuevas de Android Studio traen un Java más reciente que el que admite la versión de Gradle del proyecto.
+- Un **emulador o móvil con Android 8.0 o superior**. Recomendado: Pixel 7 con API 36.
+
+### Pasos
+
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/yeray06/Retroconver.git
+   ```
+2. En Android Studio: *File → Open*, elige la carpeta `Retroconver` y pulsa *Trust Project*.
+3. Espera al **Gradle Sync**. La primera vez descarga Gradle 8.14.3 y las librerías.
+   - Si sale **«Incompatible Gradle JVM version»**, pulsa *Apply compatible Gradle JDK configuration and sync*. También puedes ir a *Settings → Build, Execution, Deployment → Build Tools → Gradle* y elegir un **Gradle JDK 21**; si no tienes ninguno, usa *Download JDK*.
+   - Si Android Studio propone **actualizar el Android Gradle Plugin** (*Upgrade Assistant*), **no lo hagas**. El proyecto usa versiones fijas que ya están probadas juntas: AGP 8.13.0, Gradle 8.14.3 y Kotlin 2.2.20.
+   - Si propone migrar a *Gradle Daemon toolchain*, pulsa *Ignore*.
+4. Elige la configuración **app** y tu emulador, y pulsa **▶ Run**.
+
+### Pruebas
+
+Las pruebas se lanzan con Gradle, no con el botón ▶ de la clase de prueba:
+
+1. Abre el panel **Gradle** (el elefante de la derecha) y pulsa *Execute Gradle Task*.
+2. Escribe `testDebugUnitTest` y pulsa Enter.
+3. Tiene que terminar en **BUILD SUCCESSFUL**. El informe queda en `app/build/reports/tests/testDebugUnitTest/index.html`.
+
+### Estructura del código
+
+```
+app/src/main/java/com/retroconver/
+├── RetroconverApp.kt   Application: crea el AppContainer
+├── MainActivity.kt     Única Activity: tema y navegación
+├── AppContainer.kt     Base de datos y repositorios (una sola instancia)
+├── data/local/         AppDatabase, entidades, DAOs y convertidores
+├── data/repository/    Repositorios de cada módulo
+├── navigation/         Rutas, barra inferior y NavHost
+└── ui/                 Tema, componentes y pantallas de cada módulo
+```
+
+El porqué de cada decisión está en [docs/arquitectura.md](docs/arquitectura.md).
 
 ## Planificación
 
