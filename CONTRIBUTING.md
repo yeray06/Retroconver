@@ -61,6 +61,12 @@ Si aparece trabajo que no estaba previsto:
    - Si es una tarea nueva, toma el siguiente código libre de su entrega.
 3. Asígnale el milestone de su entrega y marca sus dependencias en *Blocked by*.
 
+## Nombres de ficheros prohibidos en Windows
+
+No crees ficheros ni carpetas llamados `aux`, `con`, `nul`, `prn`, `com1`… `com9` o `lpt1`… `lpt9`, con o sin extensión (`aux.txt` tampoco vale). Windows no los admite y el repositorio deja de poder clonarse en Windows.
+
+Para crear una carpeta nueva desde la web de GitHub no hace falta un fichero auxiliar: en *Add file → Create new file* escribe la ruta completa en el nombre, por ejemplo `docs/datos/esquema.md`, y la carpeta se crea sola.
+
 ## Errores
 
 Cualquier error encontrado se abre como issue con la plantilla **Error**, se asigna a quien lleve ese módulo y se añade al tablero.
