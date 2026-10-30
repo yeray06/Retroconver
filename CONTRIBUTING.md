@@ -38,8 +38,8 @@ Somos dos personas. La regla principal: **nadie sube código directamente a `mai
    - Usa la plantilla y escribe `Closes #N` con el número de la subtarea, para que se cierre al hacer merge.
    - Pide revisión al otro integrante.
    - Mueve la subtarea a **En revisión**.
-5. **La otra persona revisa**: descarga la rama, comprueba que compila en Android Studio, prueba los criterios de terminado de la subtarea y comenta o aprueba.
-6. **Merge**: lo hace quien revisa, con *Create a merge commit* para que se conserven los commits de cada uno. Después se borra la rama.
+5. **La otra persona revisa**: descarga la rama, comprueba que compila en Android Studio, prueba los criterios de terminado de la subtarea y deja su revisión en *Files changed → Review changes*: **Approve** si está bien, o **Request changes** si hay que arreglar algo.
+6. **Merge**: cuando la PR está aprobada, la fusiona **su autor** con *Create a merge commit*, para que se conserven los commits de cada uno. **Las ramas no se borran**: quedan como registro del trabajo.
 7. **Cierra la tarea principal** cuando todas sus subtareas estén cerradas. La barra de progreso del tablero lo indica. Si la PR es la de la última subtarea, puede llevar también `Closes` con el número de la tarea principal.
 
 ## Cuándo una tarea está terminada
