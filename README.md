@@ -91,10 +91,12 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 | Navegación con barra inferior entre Muro, Perfil, Galería y Mensajes (pantallas provisionales) | `navigation/`, `ui/screens/` | E2-02 [#8](https://github.com/yeray06/Retroconver/issues/8) |
 | Base de datos Room con contenedor de dependencias y esquema exportado | `data/local/`, `AppContainer.kt`, `app/schemas/` | E2-03 [#9](https://github.com/yeray06/Retroconver/issues/9) |
 | Prueba unitaria de los convertidores de fechas | `app/src/test/` | E2-03.1 [#38](https://github.com/yeray06/Retroconver/issues/38) |
+| Tema retro (colores, tipografía y formas) y componentes base: cabecera, tarjeta, botón y avatar | `ui/theme/`, `ui/components/` | E2-06 [#12](https://github.com/yeray06/Retroconver/issues/12) |
 | Guía de estilo, bocetos navegables, navegación y recorrido principal | `docs/` | E1-06 [#6](https://github.com/yeray06/Retroconver/issues/6), E2-04 [#10](https://github.com/yeray06/Retroconver/issues/10) |
+| Esquema de datos: diagrama entidad-relación y qué se guarda en Room y en DataStore | `docs/datos/esquemadatos.md` | E2-05 [#11](https://github.com/yeray06/Retroconver/issues/11) |
 | Requisitos y decisiones de arquitectura | `docs/requisitos.md`, `docs/arquitectura.md` | E2-07.1 [#49](https://github.com/yeray06/Retroconver/issues/49), E2-07.2 [#50](https://github.com/yeray06/Retroconver/issues/50) |
 
-Al ejecutar la app se ve la barra inferior con las cuatro secciones. Cada una muestra de momento una pantalla provisional con su nombre.
+Al ejecutar la app se ve la cabecera retro azul arriba y la barra inferior con las cuatro secciones. Cada sección muestra de momento una tarjeta provisional con su nombre.
 
 ### Pendiente
 
@@ -150,7 +152,10 @@ app/src/main/java/com/retroconver/
 ├── data/local/         AppDatabase, entidades, DAOs y convertidores
 ├── data/repository/    Repositorios de cada módulo
 ├── navigation/         Rutas, barra inferior y NavHost
-└── ui/                 Tema, componentes y pantallas de cada módulo
+└── ui/
+    ├── theme/          Tema retro: colores, tipografía y formas
+    ├── components/     Componentes base: RetroHeader, RetroCard, RetroButton, Avatar
+    └── screens/        Pantallas de cada módulo
 ```
 
 El porqué de cada decisión está en [docs/arquitectura.md](docs/arquitectura.md).
