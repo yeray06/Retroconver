@@ -3,7 +3,7 @@
 **Responsable:** @DavidNC26  
 **Tarea Principal:** #11 (E2-05) — Subtareas #44 y #45  
 **Proyecto:** Retroconver (Android Native / Jetpack Compose)  
-**Ubicación:** `docs/diseno/esquema_datos.md` / Memoria v2  
+**Ubicación:** `docs/datos/esquemadatos.md` / Memoria v2  
 
 ---
 
@@ -22,12 +22,11 @@ erDiagram
 
     USUARIOS {
         long id PK "Autoincremental"
-        string nombreUsuario "UNQ - ej. @DavidNC26"
-        string alias "Nombre publico"
+        string nombre "Nombre publico (obligatorio)"
         string avatarUri "Ruta foto local (720p)"
         string estadoMsn "Frase estilo MSN Messenger"
         string biografia "Descripcion perfil"
-        long fechaRegistro "Timestamp ms"
+        long fechaAlta "Timestamp ms"
     }
 
     PUBLICACIONES {
@@ -36,7 +35,7 @@ erDiagram
         string texto "Contenido del post"
         string imagenUri "Ruta imagen local (720p)"
         long timestamp "Ordenacion DESC"
-        int contadorLikes "Numero de Me Gusta"
+        int contadorLikes "Solo si se anade el Me gusta"
     }
 
     COMENTARIOS {
@@ -71,7 +70,7 @@ erDiagram
         long receptorId FK "FK -> USUARIOS.id"
         string contenido "Texto del mensaje / Tablon"
         long timestamp "Fecha/Hora"
-        boolean esZumbido "Trigger animacion MSN"
+        boolean esZumbido "Solo si entra el chat (RF-24)"
     }
 ```
 
@@ -103,10 +102,10 @@ Todas las entidades utilizan una clave primaria de tipo `Long` autoincremental (
 | Tipo de Dato / Requisito | Tecnología Elegida | Justificación Técnica |
 | :--- | :--- | :--- |
 | **Entidades Relacionales (Posts, Comentarios, Álbumes, Fotos, Mensajes)** | **Room (SQLite)** | Datos con estructura relacional 1:N que requieren consultas complejas (`ORDER BY timestamp DESC`), claves foráneas con borrado en cascada (`CASCADE`) y reactividad mediante `Flow`. |
-| **Metadatos de Usuario (ID, Alias, Avatar)** | **Room (SQLite)** | Al actuar como clave foránea en publicaciones y comentarios, debe residir en la base de datos relacional. |
-| **Tema Retro Global (Azul Glossy, Tema Oscuro)** | **DataStore Preferences** | Ajustes clave-valor ligeros. Se leen asíncronamente al iniciar la app para aplicar el tema de Compose sin sobrecargar la base de datos. |
+| **Metadatos de Usuario (ID, Nombre, Avatar)** | **Room (SQLite)** | Al actuar como clave foránea en publicaciones y comentarios, debe residir en la base de datos relacional. |
+| **Tema elegido para el perfil (RF-08)** | **DataStore Preferences** | Ajustes clave-valor ligeros. Se leen asíncronamente al iniciar la app para aplicar el tema del perfil sin sobrecargar la base de datos. |
 | **Color de Fondo del Perfil** | **DataStore Preferences** | Preferencia de UI simple sin relaciones con otras entidades. |
-| **Filtro activo del Muro (Ver todo / Solo fotos)** | **DataStore Preferences** | Mantiene el estado de la UI seleccionado por el usuario entre sesiones. |
+| **Filtro activo del Muro (Ver todo / Solo fotos), si se añade** | **DataStore Preferences** | Mantiene el estado de la UI seleccionado por el usuario entre sesiones. |
 | **Archivos de Imagen a 720p** | **Almacenamiento Interno + Room** | Las imágenes físicas no se guardan como BLOB en la base de datos (para no saturar `CursorWindow`). Se procesan a 720p, se guardan en el almacenamiento interno privado y Room almacena únicamente la ruta/URI (`String`). |
 
 ---
@@ -114,4 +113,11 @@ Todas las entidades utilizan una clave primaria de tipo `Long` autoincremental (
 ## 4. Control de Revisión del Equipo
 
 - [x] **Diseñado por:** @DavidNC26
-- [ ] **Revisado y aprobado por:** @yeray06 (Pendiente antes de la creación de DAOs en `#38`)
+- [x] **Revisado por:** @yeray06 (30/10/2026), antes de crear la primera entidad con DAO en E3-01 ([#13](https://github.com/yeray06/Retroconver/issues/13))
+
+### Cambios de la revisión
+
+1. **USUARIOS** usa `nombre` y `fechaAlta`, los mismos nombres que la entidad mínima que ya está en el código (`UsuarioEntity`, E2-03). Se quita `nombreUsuario` único porque no hay cuentas ni inicio de sesión (RF-04): el usuario local se crea solo al abrir la app.
+2. **`PUBLICACIONES.contadorLikes`** y **`MENSAJES.esZumbido`** dependen de los [puntos a decidir](../requisitos.md#puntos-a-decidir-entre-los-dos). Si no se añade el «Me gusta» o el chat privado, esas columnas no se crean.
+3. El número de comentarios de cada publicación (RF-14) y el número de fotos y la portada de cada álbum (RF-18) no se guardan en columnas: se calculan con una consulta (`COUNT`, primera foto del álbum), así no se desincronizan.
+4. Se corrige la ubicación del documento y la issue de los DAOs (`#38` es E2-03.1, la base de datos).
