@@ -3,6 +3,7 @@ package com.retroconver
 import android.content.Context
 import androidx.room.Room
 import com.retroconver.data.local.AppDatabase
+import com.retroconver.data.repository.PublicacionRepository
 
 /**
  * Contenedor de dependencias de la app. Crea la base de datos y los repositorios
@@ -42,6 +43,10 @@ class AppContainer(context: Context) {
             .build()
     }
 
-    // Cada módulo añade aquí su repositorio cuando lo cree, por ejemplo:
-    // val publicacionRepository by lazy { PublicacionRepository(baseDeDatos.publicacionDao()) }
+    /** Publicaciones del muro y sus comentarios. */
+    val publicacionRepository: PublicacionRepository by lazy {
+        PublicacionRepository(baseDeDatos.publicacionDao(), baseDeDatos.comentarioDao())
+    }
+
+    // Cada módulo añade aquí su repositorio cuando lo cree.
 }
