@@ -14,12 +14,20 @@ import androidx.room.TypeConverters
  * 4. Sube `version` en 1. El esquema nuevo se guarda solo en app/schemas: súbelo con tu PR.
  */
 @Database(
-    entities = [UsuarioEntity::class],
-    version = 1,
+    entities = [
+        UsuarioEntity::class,
+        PublicacionEntity::class,
+        ComentarioEntity::class,
+    ],
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)
 abstract class AppDatabase : RoomDatabase() {
+
+    abstract fun publicacionDao(): PublicacionDao
+
+    abstract fun comentarioDao(): ComentarioDao
 
     companion object {
         /** Nombre del fichero de la base de datos en el móvil. */
