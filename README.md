@@ -81,26 +81,69 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 
 ## Estado actual
 
-**Entrega 2 · Diseño y base técnica.**
+**Entrega 3 · Flujo principal.**
 
 ### Qué funciona
 
 | Qué | Dónde | Issue |
 |---|---|---|
-| Proyecto Android con Kotlin, Jetpack Compose y catálogo de versiones | `gradle/libs.versions.toml`, `app/` | E2-01 [#7](https://github.com/yeray06/Retroconver/issues/7) |
-| Navegación con barra inferior entre Muro, Perfil, Galería y Mensajes (pantallas provisionales) | `navigation/`, `ui/screens/` | E2-02 [#8](https://github.com/yeray06/Retroconver/issues/8) |
-| Base de datos Room con contenedor de dependencias y esquema exportado | `data/local/`, `AppContainer.kt`, `app/schemas/` | E2-03 [#9](https://github.com/yeray06/Retroconver/issues/9) |
-| Prueba unitaria de los convertidores de fechas | `app/src/test/` | E2-03.1 [#38](https://github.com/yeray06/Retroconver/issues/38) |
-| Tema retro (colores, tipografía y formas) y componentes base: cabecera, tarjeta, botón y avatar | `ui/theme/`, `ui/components/` | E2-06 [#12](https://github.com/yeray06/Retroconver/issues/12) |
-| Guía de estilo, bocetos navegables, navegación y recorrido principal | `docs/` | E1-06 [#6](https://github.com/yeray06/Retroconver/issues/6), E2-04 [#10](https://github.com/yeray06/Retroconver/issues/10) |
-| Esquema de datos: diagrama entidad-relación y qué se guarda en Room y en DataStore | `docs/datos/esquemadatos.md` | E2-05 [#11](https://github.com/yeray06/Retroconver/issues/11) |
-| Requisitos y decisiones de arquitectura | `docs/requisitos.md`, `docs/arquitectura.md` | E2-07.1 [#49](https://github.com/yeray06/Retroconver/issues/49), E2-07.2 [#50](https://github.com/yeray06/Retroconver/issues/50) |
+| Usuario local creado automáticamente la primera vez que se abre la app (sin registro) | `data/local/UsuarioEntity.kt`, `UsuarioDao.kt`, `data/repository/UsuarioRepository.kt` | E3-01 [#13](https://github.com/yeray06/Retroconver/issues/13) |
+| Perfil con avatar, nombre, estado y biografía guardados en Room | `ui/screens/perfil/` | E3-06 [#14](https://github.com/yeray06/Retroconver/issues/14) |
+| Edición del perfil con nombre obligatorio, límite de caracteres y mensajes de error | `ui/screens/perfil/EditarPerfil*.kt` | E3-06.2 [#54](https://github.com/yeray06/Retroconver/issues/54) |
+| Elegir fotos con el Photo Picker de Android, sin pedir permisos | `ui/components/SelectorDeImagen.kt` | E3-04 [#19](https://github.com/yeray06/Retroconver/issues/19) |
+| Reescalado de imágenes a 720p como máximo, con la orientación EXIF corregida, y copia en el almacenamiento interno | `data/imagenes/` | E3-05 [#20](https://github.com/yeray06/Retroconver/issues/20) |
+| Muro con las publicaciones de la más reciente a la más antigua y estado vacío | `ui/screens/muro/` | E3-03 [#16](https://github.com/yeray06/Retroconver/issues/16) |
+| Publicaciones y comentarios en Room con su DAO y repositorio | `data/local/Publicacion*.kt`, `Comentario*.kt` | E3-02 [#15](https://github.com/yeray06/Retroconver/issues/15) |
+| Proyecto Android, navegación con barra inferior, Room, tema retro y componentes base | `app/`, `navigation/`, `ui/theme/`, `ui/components/` | Entrega 2 |
+| Documentación: requisitos, arquitectura, esquema de datos, guía de estilo y bocetos | `docs/` | Entrega 2 |
 
-Al ejecutar la app se ve la cabecera retro azul arriba y la barra inferior con las cuatro secciones. Cada sección muestra de momento una tarjeta provisional con su nombre.
+## Cómo probar el flujo principal (entrega 3)
 
-### Pendiente
+Primero abre y ejecuta el proyecto como se explica en [Cómo abrir y ejecutar el proyecto](#cómo-abrir-y-ejecutar-el-proyecto).
 
-El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2). En la entrega 3 se sustituyen las pantallas provisionales por el flujo principal: perfil, muro y publicaciones con imagen.
+### 1. Primera apertura
+
+1. Abre la app. Se abre el **Muro** con el mensaje «El muro está vacío».
+2. Ve a **Perfil**. Ya existe tu usuario local, «Yo», con la inicial en el avatar. No hay registro ni contraseña: se crea solo la primera vez (RF-04).
+
+### 2. Editar el perfil
+
+1. En Perfil pulsa **Editar perfil**.
+2. Borra el nombre y pulsa **Guardar**: aparece «El nombre es obligatorio.» y el campo se pone en rojo.
+3. Escribe más de 80 caracteres en el estado y pulsa **Guardar**: aparece «Máximo 80 caracteres.». Debajo de cada campo se ve el contador.
+4. Escribe un nombre, un estado y una biografía válidos y pulsa **Guardar**. Vuelves al perfil y ya se ven los datos nuevos.
+5. Cierra la app del todo (deslízala fuera de las apps recientes) y ábrela otra vez: el perfil sigue igual. Los datos están en Room.
+
+### 3. Cambiar el avatar
+
+1. En Perfil pulsa **Cambiar foto**. Se abre el selector de fotos de Android sin pedir ningún permiso.
+2. Elige una foto. Se ve en el perfil y en las publicaciones del muro.
+3. Para probar con una foto grande, arrastra al emulador una foto de móvil (por ejemplo de 4000×3000) y elígela. En *View → Tool Windows → Device Explorer*, la carpeta `data/data/com.retroconver/files/images/` tiene una sola imagen, como mucho de 960×720. Al cambiar otra vez de foto, la anterior se borra.
+
+### 4. Publicar en el muro
+
+1. En el Muro pulsa el botón de nueva publicación, escribe un texto y, si quieres, adjunta una foto.
+2. Pulsa **Publicar**: la publicación aparece arriba del muro con tu avatar, tu nombre, «hace 1m», el texto y la imagen.
+
+> Este paso depende de E3-07 ([#17](https://github.com/yeray06/Retroconver/issues/17)), que está en desarrollo. Hasta que esté terminado, el muro solo muestra lo que ya hay guardado en la base de datos.
+
+### Evidencias de Room y DataStore
+
+- **Room.** Con la app abierta, en *View → Tool Windows → App Inspection → Database Inspector* se ven las tablas `usuarios`, `publicaciones` y `comentarios` y cómo cambian al editar el perfil. El esquema de cada versión de la base de datos está en `app/schemas/`. Las pruebas `UsuarioDaoTest` y `PublicacionDaoTest` comprueban las consultas con una base de datos en memoria.
+- **Imágenes.** Room guarda solo la ruta de cada imagen. La imagen está en `files/images/`, reducida a 720p (ver el paso 3).
+- **DataStore.** La dependencia está en el proyecto, pero todavía no guarda nada. Se usa en la entrega 4 para el color de fondo y el tema del perfil (E4-04, [#23](https://github.com/yeray06/Retroconver/issues/23)).
+
+### Qué falla o tiene límites
+
+- Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1, porque esas versiones no saben abrir ese formato. La app muestra «No se ha podido usar esa foto». Desde Android 9 funcionan.
+- Mientras desarrollamos, si cambia el esquema de la base de datos se borran los datos guardados. Antes de la entrega final se sustituye por migraciones.
+
+### Qué queda pendiente
+
+- **Entrega 3:** crear publicaciones con texto e imagen (E3-07, [#17](https://github.com/yeray06/Retroconver/issues/17)) y la memoria v3 (E3-08, [#64](https://github.com/yeray06/Retroconver/issues/64)).
+- **Entrega 4:** comentarios, álbumes de fotos, tablón de mensajes, personalización del perfil con DataStore y pruebas de accesibilidad.
+
+El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2).
 
 ## Cómo trabajamos
 
@@ -142,6 +185,8 @@ Las pruebas se lanzan con Gradle, no con el botón ▶ de la clase de prueba:
 2. Escribe `testDebugUnitTest` y pulsa Enter.
 3. Tiene que terminar en **BUILD SUCCESSFUL**. El informe queda en `app/build/reports/tests/testDebugUnitTest/index.html`.
 
+Las pruebas de la base de datos y de las imágenes necesitan Android, así que se ejecutan en el emulador. Con el emulador abierto, lanza la tarea `connectedDebugAndroidTest`. El informe queda en `app/build/reports/androidTests/connected/debug/index.html`.
+
 ### Estructura del código
 
 ```
@@ -151,10 +196,11 @@ app/src/main/java/com/retroconver/
 ├── AppContainer.kt     Base de datos y repositorios (una sola instancia)
 ├── data/local/         AppDatabase, entidades, DAOs y convertidores
 ├── data/repository/    Repositorios de cada módulo
+├── data/imagenes/      Reescalado a 720p y copias de las imágenes
 ├── navigation/         Rutas, barra inferior y NavHost
 └── ui/
     ├── theme/          Tema retro: colores, tipografía y formas
-    ├── components/     Componentes base: RetroHeader, RetroCard, RetroButton, Avatar
+    ├── components/     Componentes base: RetroHeader, RetroCard, RetroButton, Avatar y selector de imágenes
     └── screens/        Pantallas de cada módulo
 ```
 
