@@ -19,11 +19,13 @@ import androidx.room.TypeConverters
         PublicacionEntity::class,
         ComentarioEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)
 abstract class AppDatabase : RoomDatabase() {
+
+    abstract fun usuarioDao(): UsuarioDao
 
     abstract fun publicacionDao(): PublicacionDao
 

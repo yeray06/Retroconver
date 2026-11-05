@@ -24,7 +24,7 @@ erDiagram
         long id PK "Autoincremental"
         string nombre "Nombre publico (obligatorio)"
         string avatarUri "Ruta foto local (720p)"
-        string estadoMsn "Frase estilo MSN Messenger"
+        string estado "Frase estilo MSN Messenger"
         string biografia "Descripcion perfil"
         long fechaAlta "Timestamp ms"
     }
