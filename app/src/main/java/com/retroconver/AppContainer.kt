@@ -44,13 +44,13 @@ class AppContainer(context: Context) {
             .build()
     }
 
-    /** Copias de las imágenes a 720p en el almacenamiento interno (avatar, publicaciones y galería). */
-    val almacenImagenes: AlmacenImagenes by lazy { AlmacenImagenes(contextoApp) }
-
     /** Publicaciones del muro y sus comentarios. */
     val publicacionRepository: PublicacionRepository by lazy {
         PublicacionRepository(baseDeDatos.publicacionDao(), baseDeDatos.comentarioDao())
     }
+
+    /** Copias de las imágenes a 720p en el almacenamiento interno (avatar, publicaciones y galería). */
+    val almacenImagenes: AlmacenImagenes by lazy { AlmacenImagenes(contextoApp) }
 
     // Cada módulo añade aquí su repositorio cuando lo cree.
 }
