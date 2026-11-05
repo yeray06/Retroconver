@@ -24,3 +24,9 @@ enum class Destino(
         val inicio = MURO
     }
 }
+
+/** Pantallas dentro de la sección Perfil. La ruta de la sección ([Destino.PERFIL]) abre [VER]. */
+object RutasPerfil {
+    const val VER = "perfil/ver"
+    const val EDITAR = "perfil/editar"
+}
