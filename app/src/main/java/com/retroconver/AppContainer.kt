@@ -2,6 +2,7 @@ package com.retroconver
 
 import android.content.Context
 import androidx.room.Room
+import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.AppDatabase
 import com.retroconver.data.repository.PublicacionRepository
 
@@ -42,6 +43,9 @@ class AppContainer(context: Context) {
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
+
+    /** Copias de las imágenes a 720p en el almacenamiento interno (avatar, publicaciones y galería). */
+    val almacenImagenes: AlmacenImagenes by lazy { AlmacenImagenes(contextoApp) }
 
     /** Publicaciones del muro y sus comentarios. */
     val publicacionRepository: PublicacionRepository by lazy {
