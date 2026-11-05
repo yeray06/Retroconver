@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Muro: estado vacío -->
+    <string name="muro_vacio_titulo">El muro está vacío</string>
+    <string name="muro_vacio_mensaje">Rompe el hielo y publica tu primer momento.</string>
+
+    <!-- Muro: tarjeta de publicación -->
+    <string name="imagen_de_publicacion">Imagen publicada por %1$s</string>
+    <string name="fecha_hace_minutos">hace %1$dm</string>
+    <string name="fecha_hace_horas">hace %1$dh</string>
+    <string name="fecha_hace_dias">hace %1$dd</string>
+</resources>
