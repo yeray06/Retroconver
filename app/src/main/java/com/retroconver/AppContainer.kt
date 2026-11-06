@@ -2,6 +2,7 @@ package com.retroconver
 
 import android.content.Context
 import androidx.room.Room
+import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.AppDatabase
 import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
@@ -53,6 +54,9 @@ class AppContainer(context: Context) {
     val publicacionRepository: PublicacionRepository by lazy {
         PublicacionRepository(baseDeDatos.publicacionDao(), baseDeDatos.comentarioDao())
     }
+
+    /** Copias de las imágenes a 720p en el almacenamiento interno (avatar, publicaciones y galería). */
+    val almacenImagenes: AlmacenImagenes by lazy { AlmacenImagenes(contextoApp) }
 
     // Cada módulo añade aquí su repositorio cuando lo cree.
 }
