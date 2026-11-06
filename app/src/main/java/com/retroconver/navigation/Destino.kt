@@ -30,3 +30,9 @@ object RutasPerfil {
     const val VER = "perfil/ver"
     const val EDITAR = "perfil/editar"
 }
+
+/** Pantallas dentro de la sección Muro. La ruta de la sección ([Destino.MURO]) abre [VER]. */
+object RutasMuro {
+    const val VER = "muro/ver"
+    const val NUEVA = "muro/nueva"
+}

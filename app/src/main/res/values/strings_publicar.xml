@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cabecera del muro: botón para publicar -->
+    <string name="muro_boton_mas" translatable="false">+</string>
+    <string name="muro_nueva_publicacion">Nueva publicación</string>
+
+    <!-- Formulario de nueva publicación -->
+    <string name="publicar_titulo">Nueva publicación</string>
+    <string name="publicar_etiqueta">¿Qué estás pensando?</string>
+    <string name="publicar_contador">%1$d/%2$d</string>
+    <string name="publicar_error_vacio">Escribe algo para publicar.</string>
+    <string name="publicar_error_demasiado_largo">Máximo %1$d caracteres.</string>
+    <string name="publicar_anadir_foto">Añadir foto</string>
+    <string name="publicar_quitar_foto">Quitar foto</string>
+    <string name="publicar_guardando_foto">Guardando foto…</string>
+    <string name="publicar_vista_previa">Vista previa de la foto elegida</string>
+    <string name="publicar_error_foto">No se ha podido usar esa foto. Prueba con otra.</string>
+    <string name="publicar_error_guardar">No se ha podido publicar. Inténtalo de nuevo.</string>
+    <string name="publicar_publicar">Publicar</string>
+    <string name="publicar_cancelar">Cancelar</string>
+</resources>

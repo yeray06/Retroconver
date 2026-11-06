@@ -9,6 +9,7 @@ import androidx.navigation.compose.navigation
 import com.retroconver.ui.screens.galeria.GaleriaScreen
 import com.retroconver.ui.screens.mensajes.MensajesScreen
 import com.retroconver.ui.screens.muro.MuroScreen
+import com.retroconver.ui.screens.muro.NuevaPublicacionScreen
 import com.retroconver.ui.screens.perfil.EditarPerfilScreen
 import com.retroconver.ui.screens.perfil.PerfilScreen
 
@@ -23,7 +24,14 @@ fun RetroconverNavHost(
         startDestination = Destino.inicio.ruta,
         modifier = modifier,
     ) {
-        composable(Destino.MURO.ruta) { MuroScreen() }
+        // Muro es un grafo con dos pantallas: así la barra marca «Muro» también al publicar
+        navigation(startDestination = RutasMuro.VER, route = Destino.MURO.ruta) {
+            composable(RutasMuro.VER) { MuroScreen() }
+            composable(RutasMuro.NUEVA) {
+                // Publicar o cancelar vuelve al muro (y no más atrás aunque se pulse dos veces)
+                NuevaPublicacionScreen(alTerminar = { navController.popBackStack(RutasMuro.VER, inclusive = false) })
+            }
+        }
         // Perfil es un grafo con dos pantallas: así la barra marca «Perfil» también al editar
         navigation(startDestination = RutasPerfil.VER, route = Destino.PERFIL.ruta) {
             composable(RutasPerfil.VER) {
