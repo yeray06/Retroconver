@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Perfil: vista -->
+    <string name="perfil_miembro_desde">Miembro desde el %1$s</string>
+    <string name="perfil_cambiar_foto">Cambiar foto</string>
+    <string name="perfil_guardando_foto">Guardando foto…</string>
+    <string name="perfil_editar">Editar perfil</string>
+    <string name="perfil_error_foto">No se ha podido usar esa foto. Prueba con otra.</string>
+    <string name="perfil_estado">Estado</string>
+    <string name="perfil_sin_estado">Todavía no has escrito tu estado.</string>
+    <string name="perfil_sobre_mi">Sobre mí</string>
+    <string name="perfil_sin_biografia">Cuenta algo sobre ti desde «Editar perfil».</string>
+
+    <!-- Perfil: edición -->
+    <string name="editar_titulo">Editar perfil</string>
+    <string name="editar_nombre">Nombre</string>
+    <string name="editar_estado">Estado</string>
+    <string name="editar_biografia">Biografía</string>
+    <string name="editar_guardar">Guardar</string>
+    <string name="editar_cancelar">Cancelar</string>
+    <string name="editar_contador">%1$d/%2$d</string>
+    <string name="error_nombre_obligatorio">El nombre es obligatorio.</string>
+    <string name="error_demasiado_largo">Máximo %1$d caracteres.</string>
+</resources>

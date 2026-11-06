@@ -48,7 +48,7 @@ fun PublicacionCard(
     val autor = item.autor
     RetroCard(modifier = modifier.semantics(mergeDescendants = true) {}) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Avatar(nombre = autor.nombre, tamano = 36.dp)
+            Avatar(nombre = autor.nombre, tamano = 36.dp, imagenUri = autor.avatarUri)
             Spacer(Modifier.width(8.dp))
             Row(
                 modifier = Modifier.weight(1f),
