@@ -10,6 +10,9 @@
     <!-- Pantallas provisionales -->
     <string name="pantalla_en_construccion">Sección en construcción</string>
 
+    <!-- Nombre del usuario local hasta que lo cambie en el perfil -->
+    <string name="usuario_local_nombre">Yo</string>
+
     <!-- Componentes base -->
     <string name="logo_cabecera" translatable="false">retroconver</string>
     <string name="avatar_de">Avatar de %1$s</string>

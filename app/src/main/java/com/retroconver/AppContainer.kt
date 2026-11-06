@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.retroconver.data.local.AppDatabase
 import com.retroconver.data.repository.PublicacionRepository
+import com.retroconver.data.repository.UsuarioRepository
 
 /**
  * Contenedor de dependencias de la app. Crea la base de datos y los repositorios
@@ -41,6 +42,11 @@ class AppContainer(context: Context) {
             // Antes de la entrega final se sustituye por migraciones para no perder datos.
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
+    }
+
+    /** Usuario local y datos de su perfil. */
+    val usuarioRepository: UsuarioRepository by lazy {
+        UsuarioRepository(baseDeDatos.usuarioDao())
     }
 
     /** Publicaciones del muro y sus comentarios. */
