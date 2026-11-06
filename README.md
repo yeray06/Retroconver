@@ -92,6 +92,7 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 | Edición del perfil con nombre obligatorio, límite de caracteres y mensajes de error | `ui/screens/perfil/EditarPerfil*.kt` | E3-06.2 [#54](https://github.com/yeray06/Retroconver/issues/54) |
 | Elegir fotos con el Photo Picker de Android, sin pedir permisos | `ui/components/SelectorDeImagen.kt` | E3-04 [#19](https://github.com/yeray06/Retroconver/issues/19) |
 | Reescalado de imágenes a 720p como máximo, con la orientación EXIF corregida, y copia en el almacenamiento interno | `data/imagenes/` | E3-05 [#20](https://github.com/yeray06/Retroconver/issues/20) |
+| Crear publicación desde el botón «+» del muro: texto obligatorio con contador y foto opcional (con vista previa, se puede quitar) guardada a 720p | `ui/screens/muro/NuevaPublicacion*.kt` | E3-07 [#17](https://github.com/yeray06/Retroconver/issues/17) |
 | Muro con las publicaciones de la más reciente a la más antigua y estado vacío | `ui/screens/muro/` | E3-03 [#16](https://github.com/yeray06/Retroconver/issues/16) |
 | Publicaciones y comentarios en Room con su DAO y repositorio | `data/local/Publicacion*.kt`, `Comentario*.kt` | E3-02 [#15](https://github.com/yeray06/Retroconver/issues/15) |
 | Proyecto Android, navegación con barra inferior, Room, tema retro y componentes base | `app/`, `navigation/`, `ui/theme/`, `ui/components/` | Entrega 2 |
@@ -122,10 +123,12 @@ Primero abre y ejecuta el proyecto como se explica en [Cómo abrir y ejecutar el
 
 ### 4. Publicar en el muro
 
-1. En el Muro pulsa el botón de nueva publicación, escribe un texto y, si quieres, adjunta una foto.
-2. Pulsa **Publicar**: la publicación aparece arriba del muro con tu avatar, tu nombre, «hace 1m», el texto y la imagen.
-
-> Este paso depende de E3-07 ([#17](https://github.com/yeray06/Retroconver/issues/17)), que está en desarrollo. Hasta que esté terminado, el muro solo muestra lo que ya hay guardado en la base de datos.
+1. En el Muro pulsa el botón **+** de la cabecera. Se abre el formulario «Nueva publicación».
+2. Pulsa **Publicar** sin escribir nada: aparece «Escribe algo para publicar.» y el campo se pone en rojo. Lo mismo si solo escribes espacios.
+3. Escribe un texto. Debajo se ve el contador (por ejemplo `12/500`); con más de 500 caracteres aparece «Máximo 500 caracteres.».
+4. Pulsa **Añadir foto** y elige una. Se ve una vista previa. Pulsa **Quitar foto** para quitarla, o elige otra para cambiarla.
+5. Pulsa **Publicar**: vuelves al muro y la publicación aparece arriba con tu avatar, tu nombre, «hace 1m», el texto y la imagen. El estado vacío desaparece.
+6. En *Device Explorer*, `files/images/` tiene la foto reducida a 720p. Si cancelas el formulario con una foto elegida, esa copia se borra.
 
 ### Evidencias de Room y DataStore
 

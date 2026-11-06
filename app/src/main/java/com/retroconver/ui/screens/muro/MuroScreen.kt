@@ -5,8 +5,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,14 +39,36 @@ internal fun MuroContenido(
     when {
         publicaciones == null -> Unit
         publicaciones.isEmpty() -> MuroVacio(modifier)
-        else -> LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(publicaciones, key = { it.publicacion.id }) { publicacion ->
-                PublicacionCard(publicacion)
-            }
+        else -> ListaMuro(publicaciones, modifier)
+    }
+}
+
+/**
+ * Lista de tarjetas. Si llega una publicación más reciente que la última vista (la que se
+ * acaba de crear en el formulario), la lista vuelve arriba para que se vea.
+ */
+@Composable
+private fun ListaMuro(
+    publicaciones: List<PublicacionConAutor>,
+    modifier: Modifier = Modifier,
+) {
+    val estado = rememberLazyListState()
+    val idMasReciente = publicaciones.first().publicacion.id
+    var idVisto by rememberSaveable { mutableStateOf(idMasReciente) }
+    LaunchedEffect(idMasReciente) {
+        if (idMasReciente != idVisto) {
+            idVisto = idMasReciente
+            estado.scrollToItem(0)
+        }
+    }
+    LazyColumn(
+        state = estado,
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(publicaciones, key = { it.publicacion.id }) { publicacion ->
+            PublicacionCard(publicacion)
         }
     }
 }
