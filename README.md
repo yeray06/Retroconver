@@ -19,8 +19,8 @@ Red social para Android con la estética y la sencillez de las redes de finales 
 
 | Integrante | GitHub | Se encarga de |
 |---|---|---|
-| Yeray Sánchez | [@yeray06](https://github.com/yeray06) | Organización del repositorio y planificación, base del proyecto, navegación, Room, módulo **Perfil** y módulo **Galería** |
-| David Nicolás | [@DavidNC26](https://github.com/DavidNC26) | README y memoria, estilo retro y tema de Compose, módulo **Muro** (publicaciones y comentarios) y módulo **Mensajes** |
+| Yeray Sánchez | [@yeray06](https://github.com/yeray06) | Organización del repositorio y planificación, base del proyecto, navegación, Room, **servidor Supabase**, registro y sesión, módulo **Perfil** y módulo **Galería** |
+| David Nicolás | [@DavidNC26](https://github.com/DavidNC26) | README y memoria, estilo retro y tema de Compose, personalización y perfiles de otras personas, módulo **Muro** (publicaciones y comentarios) y módulo **Mensajes** |
 
 Cada integrante es responsable de sus módulos de principio a fin (datos, pantallas y pruebas). Todas las Pull Requests las revisa y aprueba el otro integrante.
 
@@ -28,45 +28,50 @@ Cada integrante es responsable de sus módulos de principio a fin (datos, pantal
 
 ### Problema que aborda
 
-Las redes sociales actuales giran en torno a algoritmos de recomendación, vídeo corto y un diseño cargado de estímulos y publicidad. Se ha perdido la idea original de una red pequeña y cercana: un muro con lo que publican tus amigos, un tablón en tu perfil, tus álbumes de fotos y un perfil que decoras a tu gusto.
+Las redes sociales actuales giran en torno a algoritmos de recomendación, vídeo corto y un diseño cargado de estímulos y publicidad. Se ha perdido la idea original de una red pequeña y cercana: un muro con lo que publica tu gente, un tablón en tu perfil donde te dejan mensajes, tus álbumes de fotos y un perfil que decoras a tu gusto.
 
 Retroconver recupera esa experiencia en una aplicación Android sencilla, sin distracciones y sin algoritmos.
 
 ### Para quién es
 
 - **Usuario nostálgico (25-40 años).** Vivió la época de Tuenti y MySpace y quiere volver a tener perfiles personalizados y una relación sin algoritmos.
-- **Usuario que busca simplicidad (18-25 años).** Le atrae la estética retro y prefiere una red de círculo cerrado en la que sus datos se quedan en su dispositivo.
+- **Usuario que busca simplicidad (18-25 años).** Le atrae la estética retro y prefiere una red de círculo cerrado, sin publicidad ni algoritmos.
 
 ### Qué la hace diferente
 
 - **Orden cronológico, sin algoritmo.** El muro muestra lo último publicado, nada más.
-- **Datos en local.** Todo se guarda en el dispositivo con Room y DataStore. No hay servidor ni cuentas en la nube.
+- **Red propia y pequeña.** Las cuentas y lo que se publica están en un servidor Supabase del proyecto, con el plan gratuito. El móvil guarda una copia en Room para verlo sin conexión.
 - **Perfil personalizable.** Avatar, biografía, estado y aspecto del perfil, al estilo de la época.
 - **Multimedia limitado a 720p.** Las imágenes se reescalan a 720p como máximo. Ahorra espacio, mejora el rendimiento y refuerza la estética de las cámaras de entonces.
 
-## Alcance inicial
+## Alcance
 
 ### Imprescindible (primera versión)
 
 | Módulo | Qué incluye | Responsable |
 |---|---|---|
-| Perfil | Avatar, biografía y estado guardados en Room. Color de fondo y tema guardados en DataStore | Yeray |
-| Muro | Publicaciones de texto con imagen opcional en orden cronológico y comentarios | David |
-| Galería | Elegir fotos del dispositivo con permisos puntuales, reescalado a 720p y álbumes | Yeray |
-| Mensajes | Tablón de mensajes en el perfil | David |
+| Servidor | Proyecto Supabase con cuentas, base de datos, políticas de seguridad e imágenes. Cliente Retrofit en la app | Yeray |
+| Perfil | Registro e inicio de sesión. Avatar, biografía y estado en el servidor | Yeray |
+| Perfiles de otras personas | Ver el perfil, el tablón y los álbumes de cualquiera, y buscar personas. Color de fondo y tema del perfil | David |
+| Muro | Publicaciones de todas las personas, con imagen opcional y en orden cronológico, y comentarios | David |
+| Galería | Elegir fotos del dispositivo sin permisos, reescalado a 720p y álbumes | Yeray |
+| Mensajes | Tablón en cada perfil donde cualquiera puede dejar mensajes | David |
 | Estilo | Guía de estilo retro y tema de Compose común a toda la app | David |
 
 ### Si hay tiempo
 
-- Mensajes directos entre usuarios (EX-01, [#28](https://github.com/yeray06/Retroconver/issues/28))
+- Mensajes directos con zumbido, como en MSN (EX-01, [#28](https://github.com/yeray06/Retroconver/issues/28))
+- Amistades: solicitudes y muro solo con amigos (EX-04, [#129](https://github.com/yeray06/Retroconver/issues/129))
+- «Me gusta» en publicaciones (EX-05, [#130](https://github.com/yeray06/Retroconver/issues/130))
 - Comentarios anidados o respuestas (EX-02, [#29](https://github.com/yeray06/Retroconver/issues/29))
 - Temas clásicos y tipografías seleccionables por perfil (EX-03, [#30](https://github.com/yeray06/Retroconver/issues/30))
 - Vídeos cortos, también limitados a 720p
 
 ### Fuera de alcance
 
-- Servidor, registro online y sincronización entre dispositivos
 - Notificaciones push
+- Actualización en tiempo real: lo nuevo aparece al abrir la pantalla o al deslizar para actualizar
+- Publicar o comentar sin conexión para enviarlo más tarde
 
 ## Tecnologías
 
@@ -75,9 +80,11 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 | Kotlin | Lenguaje de toda la aplicación |
 | Jetpack Compose | Interfaz y tema visual retro |
 | Navigation Compose | Navegación entre Perfil, Muro, Galería y Mensajes |
-| Room | Usuarios, publicaciones, comentarios, álbumes, fotos y mensajes |
-| DataStore | Preferencias del perfil: color de fondo, tema y ajustes |
-| Photo Picker de Android | Elegir imágenes del dispositivo pidiendo solo los permisos necesarios |
+| Supabase | Servidor: cuentas, base de datos Postgres e imágenes (plan gratuito) |
+| Retrofit y OkHttp | Llamadas de la app al servidor |
+| Room | Copia local de lo descargado, para que las pantallas se actualicen solas y funcionen sin conexión |
+| DataStore | Sesión: tokens e id de la cuenta |
+| Photo Picker de Android | Elegir imágenes del dispositivo sin pedir permisos |
 
 ## Estado actual
 
@@ -151,7 +158,7 @@ El estado al día de cada tarea está en el [tablero](https://github.com/users/y
 ## Cómo trabajamos
 
 - **Tablero Kanban** con las columnas Backlog, Por hacer, En curso, En revisión y Hecho.
-- **82 issues en orden de avance.** Cada título empieza por un código: `E2-01` es la primera tarea principal de la entrega 2 y `E2-01.1` su primera subtarea. `EF` es la entrega final y `EX`, los extras. El tablero está ordenado por este código, así que se lee de arriba abajo en el orden en que hay que avanzar.
+- **104 issues en orden de avance.** Cada título empieza por un código: `E2-01` es la primera tarea principal de la entrega 2 y `E2-01.1` su primera subtarea. `EF` es la entrega final y `EX`, los extras. El tablero está ordenado por este código, así que se lee de arriba abajo en el orden en que hay que avanzar.
 - **Tareas principales y subtareas.** Las tareas grandes se dividen en subtareas (*sub-issues*). Se trabaja sobre las subtareas, y la tarea principal se cierra cuando están todas terminadas. El tablero muestra el progreso de cada tarea principal.
 - **Cada issue tiene** responsable, criterios de terminado, entrega (milestone) y dependencias (*Blocked by*).
 - **Una rama por subtarea**, o por tarea si no tiene subtareas. La rama lleva el número de GitHub de la issue (`feature/53-vista-perfil`). Nunca se hacen commits directos a `main`.
@@ -216,7 +223,7 @@ El porqué de cada decisión está en [docs/arquitectura.md](docs/arquitectura.m
 | 1 · Organización | 25/10/2026 | Repo, Kanban, issues, planificación, README y memoria v1 |
 | 2 · Diseño y base técnica | 01/11/2026 | Estilo, bocetos, esquema de datos, proyecto Android, navegación y Room |
 | 3 · Flujo principal | 08/11/2026 | Perfil, muro y publicaciones con imagen funcionando en local |
-| 4 · Versión candidata | 15/11/2026 | Álbumes, tablón, comentarios, personalización y pruebas |
+| 4 · Versión candidata | 15/11/2026 | Servidor Supabase, cuentas, muro compartido, perfiles ajenos, comentarios, tablón, álbumes, personalización y pruebas |
 | Final | 20/11/2026 | APK, README definitivo, memoria final y presentación |
 
 El reparto completo con dependencias está en [docs/planificacion.md](docs/planificacion.md).

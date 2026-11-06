@@ -5,6 +5,8 @@
 **Proyecto:** Retroconver (Android Native / Jetpack Compose)  
 **Ubicación:** `docs/datos/esquemadatos.md` / Memoria v2  
 
+> **Entrega 4:** los datos pasan a un servidor Supabase y Room queda como copia local. Las secciones 1 a 4 describen el modelo de la entrega 2; el modelo del servidor está en la [sección 5](#5-servidor-supabase-entrega-4).
+
 ---
 
 ## 1. Diagrama Entidad-Relación (Room Database)
@@ -121,3 +123,105 @@ Todas las entidades utilizan una clave primaria de tipo `Long` autoincremental (
 2. **`PUBLICACIONES.contadorLikes`** y **`MENSAJES.esZumbido`** dependen de los [puntos a decidir](../requisitos.md#puntos-a-decidir-entre-los-dos). Si no se añade el «Me gusta» o el chat privado, esas columnas no se crean.
 3. El número de comentarios de cada publicación (RF-14) y el número de fotos y la portada de cada álbum (RF-18) no se guardan en columnas: se calculan con una consulta (`COUNT`, primera foto del álbum), así no se desincronizan.
 4. Se corrige la ubicación del documento y la issue de los DAOs (`#38` es E2-03.1, la base de datos).
+
+---
+
+## 5. Servidor Supabase (entrega 4)
+
+Desde la entrega 4 (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)) los datos se guardan en un proyecto Supabase con el plan gratuito. El SQL que crea todo está en `supabase/esquema.sql` (E4-02.1, [#111](https://github.com/yeray06/Retroconver/issues/111)).
+
+### 5.1 Tablas
+
+Mismas entidades que en Room, con dos cambios: las claves son **UUID**, para que no choquen las que crean distintos móviles, y los nombres de columna van en `snake_case`, como es costumbre en Postgres. La tabla `usuarios` pasa a llamarse `perfiles`, porque la cuenta (email y contraseña) la guarda Supabase Auth en `auth.users`.
+
+```mermaid
+erDiagram
+    AUTH_USERS ||--|| PERFILES : "cada cuenta tiene un perfil"
+    PERFILES ||--o{ PUBLICACIONES : publica
+    PERFILES ||--o{ COMENTARIOS : escribe
+    PUBLICACIONES ||--o{ COMENTARIOS : tiene
+    PERFILES ||--o{ MENSAJES : "recibe en su tablon"
+    PERFILES ||--o{ MENSAJES : escribe
+    PERFILES ||--o{ ALBUMES : crea
+    ALBUMES ||--o{ FOTOS : contiene
+
+    AUTH_USERS {
+        uuid id PK "Supabase Auth"
+        text email
+    }
+    PERFILES {
+        uuid id PK,FK "mismo id que la cuenta"
+        text nombre "1 a 30 caracteres"
+        text biografia "hasta 200"
+        text estado "hasta 80"
+        text avatar_ruta "ruta en el bucket, opcional"
+        text color_fondo "opcional, RF-08"
+        text tema "opcional, RF-08"
+        timestamptz creado_en
+    }
+    PUBLICACIONES {
+        uuid id PK
+        uuid autor_id FK
+        text texto "1 a 500 caracteres"
+        text imagen_ruta "opcional"
+        timestamptz creada_en
+    }
+    COMENTARIOS {
+        uuid id PK
+        uuid publicacion_id FK
+        uuid autor_id FK
+        text texto "1 a 300 caracteres"
+        timestamptz creado_en
+    }
+    MENSAJES {
+        uuid id PK
+        uuid perfil_id FK "dueno del tablon"
+        uuid autor_id FK "quien escribe"
+        text texto "1 a 300 caracteres"
+        timestamptz creado_en
+    }
+    ALBUMES {
+        uuid id PK
+        uuid propietario_id FK
+        text titulo "1 a 40 caracteres"
+        text descripcion "hasta 200"
+        timestamptz creado_en
+    }
+    FOTOS {
+        uuid id PK
+        uuid album_id FK
+        uuid propietario_id FK
+        text ruta "ruta en el bucket"
+        int ancho
+        int alto
+        timestamptz creada_en
+    }
+```
+
+- **Borrado en cascada** en todas las claves foráneas: si se borra una cuenta se borra su perfil y todo lo suyo; si se borra una publicación, sus comentarios; si se borra un álbum, sus fotos.
+- **Límites de texto con `CHECK`**, los mismos que valida la app. Así no se guardan datos fuera de límite aunque alguien llame al servidor sin pasar por la app.
+- **Perfil automático.** Un *trigger* sobre `auth.users` crea la fila de `perfiles` al registrarse, con el nombre que se escribió en el formulario de registro.
+- **Contadores calculados.** El número de comentarios de una publicación y el de fotos de un álbum se calculan en la consulta, no se guardan.
+- `contadorLikes` y `esZumbido` del diagrama de la entrega 2 no se crean: son los extras EX-05 y EX-01.
+
+### 5.2 Imágenes
+
+Bucket `imagenes` de Supabase Storage, con un límite de 2 MB por archivo y solo JPEG y PNG. Cada cuenta tiene su carpeta (`imagenes/{id de la cuenta}/{uuid}.jpg`) y las tablas guardan solo la ruta. Antes de subir, la app reduce la imagen a 720p (RNF-02).
+
+### 5.3 Seguridad (RLS)
+
+Todas las tablas tienen activadas las políticas de seguridad de Postgres (*Row Level Security*, E4-02.2, [#112](https://github.com/yeray06/Retroconver/issues/112)):
+
+| Tabla | Leer | Crear | Cambiar | Borrar |
+|---|---|---|---|---|
+| `perfiles` | Con sesión | Solo el *trigger* al registrarse | Solo el propio | Al borrar la cuenta |
+| `publicaciones` | Con sesión | Como autor | Solo el autor | Solo el autor |
+| `comentarios` | Con sesión | Como autor | Solo el autor | Solo el autor |
+| `mensajes` | Con sesión | Como autor, en cualquier tablón | — | El autor o el dueño del tablón |
+| `albumes` y `fotos` | Con sesión | Como propietario | Solo el propietario | Solo el propietario |
+| Bucket `imagenes` | Cualquiera con la URL | En la carpeta propia | En la carpeta propia | En la carpeta propia |
+
+### 5.4 Qué cambia en Room
+
+Room deja de ser la fuente de verdad y pasa a guardar **una copia de lo descargado** (E4-05, [#120](https://github.com/yeray06/Retroconver/issues/120)). Las entidades usan los mismos ids UUID (`String`) y los DAOs guardan con `@Upsert`. El usuario local fijo de la entrega 3 desaparece: el usuario actual es el de la sesión, que guarda DataStore. La tabla de qué guarda cada sistema está en [docs/arquitectura.md](../arquitectura.md#5-qué-guarda-cada-sistema).
+
