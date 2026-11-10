@@ -1,6 +1,6 @@
 # Arquitectura y decisiones técnicas
 
-Decisiones iniciales de arquitectura y tecnologías de Retroconver, listas para la memoria v2 (E2-07, [#48](https://github.com/yeray06/Retroconver/issues/48)). El código base que las aplica está en las tareas E2-01 a E2-03.
+Arquitectura de Retroconver y por qué se eligió cada tecnología. La primera versión (memoria v2, E2-07) guardaba todo en el móvil. Desde la entrega 4 la app es una red social con servidor (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)): este documento describe la arquitectura con servidor.
 
 ## 1. Patrón: MVVM con repositorios
 
@@ -14,96 +14,160 @@ flowchart TB
     end
     subgraph DATA["Capa de datos · data/"]
         R["Repositorios<br/>UsuarioRepository, PublicacionRepository…"]
-        DAO["Room · DAOs<br/>usuarios, publicaciones, comentarios,<br/>álbumes, fotos, mensajes"]
-        DS["DataStore<br/>preferencias del perfil"]
-        IMG["Almacenamiento interno<br/>imágenes a 720p"]
+        DAO["Room · DAOs<br/>copia local de lo descargado"]
+        API["Retrofit · servicios<br/>Auth, tablas y almacenamiento"]
+        DS["DataStore<br/>sesión: tokens e id de la cuenta"]
+        IMG["Almacenamiento interno<br/>reescalado a 720p antes de subir"]
     end
-    C["AppContainer<br/>crea la base de datos y los repositorios una sola vez"]
+    SB[("Supabase<br/>Auth · Postgres · Storage")]
+    C["AppContainer<br/>crea la base de datos, Retrofit y los repositorios una sola vez"]
 
     S -- "eventos del usuario" --> VM
     VM -- "estado" --> S
     VM --> R
     R --> DAO
+    R --> API
     R --> DS
     R --> IMG
+    API -- "HTTPS" --> SB
     C -. "proporciona" .-> R
 ```
 
 | Capa | Qué hace | Qué no hace |
 |---|---|---|
-| **Pantallas (Compose)** | Dibujan el estado que reciben y avisan al ViewModel de lo que hace la persona usuaria | No acceden a la base de datos ni guardan estado propio, salvo el estado puramente visual |
-| **ViewModels** | Guardan el estado de cada pantalla en un `StateFlow`, validan formularios y llaman a los repositorios | No conocen Compose ni el `Context` |
-| **Repositorios** | Son la única puerta a los datos. Combinan Room, DataStore y los ficheros de imagen | No contienen lógica de pantalla |
-| **Room / DataStore / ficheros** | Guardan la información en el dispositivo | — |
+| **Pantallas (Compose)** | Dibujan el estado que reciben y avisan al ViewModel de lo que hace la persona usuaria | No acceden a la base de datos ni a la red |
+| **ViewModels** | Guardan el estado de cada pantalla en un `StateFlow`, validan formularios y llaman a los repositorios | No conocen Compose, el `Context` ni Retrofit |
+| **Repositorios** | Son la única puerta a los datos. Hablan con el servidor, guardan la copia en Room y combinan los dos | No contienen lógica de pantalla |
+| **Room / Retrofit / DataStore / ficheros** | Guardan o traen la información | — |
 
-**Flujo de datos en un solo sentido:** el estado baja de los repositorios al ViewModel y a la pantalla, y los eventos suben de la pantalla al ViewModel. Room y DataStore devuelven `Flow`, así que cuando cambia un dato la pantalla se actualiza sola. Por ejemplo, al publicar algo aparece arriba del muro sin recargar nada.
+**Flujo de datos en un solo sentido:** el estado baja de los repositorios al ViewModel y a la pantalla, y los eventos suben de la pantalla al ViewModel. Gracias a esta separación, pasar a servidor solo cambia la capa de datos: las pantallas de la entrega 3 se reutilizan.
 
-## 2. Estructura del código
+## 2. El servidor es la fuente de verdad y Room guarda una copia
+
+Las pantallas **siempre leen de Room**, que devuelve `Flow`. El servidor es quien tiene los datos de verdad, y los repositorios mantienen Room al día:
+
+- **Leer.** Al abrir una pantalla o deslizar para actualizar, el repositorio descarga del servidor y guarda en Room con `@Upsert`. Room avisa del cambio y la pantalla se actualiza sola. Sin conexión no se descarga nada, pero la pantalla sigue mostrando la última copia (RNF-06).
+- **Escribir.** Publicar, comentar o editar el perfil se envía primero al servidor. Si responde bien, se guarda su respuesta en Room. Sin conexión no se guarda nada y la pantalla avisa. No hay cola de envíos pendientes, que complicaría mucho la app.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Persona usuaria
+    participant VM as NuevaPublicacionViewModel
+    participant R as PublicacionRepository
+    participant IMG as AlmacenImagenes
+    participant API as Retrofit → Supabase
+    participant DB as Room
+    U->>VM: Publicar (texto + foto)
+    VM->>R: publicar(texto, foto)
+    R->>IMG: Reescalar a 720p
+    R->>API: Subir la imagen a imagenes/{id de la cuenta}/
+    R->>API: INSERT en publicaciones (texto + ruta de la imagen)
+    API-->>R: Publicación creada
+    R->>DB: Upsert de la publicación
+    DB-->>VM: Flow emite el muro nuevo
+    VM-->>U: La publicación aparece arriba del muro
+```
+
+## 3. Estructura del código
 
 ```
 app/src/main/java/com/retroconver/
 ├── RetroconverApp.kt          Application: crea el AppContainer
 ├── MainActivity.kt            Única Activity: aplica el tema y la navegación
-├── AppContainer.kt            Base de datos y repositorios (una sola instancia)
+├── AppContainer.kt            Base de datos, Retrofit y repositorios (una sola instancia)
 ├── data/
-│   ├── local/                 AppDatabase, entidades, DAOs y convertidores
+│   ├── local/                 AppDatabase, entidades, DAOs y convertidores (copia local)
+│   ├── remote/                Servicios de Retrofit y DTOs del servidor
+│   ├── sesion/                Sesión con DataStore
+│   ├── imagenes/              Reescalado a 720p
 │   └── repository/            Repositorios de cada módulo
 ├── navigation/                Rutas y barra de navegación inferior
 └── ui/
     ├── theme/                 Colores, tipografías y formas retro
     ├── components/            RetroCard, RetroButton, RetroHeader, Avatar…
     └── screens/
-        ├── perfil/            Yeray
+        ├── acceso/            Inicio de sesión y registro (Yeray)
+        ├── perfil/            Yeray (perfiles ajenos: David)
         ├── galeria/           Yeray
         ├── muro/              David
         └── mensajes/          David
+supabase/
+└── esquema.sql                Tablas, seguridad y almacenamiento del servidor
 ```
 
-Cada integrante trabaja en las carpetas de sus módulos, así casi nunca tocamos el mismo fichero. Los ficheros compartidos son `AppDatabase`, `AppContainer`, la navegación, el tema y el catálogo de versiones. En esos hacemos cambios pequeños y nos avisamos.
+Cada integrante trabaja en las carpetas de sus módulos, así casi nunca tocamos el mismo fichero. Los ficheros compartidos son `AppDatabase`, `AppContainer`, la navegación, el tema, el catálogo de versiones y `supabase/esquema.sql`. En esos hacemos cambios pequeños y nos avisamos.
 
-## 3. Tecnologías y por qué
+## 4. Tecnologías y por qué
 
 | Tecnología | Para qué | Por qué esta y no otra |
 |---|---|---|
 | **Kotlin** | Todo el código | Lenguaje oficial de Android. Corrutinas y `Flow` para el trabajo en segundo plano |
 | **Jetpack Compose** | Interfaz | Interfaz declarativa: menos código que con XML y vistas previas de cada componente. El tema retro se define una vez y se aplica a todas las pantallas |
-| **Navigation Compose** | Navegación | Una sola Activity con la barra inferior y la pila de pantallas. Más sencillo que usar una Activity por sección |
-| **Room** | Usuarios, publicaciones, comentarios, álbumes, fotos y mensajes | Datos con relaciones: una publicación tiene comentarios y un álbum tiene fotos. Room comprueba las consultas SQL al compilar y devuelve `Flow`, al contrario que SQLite a mano |
-| **DataStore (Preferences)** | Color de fondo, tema y ajustes del perfil | Son pares clave-valor sin relaciones. Al contrario que `SharedPreferences`, no bloquea el hilo principal y avisa de los cambios con `Flow` |
-| **Photo Picker** (`PickVisualMedia`) | Elegir fotos del dispositivo | En Android 13 o superior no necesita ningún permiso, y en versiones anteriores se usa la versión compatible. Así se cumple «permisos solo cuando hacen falta» |
-| **Almacenamiento interno** (`filesDir/images`) | Copia de cada imagen reescalada a 720p | La foto sigue en la app aunque la persona usuaria la borre de su galería. En Room solo se guarda la ruta, no la imagen |
-| **Coil** | Mostrar imágenes desde fichero | Carga las imágenes en segundo plano y las guarda en caché. Hacerlo a mano con `BitmapFactory` es más código y más fácil de hacer mal |
+| **Navigation Compose** | Navegación | Una sola Activity con la barra inferior y la pila de pantallas |
+| **Supabase** | Servidor: cuentas (Auth), base de datos (Postgres) y almacenamiento de imágenes (Storage) | El plan gratuito incluye las tres cosas sin tarjeta, también las imágenes. Firebase exige el plan de pago para guardar imágenes. Además, Supabase es SQL con claves foráneas, como Room, y las reglas de seguridad se escriben en SQL |
+| **Retrofit + OkHttp** | Hablar con Supabase por HTTPS | Supabase expone una API REST para Auth (`/auth/v1`), las tablas (`/rest/v1`) y el almacenamiento (`/storage/v1`). Retrofit convierte cada llamada en una función `suspend`, y OkHttp añade la clave y el token a todas las peticiones y renueva el token cuando caduca |
+| **kotlinx.serialization** | Convertir el JSON del servidor en clases de Kotlin | Es la librería de Kotlin, sin reflexión, y Retrofit tiene conversor oficial |
+| **Room** | Copia local de perfiles, publicaciones, comentarios, álbumes, fotos y mensajes | Las pantallas leen de Room, que devuelve `Flow`: se actualizan solas al llegar datos nuevos y funcionan sin conexión. Room comprueba las consultas SQL al compilar |
+| **DataStore (Preferences)** | Sesión: token de acceso, token de renovación e id de la cuenta | Son unos pocos valores sin relaciones que hay que leer al arrancar. Al contrario que `SharedPreferences`, no bloquea el hilo principal y avisa de los cambios con `Flow`, así la app vuelve al login sola cuando se cierra la sesión |
+| **Photo Picker** (`PickVisualMedia`) | Elegir fotos del dispositivo | No necesita permisos en ninguna versión de Android |
+| **Almacenamiento interno** (`filesDir/images`) | Copia reescalada a 720p antes de subirla | Se sube la versión reducida, así el servidor no se llena y las fotos cargan rápido |
+| **Coil** (con `coil-network-okhttp`) | Mostrar las imágenes del servidor y de fichero | Carga las imágenes en segundo plano y las guarda en caché en disco, así se ven sin conexión si ya se habían visto |
 | **KSP** | Generar el código de Room | Sustituye a `kapt`, que está obsoleto con Kotlin 2, y compila más rápido |
 | **Inyección de dependencias manual** (`AppContainer`) | Dar a cada ViewModel sus repositorios | Somos dos y la app tiene pocas dependencias. Hilt añadiría anotaciones y configuración que no necesitamos |
 
-## 4. Qué guarda cada sistema de almacenamiento
+### Llamadas al servidor
+
+| Para qué | Llamada |
+|---|---|
+| Registrarse | `POST /auth/v1/signup` con email, contraseña y nombre |
+| Iniciar sesión | `POST /auth/v1/token?grant_type=password` |
+| Renovar la sesión | `POST /auth/v1/token?grant_type=refresh_token` |
+| Cerrar sesión | `POST /auth/v1/logout` |
+| Leer el muro | `GET /rest/v1/publicaciones?select=*,autor:perfiles(*)&order=creada_en.desc&limit=50` |
+| Publicar, comentar, escribir en un tablón | `POST /rest/v1/{tabla}` |
+| Subir una imagen | `POST /storage/v1/object/imagenes/{id de la cuenta}/{uuid}.jpg` |
+| Ver una imagen | `GET /storage/v1/object/public/imagenes/{ruta}` (la carga Coil) |
+
+## 5. Qué guarda cada sistema
 
 | Dato | Dónde | Motivo |
 |---|---|---|
-| Usuario (nombre, biografía, estado, ruta del avatar) | Room | Es una entidad relacionada con publicaciones y mensajes |
-| Publicaciones y comentarios | Room | Relación uno a muchos, con orden por fecha |
-| Álbumes y fotos (ruta y fecha) | Room | Relación uno a muchos |
-| Mensajes del tablón | Room | Relación con el usuario autor y el perfil de destino |
-| Color de fondo y tema del perfil | DataStore | Preferencias simples sin relaciones |
-| Imágenes | Ficheros en `filesDir/images` | Las bases de datos no son buenas guardando imágenes. Room guarda solo la ruta |
+| Cuentas (email y contraseña) | **Supabase Auth** | La contraseña nunca se guarda en el móvil ni en nuestras tablas |
+| Perfiles, publicaciones, comentarios, álbumes, fotos y mensajes | **Supabase (Postgres)** | Se comparten entre todas las personas. Relaciones con claves foráneas y borrado en cascada |
+| Imágenes (avatar, publicaciones y galería) | **Supabase Storage**, bucket `imagenes` | Las bases de datos no son buenas guardando imágenes: la tabla guarda solo la ruta |
+| Copia de lo descargado | **Room** | Para que las pantallas se actualicen solas y funcionen sin conexión |
+| Sesión (tokens e id de la cuenta) | **DataStore** | Valores sueltos que se leen al arrancar |
+| Imagen reducida antes de subirla | `filesDir/images` | Se reescala a 720p y se sube esa copia |
 
-El diagrama entidad-relación completo es la tarea E2-05.1 ([#44](https://github.com/yeray06/Retroconver/issues/44)).
+El esquema de las tablas del servidor está en [docs/datos/esquemadatos.md](datos/esquemadatos.md) y el SQL en `supabase/esquema.sql` (E4-02.1, [#111](https://github.com/yeray06/Retroconver/issues/111)).
 
-## 5. Versiones de Android
+## 6. Seguridad
+
+- **Políticas de seguridad (RLS).** La clave pública de Supabase (*anon key*) viaja dentro de la app, así que cualquiera podría usarla fuera de ella. Por eso cada tabla tiene políticas en el servidor: con sesión se puede leer todo, pero solo se crea, cambia o borra lo propio. El dueño de un tablón puede borrar cualquier mensaje de su tablón (E4-02.2, [#112](https://github.com/yeray06/Retroconver/issues/112)).
+- **Imágenes.** Cada cuenta solo puede subir y borrar archivos de su carpeta (`imagenes/{id de la cuenta}/`). El bucket es de lectura pública para que Coil cargue las imágenes por URL sin token. Las rutas llevan un UUID y no se pueden adivinar, pero quien tenga la URL exacta puede ver la imagen. Para un proyecto de clase es un buen equilibrio; la alternativa serían URLs firmadas que caducan.
+- **Claves fuera del repositorio.** La URL y la clave pública van en `local.properties`, que Git ignora, y llegan al código por `BuildConfig` (E4-03.1, [#114](https://github.com/yeray06/Retroconver/issues/114)).
+- **Sesión.** El móvil guarda el token de acceso y el de renovación, nunca la contraseña. El token de acceso caduca en una hora y se renueva solo.
+
+## 7. Versiones de Android
 
 | Ajuste | Valor | Motivo |
 |---|---|---|
-| `minSdk` | **26** (Android 8.0) | Desde esta versión `java.time` está incluido en Android, así que las fechas de publicaciones, comentarios y mensajes se manejan sin librerías extra. Cubre la gran mayoría de móviles en uso, según el asistente de Android Studio |
+| `minSdk` | **26** (Android 8.0) | Desde esta versión `java.time` está incluido en Android, así que las fechas se manejan sin librerías extra. Cubre la gran mayoría de móviles en uso |
 | `targetSdk` y `compileSdk` | **36** (Android 16) | La última versión estable. Con ella probamos el comportamiento actual de permisos y del Photo Picker |
 
-## 6. Cómo se conecta un ViewModel con sus datos
+## 8. Cómo se conecta un ViewModel con sus datos
 
 Cada ViewModel recibe sus repositorios desde el `AppContainer` con una *factory*. Así se crea, por ejemplo, el ViewModel del muro (E2-03.2, [#39](https://github.com/yeray06/Retroconver/issues/39)):
 
 ```kotlin
 class MuroViewModel(private val repo: PublicacionRepository) : ViewModel() {
+    // La pantalla lee de Room…
     val publicaciones = repo.publicaciones()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    // …y el repositorio la mantiene al día con el servidor
+    fun actualizar() = viewModelScope.launch { repo.refrescar() }
 
     companion object {
         val Factory = viewModelFactory {
@@ -114,19 +178,14 @@ class MuroViewModel(private val repo: PublicacionRepository) : ViewModel() {
         }
     }
 }
-
-// En la pantalla:
-@Composable
-fun MuroScreen(viewModel: MuroViewModel = viewModel(factory = MuroViewModel.Factory)) {
-    val publicaciones by viewModel.publicaciones.collectAsStateWithLifecycle()
-    // …
-}
 ```
 
-## 7. Pruebas
+## 9. Pruebas
 
 | Qué | Cómo |
 |---|---|
-| Reescalado a 720p | Pruebas unitarias con imágenes de distintos tamaños y orientaciones |
+| Reescalado a 720p y validaciones | Pruebas unitarias con distintos tamaños, orientaciones y textos |
 | DAOs de Room | Pruebas con una base de datos en memoria: inserción, orden por fecha y borrado en cascada |
+| Sesión y cliente de red | Pruebas con **MockWebServer**, un servidor falso que devuelve respuestas preparadas: correctas, errores y token caducado |
+| Políticas de seguridad | Pruebas manuales con dos cuentas: una no puede borrar ni cambiar lo de la otra |
 | Accesibilidad | Revisión con TalkBack y el Accessibility Scanner |
