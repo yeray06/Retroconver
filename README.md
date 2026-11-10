@@ -11,6 +11,7 @@ Red social para Android con la estética y la sencillez de las redes de finales 
 | Planificación | [docs/planificacion.md](docs/planificacion.md) |
 | Requisitos | [docs/requisitos.md](docs/requisitos.md) |
 | Arquitectura y tecnologías | [docs/arquitectura.md](docs/arquitectura.md) |
+| Servidor Supabase | [supabase/README.md](supabase/README.md) |
 | Guía de estilo y bocetos | [docs/estilo.md](docs/estilo.md) · [docs/diseño/](docs/diseño/) |
 | Navegación y recorrido principal | [docs/navegacion.md](docs/navegacion.md) · [docs/recorrido.md](docs/recorrido.md) |
 | Cómo trabajamos | [CONTRIBUTING.md](CONTRIBUTING.md) |
