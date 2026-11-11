@@ -232,4 +232,6 @@ class MuroViewModel(private val repo: PublicacionRepository) : ViewModel() {
 | DAOs de Room | Pruebas con una base de datos en memoria: inserción, orden por fecha y borrado en cascada |
 | Sesión y cliente de red | Pruebas con **MockWebServer**, un servidor falso que devuelve respuestas preparadas: correctas, errores y token caducado |
 | Políticas de seguridad | Pruebas manuales con dos cuentas: una no puede borrar ni cambiar lo de la otra |
-| Accesibilidad | Revisión con TalkBack y el Accessibility Scanner |
+| Accesibilidad | Comprobaciones automáticas del Accessibility Test Framework en cada pantalla, y revisión con TalkBack y el Accessibility Scanner |
+
+La lista completa de pruebas y su resultado está en [docs/pruebas.md](pruebas.md).

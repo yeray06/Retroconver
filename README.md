@@ -196,7 +196,7 @@ Los detalles están en [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Pruebas
 
-Las pruebas se lanzan con Gradle, no con el botón ▶ de la clase de prueba:
+La lista de pruebas, su resultado y la revisión de accesibilidad están en [docs/pruebas.md](docs/pruebas.md). Las pruebas se lanzan con Gradle, no con el botón ▶ de la clase de prueba:
 
 1. Abre el panel **Gradle** (el elefante de la derecha) y pulsa *Execute Gradle Task*.
 2. Escribe `testDebugUnitTest` y pulsa Enter.
