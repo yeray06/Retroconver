@@ -1,0 +1,91 @@
+# Integración continua: en cada Pull Request y en cada cambio de main,
+# GitHub compila la app y pasa las pruebas. Si algo falla, la PR lo muestra en rojo.
+# Es gratis porque el repositorio es público.
+name: Compilación y pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compilar:
+    name: Compilar y pruebas unitarias
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21 para Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Compilar la app y pasar las pruebas unitarias
+        run: ./gradlew --stacktrace assembleDebug testDebugUnitTest
+
+      - name: Guardar el informe de las pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas-unitarias
+          path: app/build/reports/tests/
+          if-no-files-found: ignore
+
+      - name: Guardar los esquemas de Room generados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: esquemas-room
+          path: app/schemas/
+          if-no-files-found: ignore
+
+  emulador:
+    name: Pruebas en el emulador
+    needs: compilar
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21 para Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Permitir la aceleración del emulador (KVM)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Pruebas de Room, imágenes y pantallas en un emulador con Android 14
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: ./gradlew --stacktrace connectedDebugAndroidTest
+
+      - name: Guardar el informe de las pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas-emulador
+          path: app/build/reports/androidTests/
+          if-no-files-found: ignore
