@@ -1,6 +1,7 @@
 package com.retroconver
 
 import android.app.Application
+import com.retroconver.data.sesion.EstadoSesion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,9 +23,14 @@ class RetroconverApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
-        // La primera vez que se abre la app se crea el usuario local (RF-04). Las demás veces no hace nada.
+        // Provisional hasta E4-05.1 (#121): el perfil y el muro todavía usan el usuario local de Room.
+        // Cada vez que se abre una sesión se asegura que existe, porque al cerrar sesión se borra.
         ambitoApp.launch {
-            container.usuarioRepository.asegurarUsuarioLocal(getString(R.string.usuario_local_nombre))
+            container.sesionRepository.estado.collect { estado ->
+                if (estado is EstadoSesion.Iniciada) {
+                    container.usuarioRepository.asegurarUsuarioLocal(getString(R.string.usuario_local_nombre))
+                }
+            }
         }
     }
 }

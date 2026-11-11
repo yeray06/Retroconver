@@ -13,7 +13,9 @@ El siguiente flujo representa la arquitectura completa de pantallas de Retroconv
 ```mermaid
 graph TD
     %% Nodos principales de la app
-    Start([🚀 Arranque App / MainActivity]) -->|Navigation Compose| Muro
+    Start([🚀 Arranque App / MainActivity]) -->|Con sesión| Muro
+    Start -->|Sin sesión| Acceso[🔑 Inicio de sesión / Registro]
+    Acceso -->|Entrar o crear cuenta| Muro
 
     subgraph BARRA_INFERIOR [Barra de Navegación Inferior - BottomNav]
         Muro[🏠 Muro / Momentos]
@@ -50,3 +52,26 @@ graph TD
     classDef modalStyle fill:#e6f0fa,stroke:#2b82df,color:#000,stroke-width:1px;
     class Muro,Perfil,Galeria,Mensajes mainApp;
     class FormPublicar,EditEstado,DetalleAlbum,ConversacionChat modalStyle;
+
+## 2. Acceso con cuenta (E4-04)
+
+Desde la entrega 4 hay cuentas (E4-04, [#116](https://github.com/yeray06/Retroconver/issues/116)). Lo primero que decide la app es si hay sesión guardada en DataStore (`RetroconverRaiz`):
+
+```mermaid
+graph TD
+    Arranque([Abrir la app]) --> Leer{¿Sesión guardada?}
+    Leer -->|No| Inicio[🔑 Inicio de sesión]
+    Leer -->|Sí| Muro[🏠 Muro]
+    Inicio -->|Regístrate| Registro[📝 Registro]
+    Registro -->|Entra| Inicio
+    Inicio -->|Entrar| Muro
+    Registro -->|Crear cuenta| Muro
+    Registro -->|Si hay que confirmar el email| Correo[✉️ Revisa tu correo]
+    Correo -->|Ir a entrar| Inicio
+    Muro -.->|Perfil → Cerrar sesión| Inicio
+    Muro -.->|La sesión caduca y no se puede renovar| Inicio
+```
+
+- **No se navega al entrar ni al salir.** Las pantallas de acceso y la app con la barra inferior son dos partes separadas. Al guardar o borrar la sesión cambia el estado y se muestra la otra parte. Así, después de cerrar sesión no se puede volver con «Atrás» al muro de la persona anterior.
+- **Al cambiar de cuenta se empieza de cero:** la pila de navegación y los ViewModels se crean de nuevo.
+- **Cerrar sesión** está al final del Perfil y pide confirmación, porque borra la copia de los datos del móvil (E4-04.3, [#119](https://github.com/yeray06/Retroconver/issues/119)).

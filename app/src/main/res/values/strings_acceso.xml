@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Inicio de sesión y registro (E4-04.2, #118) -->
+<resources>
+    <string name="acceso_lema">Tu red social de toda la vida</string>
+
+    <!-- Campos -->
+    <string name="acceso_nombre">Nombre</string>
+    <string name="acceso_email">Email</string>
+    <string name="acceso_contrasena">Contraseña</string>
+    <string name="acceso_ver">Ver</string>
+    <string name="acceso_ocultar">Ocultar</string>
+    <string name="acceso_descripcion_ver">Mostrar la contraseña</string>
+    <string name="acceso_descripcion_ocultar">Ocultar la contraseña</string>
+    <string name="acceso_pista_contrasena">Mínimo %1$d caracteres.</string>
+
+    <!-- Inicio de sesión -->
+    <string name="acceso_titulo_entrar">Entra en Retroconver</string>
+    <string name="acceso_entrar">Entrar</string>
+    <string name="acceso_entrando">Entrando…</string>
+    <string name="acceso_sin_cuenta">¿Todavía no tienes cuenta?</string>
+    <string name="acceso_ir_a_registro">Regístrate</string>
+
+    <!-- Registro -->
+    <string name="acceso_titulo_registro">Crea tu cuenta</string>
+    <string name="acceso_registro_explicacion">Con tu nombre te encontrarán en Retroconver. Lo puedes cambiar luego en tu perfil.</string>
+    <string name="acceso_crear_cuenta">Crear cuenta</string>
+    <string name="acceso_creando">Creando la cuenta…</string>
+    <string name="acceso_con_cuenta">¿Ya tienes cuenta?</string>
+    <string name="acceso_ir_a_entrar">Entra</string>
+    <string name="acceso_confirma_titulo">Revisa tu correo</string>
+    <string name="acceso_confirma_texto">Te hemos enviado un enlace a %1$s para confirmar la cuenta. Cuando lo pulses, vuelve y entra con tu email y tu contraseña.</string>
+    <string name="acceso_volver_a_entrar">Ir a entrar</string>
+
+    <!-- Errores de los campos -->
+    <string name="acceso_error_obligatorio">Este campo es obligatorio.</string>
+    <string name="acceso_error_email">Escribe un email válido, por ejemplo nombre@correo.es.</string>
+    <string name="acceso_error_contrasena_corta">La contraseña tiene que tener al menos %1$d caracteres.</string>
+    <string name="acceso_error_nombre_largo">Máximo %1$d caracteres.</string>
+</resources>

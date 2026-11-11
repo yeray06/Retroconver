@@ -162,7 +162,12 @@ El esquema de las tablas del servidor está en [docs/datos/esquemadatos.md](dato
 - **Políticas de seguridad (RLS).** La clave pública de Supabase (*anon key*) viaja dentro de la app, así que cualquiera podría usarla fuera de ella. Por eso cada tabla tiene políticas en el servidor: con sesión se puede leer todo, pero solo se crea, cambia o borra lo propio. El dueño de un tablón puede borrar cualquier mensaje de su tablón (E4-02.2, [#112](https://github.com/yeray06/Retroconver/issues/112)).
 - **Imágenes.** Cada cuenta solo puede subir y borrar archivos de su carpeta (`imagenes/{id de la cuenta}/`). El bucket es de lectura pública para que Coil cargue las imágenes por URL sin token. Las rutas llevan un UUID y no se pueden adivinar, pero quien tenga la URL exacta puede ver la imagen. Para un proyecto de clase es un buen equilibrio; la alternativa serían URLs firmadas que caducan.
 - **Claves fuera del repositorio.** La URL y la clave pública van en `local.properties`, que Git ignora, y llegan al código por `BuildConfig` (E4-03.1, [#114](https://github.com/yeray06/Retroconver/issues/114)).
-- **Sesión.** El móvil guarda el token de acceso y el de renovación, nunca la contraseña. El token de acceso caduca en una hora y se renueva solo.
+- **Sesión.** El móvil guarda el token de acceso y el de renovación, nunca la contraseña. El token de acceso caduca en una hora y se renueva solo (E4-04.1, [#117](https://github.com/yeray06/Retroconver/issues/117)):
+  - Antes de cada petición, si le queda menos de un minuto, `SesionRepository` lo renueva.
+  - Si aun así el servidor responde 401, `RenovadorDeSesion` (un `Authenticator` de OkHttp) lo renueva y repite la petición una vez.
+  - Si el servidor ya no acepta el token de renovación, la sesión se cierra, se borra la copia local y la app vuelve al inicio de sesión. Sin red no se cierra nada: se vuelve a intentar más tarde.
+  - Las llamadas de Auth van en un cliente HTTP aparte, sin el token de la sesión, para que renovar no dependa del token caducado.
+- **Cerrar sesión** borra los tokens, la base de datos Room y las imágenes guardadas en el móvil (E4-04.3, [#119](https://github.com/yeray06/Retroconver/issues/119)).
 
 ## 7. Versiones de Android
 
