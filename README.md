@@ -204,6 +204,25 @@ La lista de pruebas, su resultado y la revisión de accesibilidad están en [doc
 
 Las pruebas de la base de datos y de las imágenes necesitan Android, así que se ejecutan en el emulador. Con el emulador abierto, lanza la tarea `connectedDebugAndroidTest`. El informe queda en `app/build/reports/androidTests/connected/debug/index.html`.
 
+### Integración continua (el check de las PR)
+
+En cada Pull Request y en cada cambio de `main`, GitHub compila la app y pasa todas las pruebas (E4-12.3, [#134](https://github.com/yeray06/Retroconver/issues/134)). Lo hace `.github/workflows/android.yml` con dos trabajos:
+
+| Trabajo | Qué hace | Tarda |
+|---|---|---|
+| **Compilar y pruebas unitarias** | `assembleDebug` y `testDebugUnitTest` | ~5 min |
+| **Pruebas en el emulador** | Arranca un emulador con Android 14 y pasa `connectedDebugAndroidTest` (Room, imágenes, pantallas) | ~10 min |
+
+En la PR, abajo del todo:
+
+- ✅ **Check verde:** compila y pasan todas las pruebas. Se puede revisar y fusionar.
+- ❌ **Check rojo:** algo no compila o alguna prueba falla. **No se fusiona.** Pulsa *Details*: arriba sale un resumen con los errores (*Errores de compilación o de pruebas*) y en *Summary → Artifacts* están los informes de las pruebas (`informe-pruebas-unitarias`, `informe-pruebas-emulador`).
+- 🟡 **En curso:** hay que esperar a que termine.
+
+Los esquemas de Room que genera cada compilación quedan en el artefacto `esquemas-room`. Si una PR sube la versión de la base de datos, hay que descargarlo y subir el `.json` nuevo a `app/schemas/`.
+
+La CI no tiene `local.properties`, así que compila sin la URL ni la clave de Supabase. Las pruebas usan un servidor falso (MockWebServer) y no necesitan el de verdad.
+
 ### Estructura del código
 
 ```
