@@ -186,7 +186,13 @@ Los detalles están en [CONTRIBUTING.md](CONTRIBUTING.md).
    - Si sale **«Incompatible Gradle JVM version»**, pulsa *Apply compatible Gradle JDK configuration and sync*. También puedes ir a *Settings → Build, Execution, Deployment → Build Tools → Gradle* y elegir un **Gradle JDK 21**; si no tienes ninguno, usa *Download JDK*.
    - Si Android Studio propone **actualizar el Android Gradle Plugin** (*Upgrade Assistant*), **no lo hagas**. El proyecto usa versiones fijas que ya están probadas juntas: AGP 8.13.0, Gradle 8.14.3 y Kotlin 2.2.20.
    - Si propone migrar a *Gradle Daemon toolchain*, pulsa *Ignore*.
-4. Elige la configuración **app** y tu emulador, y pulsa **▶ Run**.
+4. **Conecta la app con el servidor.** Abre el fichero `local.properties` de la raíz (lo crea Android Studio y Git no lo sube) y añade al final la URL y la clave pública del proyecto Supabase:
+   ```properties
+   SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+   SUPABASE_ANON_KEY=eyJhbGciOi...
+   ```
+   Están en el panel de Supabase, en *Project Settings → API*. Pídeselas a Yeray si no tienes acceso. Sin ellas la app abre igual, pero no puede conectar y lo dice al intentarlo. Más detalle en [supabase/README.md](supabase/README.md#conectar-la-app).
+5. Elige la configuración **app** y tu emulador, y pulsa **▶ Run**.
 
 ### Pruebas
 
@@ -204,8 +210,9 @@ Las pruebas de la base de datos y de las imágenes necesitan Android, así que s
 app/src/main/java/com/retroconver/
 ├── RetroconverApp.kt   Application: crea el AppContainer
 ├── MainActivity.kt     Única Activity: tema y navegación
-├── AppContainer.kt     Base de datos y repositorios (una sola instancia)
+├── AppContainer.kt     Base de datos, cliente de red y repositorios (una sola instancia)
 ├── data/local/         AppDatabase, entidades, DAOs y convertidores
+├── data/remote/        Cliente de Supabase: servicios de Retrofit, errores de red y aviso sin conexión
 ├── data/repository/    Repositorios de cada módulo
 ├── data/imagenes/      Reescalado a 720p y copias de las imágenes
 ├── navigation/         Rutas, barra inferior y NavHost

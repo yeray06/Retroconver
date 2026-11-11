@@ -33,6 +33,10 @@ SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 SUPABASE_ANON_KEY=eyJhbGciOi...
 ```
 
+Después vuelve a compilar (▶ *Run*): Gradle copia los dos valores en `BuildConfig`, que es de donde los lee la app (`data/remote/ConfiguracionSupabase.kt`). También se pueden dar como variables de entorno con el mismo nombre, por ejemplo en la integración continua.
+
+Si faltan, la app compila y abre igual, pero cada llamada al servidor responde con el aviso *«La app no tiene configurado el servidor»*.
+
 La clave *anon* está pensada para ir dentro de la app: no da acceso a nada que no permitan las políticas de seguridad. La que **nunca** se pone en la app ni en el repositorio es la *service_role*, que se salta todas las políticas.
 
 ## Límites del plan gratuito
