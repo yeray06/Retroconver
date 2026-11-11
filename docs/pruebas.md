@@ -77,13 +77,13 @@ Si encuentra un error, la prueba falla y dice qué elemento es.
 |---|---|
 | Inicio de sesión | Sin conexión (franja amarilla), email mal escrito, contraseña vacía y error del servidor |
 | Registro | Nombre vacío, contraseña corta y email ya registrado; y la pantalla de «Revisa tu correo» |
-| Perfil | Con error al subir la foto; y sin poder descargarse (Reintentar / Cerrar sesión) |
+| Perfil | Completo; con error al subir la foto; y sin poder descargarse (Reintentar / Cerrar sesión) |
 | Editar perfil | Nombre vacío y error al guardar |
 | Galería | Lista con y sin portada y con error; galería vacía de otra persona |
 | Álbum | Propio con fotos y una subida fallida |
 | Foto | Propia, con el botón Borrar y un error |
 
-Además, comprueba con medidas que los botones de Perfil, «Entrar», «Crear cuenta», «Ver contraseña», «← Volver» y las miniaturas miden al menos 48 dp.
+La comprobación de zonas táctiles del framework revisa que **todos** los elementos pulsables de cada pantalla midan al menos 48 dp. Estas comprobaciones necesitan Android 14 (API 34) o superior: la CI usa un emulador con API 34, y en uno más antiguo se saltan.
 
 ### Login y registro solo con TalkBack
 
