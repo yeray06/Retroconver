@@ -21,7 +21,12 @@ private val RetroColorScheme = lightColorScheme(
     onSurfaceVariant = RetroGrayText,
     // Fondo de la barra de navegación inferior
     surfaceContainer = RetroCardBackground,
+    // Diálogos y el indicador de «deslizar para actualizar»: blancos como las tarjetas,
+    // en vez del lila que trae Material 3 por defecto
+    surfaceContainerHigh = RetroCardBackground,
     outline = RetroCardBorder,
+    // Contraste de 4,5:1 o más también sobre el fondo azul claro (E4-12.2, #78)
+    error = RetroErrorRed,
 )
 
 /**

@@ -34,3 +34,7 @@ val RetroGrayText = Color(0xFF555555)
 // Avisos (franja de «Sin conexión»): amarillo pálido como los avisos de Tuenti. Con RetroTextDark el contraste es de 14:1
 val RetroAvisoFondo = Color(0xFFFFF4C2)
 val RetroAvisoBorde = Color(0xFFE0C860)
+
+// Errores. Algo más oscuro que el rojo por defecto de Material 3 (#B3261E), que sobre el fondo
+// azul claro se quedaba en 4,4:1. Este cumple 4,5:1 en todos los fondos (E4-12.2, #78)
+val RetroErrorRed = Color(0xFFA3211B)
