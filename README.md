@@ -89,81 +89,107 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 
 ## Estado actual
 
-**Entrega 3 · Flujo principal.**
+**Entrega 4 · Versión candidata** (15/11/2026). Retroconver pasa a ser una red social de verdad, con cuentas y datos compartidos en un servidor Supabase (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)).
 
 ### Qué funciona
 
-| Qué | Dónde | Issue |
-|---|---|---|
-| Usuario local creado automáticamente la primera vez que se abre la app (sin registro) | `data/local/UsuarioEntity.kt`, `UsuarioDao.kt`, `data/repository/UsuarioRepository.kt` | E3-01 [#13](https://github.com/yeray06/Retroconver/issues/13) |
-| Perfil con avatar, nombre, estado y biografía guardados en Room | `ui/screens/perfil/` | E3-06 [#14](https://github.com/yeray06/Retroconver/issues/14) |
-| Edición del perfil con nombre obligatorio, límite de caracteres y mensajes de error | `ui/screens/perfil/EditarPerfil*.kt` | E3-06.2 [#54](https://github.com/yeray06/Retroconver/issues/54) |
-| Elegir fotos con el Photo Picker de Android, sin pedir permisos | `ui/components/SelectorDeImagen.kt` | E3-04 [#19](https://github.com/yeray06/Retroconver/issues/19) |
-| Reescalado de imágenes a 720p como máximo, con la orientación EXIF corregida, y copia en el almacenamiento interno | `data/imagenes/` | E3-05 [#20](https://github.com/yeray06/Retroconver/issues/20) |
-| Crear publicación desde el botón «+» del muro: texto obligatorio con contador y foto opcional (con vista previa, se puede quitar) guardada a 720p | `ui/screens/muro/NuevaPublicacion*.kt` | E3-07 [#17](https://github.com/yeray06/Retroconver/issues/17) |
-| Muro con las publicaciones de la más reciente a la más antigua y estado vacío | `ui/screens/muro/` | E3-03 [#16](https://github.com/yeray06/Retroconver/issues/16) |
-| Publicaciones y comentarios en Room con su DAO y repositorio | `data/local/Publicacion*.kt`, `Comentario*.kt` | E3-02 [#15](https://github.com/yeray06/Retroconver/issues/15) |
-| Proyecto Android, navegación con barra inferior, Room, tema retro y componentes base | `app/`, `navigation/`, `ui/theme/`, `ui/components/` | Entrega 2 |
-| Documentación: requisitos, arquitectura, esquema de datos, guía de estilo y bocetos | `docs/` | Entrega 2 |
+| Qué | Dónde | Issue | Estado |
+|---|---|---|---|
+| Servidor Supabase (plan gratuito): tablas, políticas de seguridad (12/12 comprobaciones) e imágenes | `supabase/` | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ |
+| Cliente de red con Retrofit: errores traducidos al español y franja de «Sin conexión» | `data/remote/` | E4-03 [#113](https://github.com/yeray06/Retroconver/issues/113) | En revisión ([#137](https://github.com/yeray06/Retroconver/pull/137)) |
+| Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | En revisión ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
+| Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | En revisión ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
+| Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/repository/GaleriaRepository.kt` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | En revisión ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142)) |
+| 150 pruebas automáticas, revisión de accesibilidad e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | En revisión ([#135](https://github.com/yeray06/Retroconver/pull/135), [#143](https://github.com/yeray06/Retroconver/pull/143)) |
+| De la entrega 3: perfil con edición validada, Photo Picker sin permisos, reescalado a 720p, nueva publicación y muro | `ui/screens/perfil/`, `ui/screens/muro/`, `data/imagenes/` | Entrega 3 | ✅ |
 
-## Cómo probar el flujo principal (entrega 3)
+### Qué falta para la versión candidata
 
-Primero abre y ejecuta el proyecto como se explica en [Cómo abrir y ejecutar el proyecto](#cómo-abrir-y-ejecutar-el-proyecto).
+Son las tareas de David de la entrega 4. Ahora mismo las publicaciones y los comentarios todavía se guardan solo en el móvil.
 
-### 1. Primera apertura
+| Tarea | Issue |
+|---|---|
+| Publicaciones compartidas en el servidor y muro de todas las personas | E4-06 [#123](https://github.com/yeray06/Retroconver/issues/123) |
+| Comentarios | E4-07 [#18](https://github.com/yeray06/Retroconver/issues/18) |
+| Perfiles de otras personas y buscador | E4-08 [#126](https://github.com/yeray06/Retroconver/issues/126) |
+| Tablón de mensajes | E4-09 [#22](https://github.com/yeray06/Retroconver/issues/22) |
+| Color de fondo y tema del perfil | E4-11 [#23](https://github.com/yeray06/Retroconver/issues/23) |
+| Pruebas y accesibilidad de Muro y Mensajes | E4-13 [#25](https://github.com/yeray06/Retroconver/issues/25) |
+| Memoria v4 | E4-14 [#81](https://github.com/yeray06/Retroconver/issues/81) |
 
-1. Abre la app. Se abre el **Muro** con el mensaje «El muro está vacío».
-2. Ve a **Perfil**. Ya existe tu usuario local, «Yo», con la inicial en el avatar. No hay registro ni contraseña: se crea solo la primera vez (RF-04).
+Lo que ya está hecho les deja el camino preparado:
+- El patrón para pasar un módulo al servidor está en [docs/arquitectura.md](docs/arquitectura.md), apartado 2.
+- `UsuarioRepository.guardarDelServidor()` guarda los autores del muro.
+- Los álbumes de otra persona se abren con `RutasGaleria.albumesDe(id)`.
+- `UsuarioEntity` ya tiene `colorFondo` y `tema`.
 
-### 2. Editar el perfil
+### Qué se termina o corrige antes de la entrega final
 
-1. En Perfil pulsa **Editar perfil**.
-2. Borra el nombre y pulsa **Guardar**: aparece «El nombre es obligatorio.» y el campo se pone en rojo.
-3. Escribe más de 80 caracteres en el estado y pulsa **Guardar**: aparece «Máximo 80 caracteres.». Debajo de cada campo se ve el contador.
-4. Escribe un nombre, un estado y una biografía válidos y pulsa **Guardar**. Vuelves al perfil y ya se ven los datos nuevos.
-5. Cierra la app del todo (deslízala fuera de las apps recientes) y ábrela otra vez: el perfil sigue igual. Los datos están en Room.
+- **Desactivar *Confirm email* en Supabase** ([#110](https://github.com/yeray06/Retroconver/issues/110)). Con la confirmación activada, cada cuenta nueva tiene que pulsar un enlace del correo, y el correo gratuito de Supabase solo envía unos pocos por hora. La app lo explica, pero para probar es un estorbo.
+- **Subir los esquemas de Room 3, 4 y 5** a `app/schemas/` ([#146](https://github.com/yeray06/Retroconver/issues/146)) y sustituir el borrado de la base de datos al actualizar por migraciones.
+- **Subir fotos en segundo plano** con WorkManager, para que no se cancelen al salir del álbum ([#147](https://github.com/yeray06/Retroconver/issues/147)).
+- **Probar con TalkBack, el Accessibility Scanner y letra grande** en un móvil de verdad ([docs/pruebas.md](docs/pruebas.md), apartado 4).
+- Extras si hay tiempo: amistades ([#129](https://github.com/yeray06/Retroconver/issues/129)), «Me gusta» ([#130](https://github.com/yeray06/Retroconver/issues/130)) y mensajes directos ([#28](https://github.com/yeray06/Retroconver/issues/28)).
 
-### 3. Cambiar el avatar
+## Cómo probar la versión candidata (entrega 4)
 
-1. En Perfil pulsa **Cambiar foto**. Se abre el selector de fotos de Android sin pedir ningún permiso.
-2. Elige una foto. Se ve en el perfil y en las publicaciones del muro.
-3. Para probar con una foto grande, arrastra al emulador una foto de móvil (por ejemplo de 4000×3000) y elígela. En *View → Tool Windows → Device Explorer*, la carpeta `data/data/com.retroconver/files/images/` tiene una sola imagen, como mucho de 960×720. Al cambiar otra vez de foto, la anterior se borra.
+Primero abre el proyecto y **conecta la app con el servidor** como se explica en [Cómo abrir y ejecutar el proyecto](#cómo-abrir-y-ejecutar-el-proyecto) (paso 4: `SUPABASE_URL` y `SUPABASE_ANON_KEY` en `local.properties`). Para crear el servidor desde cero, mira [supabase/README.md](supabase/README.md).
 
-### 4. Publicar en el muro
+### 1. Registro e inicio de sesión
 
-1. En el Muro pulsa el botón **+** de la cabecera. Se abre el formulario «Nueva publicación».
-2. Pulsa **Publicar** sin escribir nada: aparece «Escribe algo para publicar.» y el campo se pone en rojo. Lo mismo si solo escribes espacios.
-3. Escribe un texto. Debajo se ve el contador (por ejemplo `12/500`); con más de 500 caracteres aparece «Máximo 500 caracteres.».
-4. Pulsa **Añadir foto** y elige una. Se ve una vista previa. Pulsa **Quitar foto** para quitarla, o elige otra para cambiarla.
-5. Pulsa **Publicar**: vuelves al muro y la publicación aparece arriba con tu avatar, tu nombre, «hace 1m», el texto y la imagen. El estado vacío desaparece.
-6. En *Device Explorer*, `files/images/` tiene la foto reducida a 720p. Si cancelas el formulario con una foto elegida, esa copia se borra.
+1. Abre la app. Sale **Entra en Retroconver** con la cabecera azul.
+2. Pulsa **Regístrate** y luego **Crear cuenta** sin rellenar nada: cada campo dice qué le falta. Prueba un email sin dominio y una contraseña de 3 caracteres.
+3. Rellena nombre, email y una contraseña de 6 o más caracteres. Si *Confirm email* está desactivado, entras directamente al **Muro**. Si está activado, sale «Revisa tu correo»: pulsa el enlace del correo y entra.
+4. Cierra la app del todo y ábrela: **sigue la sesión**.
+5. En Supabase, en *Authentication → Users*, está la cuenta, y en *Table Editor → perfiles*, su perfil con el nombre.
 
-### Evidencias de Room y DataStore
+### 2. Perfil en el servidor
 
-- **Room.** Con la app abierta, en *View → Tool Windows → App Inspection → Database Inspector* se ven las tablas `usuarios`, `publicaciones` y `comentarios` y cómo cambian al editar el perfil. El esquema de cada versión de la base de datos está en `app/schemas/`. Las pruebas `UsuarioDaoTest` y `PublicacionDaoTest` comprueban las consultas con una base de datos en memoria.
-- **Imágenes.** Room guarda solo la ruta de cada imagen. La imagen está en `files/images/`, reducida a 720p (ver el paso 3).
-- **DataStore.** La dependencia está en el proyecto, pero todavía no guarda nada. Se usa en la entrega 4 para el color de fondo y el tema del perfil (E4-04, [#23](https://github.com/yeray06/Retroconver/issues/23)).
+1. **Perfil → Editar perfil.** Cambia el estado y guarda. En *Table Editor → perfiles* se ve el cambio.
+2. Activa el **modo avión**. Sale la franja amarilla de «Sin conexión» y el perfil se sigue viendo. Edita y guarda: sale «No hay conexión…» y lo escrito sigue en el formulario.
+3. Quita el modo avión. **Cambiar foto**: el avatar se sube a *Storage → imagenes → (tu id)*. Si lo cambias otra vez, el anterior se borra del servidor.
+
+### 3. Galería
+
+1. **Galería → Nuevo álbum.** Si lo dejas sin nombre, avisa. Ponle «Viaje a Londres» y se abre vacío.
+2. **Añadir fotos:** elige varias. Sale «Subiendo 1 de 3…» y aparecen en la cuadrícula de 3 columnas.
+3. Pulsa una foto para verla a pantalla completa. **Borrar** pide confirmación, y la foto desaparece del álbum y de *Storage*.
+4. Vuelve a la lista: el álbum tiene portada y número de fotos. Desliza hacia abajo para actualizar.
+
+### 4. Cerrar sesión
+
+1. **Perfil → Cerrar sesión** (al final) → confirmar. Vuelve al inicio de sesión y «Atrás» no lleva al muro.
+2. Entra otra vez con la misma cuenta: el perfil y los álbumes vuelven, porque están en el servidor.
+
+### Evidencias de Room, DataStore y el servidor
+
+- **Room.** En *App Inspection → Database Inspector* están las tablas `usuarios`, `publicaciones`, `comentarios`, `albumes` y `fotos`, con los ids UUID del servidor. Al cerrar sesión quedan vacías.
+- **DataStore.** En *Device Explorer*, `files/datastore/sesion.preferences_pb` guarda los tokens y el id de la cuenta, nunca la contraseña. Lo comprueba `SesionRepositoryTest`.
+- **Servidor.** En el panel de Supabase: *Authentication* (cuentas), *Table Editor* (perfiles, álbumes y fotos) y *Storage → imagenes* (una carpeta por cuenta).
+- **Pruebas.** Lista y resultados en [docs/pruebas.md](docs/pruebas.md). Cada PR las pasa en GitHub (ver [Integración continua](#integración-continua-el-check-de-las-pr)).
 
 ### Qué falla o tiene límites
 
-- Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1, porque esas versiones no saben abrir ese formato. La app muestra «No se ha podido usar esa foto». Desde Android 9 funcionan.
-- Mientras desarrollamos, si cambia el esquema de la base de datos se borran los datos guardados. Antes de la entrega final se sustituye por migraciones.
-
-### Qué queda pendiente
-
-- **Entrega 3:** crear publicaciones con texto e imagen (E3-07, [#17](https://github.com/yeray06/Retroconver/issues/17)) y la memoria v3 (E3-08, [#64](https://github.com/yeray06/Retroconver/issues/64)).
-- **Entrega 4:** comentarios, álbumes de fotos, tablón de mensajes, personalización del perfil con DataStore y pruebas de accesibilidad.
+- **Publicaciones y comentarios** todavía se guardan solo en el móvil hasta E4-06 y E4-07 (David).
+- Si se sale del álbum **mientras se suben fotos**, las que faltan no se suben ([#147](https://github.com/yeray06/Retroconver/issues/147)).
+- Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1. La app dice «No se ha podido usar esa foto». Desde Android 9 funcionan.
+- Al actualizar la app con un esquema de base de datos nuevo se borra la copia local. No se pierde nada, porque está en el servidor, pero hay que estar conectado para volver a verlo.
+- Si se borra una imagen del servidor sin conexión, puede quedar el archivo en *Storage* sin usar. No se ve en ningún sitio y no afecta a la app.
+- El plan gratuito de Supabase **pausa el proyecto tras una semana sin uso**. Antes de cada entrega y de la presentación hay que abrirlo en el panel (*Restore project* si hace falta).
 
 El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2).
 
 ## Cómo trabajamos
 
 - **Tablero Kanban** con las columnas Backlog, Por hacer, En curso, En revisión y Hecho.
-- **104 issues en orden de avance.** Cada título empieza por un código: `E2-01` es la primera tarea principal de la entrega 2 y `E2-01.1` su primera subtarea. `EF` es la entrega final y `EX`, los extras. El tablero está ordenado por este código, así que se lee de arriba abajo en el orden en que hay que avanzar.
+- **105 issues en orden de avance.** Cada título empieza por un código: `E2-01` es la primera tarea principal de la entrega 2 y `E2-01.1` su primera subtarea. `EF` es la entrega final y `EX`, los extras. El tablero está ordenado por este código, así que se lee de arriba abajo en el orden en que hay que avanzar.
+- **Errores encontrados al probar:** se registran como issues aparte con la etiqueta `bug`, en la entrega en la que se van a corregir (por ejemplo [#144](https://github.com/yeray06/Retroconver/issues/144)).
 - **Tareas principales y subtareas.** Las tareas grandes se dividen en subtareas (*sub-issues*). Se trabaja sobre las subtareas, y la tarea principal se cierra cuando están todas terminadas. El tablero muestra el progreso de cada tarea principal.
 - **Cada issue tiene** responsable, criterios de terminado, entrega (milestone) y dependencias (*Blocked by*).
 - **Una rama por subtarea**, o por tarea si no tiene subtareas. La rama lleva el número de GitHub de la issue (`feature/53-vista-perfil`). Nunca se hacen commits directos a `main`.
 - **Pull Request enlazada a la issue** (`Closes #53`). La revisa y la aprueba el otro integrante, y después la fusiona su autor. Las ramas no se borran: quedan como registro del trabajo.
+- **Solo se fusiona con el check verde** de la integración continua: compila y pasan todas las pruebas ([más abajo](#integración-continua-el-check-de-las-pr)).
+- **PR encadenadas.** Cuando una tarea necesita otra que aún está en revisión, su rama sale de la de esa tarea y la PR lo dice en «Depende de». Se fusionan en ese orden.
 
 Los detalles están en [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -228,17 +254,20 @@ La CI no tiene `local.properties`, así que compila sin la URL ni la clave de Su
 ```
 app/src/main/java/com/retroconver/
 ├── RetroconverApp.kt   Application: crea el AppContainer
-├── MainActivity.kt     Única Activity: tema y navegación
+├── MainActivity.kt     Única Activity: tema, y acceso o app según haya sesión
 ├── AppContainer.kt     Base de datos, cliente de red y repositorios (una sola instancia)
 ├── data/local/         AppDatabase, entidades, DAOs y convertidores
 ├── data/remote/        Cliente de Supabase: servicios de Retrofit, errores de red y aviso sin conexión
+├── data/sesion/        Sesión con Supabase Auth guardada en DataStore
 ├── data/repository/    Repositorios de cada módulo
 ├── data/imagenes/      Reescalado a 720p y copias de las imágenes
-├── navigation/         Rutas, barra inferior y NavHost
+├── navigation/         Rutas, barra inferior, NavHost y RetroconverRaiz (acceso o app)
 └── ui/
     ├── theme/          Tema retro: colores, tipografía y formas
     ├── components/     Componentes base: RetroHeader, RetroCard, RetroButton, Avatar y selector de imágenes
-    └── screens/        Pantallas de cada módulo
+    └── screens/        Pantallas: acceso, perfil, muro, galeria y mensajes
+supabase/               Esquema del servidor y prueba de seguridad
+.github/workflows/      Integración continua
 ```
 
 El porqué de cada decisión está en [docs/arquitectura.md](docs/arquitectura.md).
