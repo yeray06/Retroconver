@@ -1,38 +1,37 @@
 package com.retroconver.data.local
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UsuarioDao {
 
     /**
-     * Guarda el usuario solo si no existe ya otro con el mismo `id`.
-     * Devuelve el id de la fila nueva, o -1 si ya existía y no se ha tocado.
+     * Guarda el perfil que llega del servidor: lo crea si no está y lo actualiza si ya estaba.
+     * No borra nada, así sus publicaciones y comentarios se quedan.
      */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertarSiNoExiste(usuario: UsuarioEntity): Long
+    @Upsert
+    suspend fun guardar(usuario: UsuarioEntity)
 
-    /** Guarda un usuario nuevo y devuelve el id que le ha puesto Room. */
-    @Insert
-    suspend fun insertar(usuario: UsuarioEntity): Long
+    /** Igual que [guardar], para varios perfiles a la vez (por ejemplo, los autores del muro). */
+    @Upsert
+    suspend fun guardarTodos(usuarios: List<UsuarioEntity>)
 
     /** El usuario con ese id. Emite otra vez cada vez que cambia, y `null` si no existe. */
     @Query("SELECT * FROM usuarios WHERE id = :id")
-    fun observar(id: Long): Flow<UsuarioEntity?>
+    fun observar(id: String): Flow<UsuarioEntity?>
 
     /** Lectura puntual del usuario, sin quedarse observando. */
     @Query("SELECT * FROM usuarios WHERE id = :id")
-    suspend fun obtener(id: Long): UsuarioEntity?
+    suspend fun obtener(id: String): UsuarioEntity?
 
     /** Cambia los datos de texto del perfil. No toca el avatar ni la fecha de alta. */
     @Query("UPDATE usuarios SET nombre = :nombre, biografia = :biografia, estado = :estado WHERE id = :id")
-    suspend fun actualizarDatos(id: Long, nombre: String, biografia: String, estado: String)
+    suspend fun actualizarDatos(id: String, nombre: String, biografia: String, estado: String)
 
-    /** Cambia la ruta del avatar (`null` lo quita). */
-    @Query("UPDATE usuarios SET avatarUri = :avatarUri WHERE id = :id")
-    suspend fun actualizarAvatar(id: Long, avatarUri: String?)
+    /** Cambia el avatar (`null` lo quita): su ruta en el servidor y la dirección para mostrarlo. */
+    @Query("UPDATE usuarios SET avatarRuta = :avatarRuta, avatarUri = :avatarUri WHERE id = :id")
+    suspend fun actualizarAvatar(id: String, avatarRuta: String?, avatarUri: String?)
 }

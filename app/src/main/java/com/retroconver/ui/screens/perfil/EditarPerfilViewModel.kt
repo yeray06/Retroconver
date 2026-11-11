@@ -47,7 +47,7 @@ class EditarPerfilViewModel(private val usuarios: UsuarioRepository) : ViewModel
 
     init {
         viewModelScope.launch {
-            val usuario = usuarios.usuarioLocal().filterNotNull().first()
+            val usuario = usuarios.usuarioActual().filterNotNull().first()
             nombre = usuario.nombre
             biografia = usuario.biografia
             estado = usuario.estado

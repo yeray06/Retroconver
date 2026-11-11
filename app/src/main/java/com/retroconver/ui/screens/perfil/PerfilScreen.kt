@@ -74,6 +74,7 @@ fun PerfilScreen(
         },
         alEditar = alEditar,
         alCerrarSesion = { preguntarCerrarSesion = true },
+        alReintentar = viewModel::actualizar,
     )
     if (preguntarCerrarSesion) {
         ConfirmarCerrarSesion(
@@ -110,8 +111,14 @@ internal fun PerfilContenido(
     alEditar: () -> Unit,
     alCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier,
+    alReintentar: () -> Unit = {},
 ) {
-    val usuario = estado.usuario ?: return
+    val usuario = estado.usuario
+    if (usuario == null) {
+        // Sin copia en Room y sin poder descargarlo (por ejemplo, sin red justo después de entrar)
+        estado.errorCarga?.let { PerfilNoDisponible(it, alReintentar, alCerrarSesion, modifier) }
+        return
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -141,6 +148,31 @@ internal fun PerfilContenido(
                 texto = stringResource(if (estado.cerrandoSesion) R.string.perfil_cerrando_sesion else R.string.perfil_cerrar_sesion),
                 onClick = { if (!estado.cerrandoSesion) alCerrarSesion() },
             )
+        }
+    }
+}
+
+/** No hay copia del perfil y no se ha podido descargar: el motivo, para reintentar o salir. */
+@Composable
+private fun PerfilNoDisponible(
+    mensaje: Int,
+    alReintentar: () -> Unit,
+    alCerrarSesion: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.padding(16.dp)) {
+        RetroCard(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = stringResource(mensaje),
+                style = MaterialTheme.typography.bodyLarge,
+                color = RetroTextDark,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
+            Spacer(Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                RetroButton(texto = stringResource(R.string.perfil_reintentar), onClick = alReintentar)
+                RetroButton(texto = stringResource(R.string.perfil_cerrar_sesion), onClick = alCerrarSesion)
+            }
         }
     }
 }
@@ -238,7 +270,7 @@ private fun PerfilPreview() {
         PerfilContenido(
             estado = PerfilUiState(
                 usuario = UsuarioEntity(
-                    id = 1,
+                    id = "yeray",
                     nombre = "Yeray",
                     biografia = "Echo de menos los tablones de Tuenti y las tardes en el Messenger.",
                     estado = "Escuchando música en el MSN",
@@ -257,7 +289,7 @@ private fun PerfilPreview() {
 private fun PerfilRecienCreadoPreview() {
     RetroconverTheme {
         PerfilContenido(
-            estado = PerfilUiState(usuario = UsuarioEntity(id = 1, nombre = "Yo", fechaAlta = Instant.now()), errorFoto = true),
+            estado = PerfilUiState(usuario = UsuarioEntity(id = "nueva", nombre = "Yo", fechaAlta = Instant.now()), errorFoto = true),
             alCambiarFoto = {},
             alEditar = {},
             alCerrarSesion = {},

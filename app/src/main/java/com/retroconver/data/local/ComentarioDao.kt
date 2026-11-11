@@ -4,14 +4,19 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ComentarioDao {
 
-    /** Guarda el comentario y devuelve el id que le ha puesto Room. */
+    /** Guarda un comentario nuevo. */
     @Insert
-    suspend fun insertar(comentario: ComentarioEntity): Long
+    suspend fun insertar(comentario: ComentarioEntity)
+
+    /** Guarda los comentarios que llegan del servidor: crea los nuevos y actualiza los que ya estaban. */
+    @Upsert
+    suspend fun guardar(comentarios: List<ComentarioEntity>)
 
     /** Comentarios de una publicación, el más reciente primero. */
     @Transaction
@@ -22,5 +27,5 @@ interface ComentarioDao {
         ORDER BY timestamp DESC, id DESC
         """,
     )
-    fun observarDePublicacion(publicacionId: Long): Flow<List<ComentarioConAutor>>
+    fun observarDePublicacion(publicacionId: String): Flow<List<ComentarioConAutor>>
 }

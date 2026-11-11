@@ -8,6 +8,7 @@ import com.retroconver.data.local.PublicacionDao
 import com.retroconver.data.local.PublicacionEntity
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
+import java.util.UUID
 
 /**
  * Única puerta de acceso a las publicaciones y sus comentarios.
@@ -25,32 +26,43 @@ class PublicacionRepository(
     fun publicaciones(): Flow<List<PublicacionConAutor>> = publicacionDao.observarTodas()
 
     /** Una publicación concreta; emite `null` si no existe. */
-    fun publicacion(id: Long): Flow<PublicacionConAutor?> = publicacionDao.observarPorId(id)
+    fun publicacion(id: String): Flow<PublicacionConAutor?> = publicacionDao.observarPorId(id)
 
     /** Comentarios de una publicación, el más reciente primero. */
-    fun comentarios(publicacionId: Long): Flow<List<ComentarioConAutor>> =
+    fun comentarios(publicacionId: String): Flow<List<ComentarioConAutor>> =
         comentarioDao.observarDePublicacion(publicacionId)
 
-    /** Crea una publicación y devuelve su id. `ahora` solo se pasa en las pruebas. */
+    /**
+     * Crea una publicación y devuelve su id, un UUID como los del servidor.
+     * `ahora` solo se pasa en las pruebas. En E4-06 (#123) se guarda primero en el servidor.
+     */
     suspend fun publicar(
-        usuarioId: Long,
+        usuarioId: String,
         texto: String,
         imagenUri: String? = null,
         ahora: Instant = Instant.now(),
-    ): Long = publicacionDao.insertar(
-        PublicacionEntity(usuarioId = usuarioId, texto = texto, imagenUri = imagenUri, timestamp = ahora),
-    )
+    ): String {
+        val id = UUID.randomUUID().toString()
+        publicacionDao.insertar(
+            PublicacionEntity(id = id, usuarioId = usuarioId, texto = texto, imagenUri = imagenUri, timestamp = ahora),
+        )
+        return id
+    }
 
     /** Añade un comentario a una publicación y devuelve su id. */
     suspend fun comentar(
-        publicacionId: Long,
-        usuarioId: Long,
+        publicacionId: String,
+        usuarioId: String,
         texto: String,
         ahora: Instant = Instant.now(),
-    ): Long = comentarioDao.insertar(
-        ComentarioEntity(publicacionId = publicacionId, usuarioId = usuarioId, texto = texto, timestamp = ahora),
-    )
+    ): String {
+        val id = UUID.randomUUID().toString()
+        comentarioDao.insertar(
+            ComentarioEntity(id = id, publicacionId = publicacionId, usuarioId = usuarioId, texto = texto, timestamp = ahora),
+        )
+        return id
+    }
 
     /** Borra la publicación y sus comentarios. */
-    suspend fun eliminar(publicacionId: Long) = publicacionDao.eliminar(publicacionId)
+    suspend fun eliminar(publicacionId: String) = publicacionDao.eliminar(publicacionId)
 }

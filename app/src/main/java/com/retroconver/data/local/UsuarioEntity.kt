@@ -6,25 +6,29 @@ import androidx.room.PrimaryKey
 import java.time.Instant
 
 /**
- * Usuario de la app, con los datos de su perfil (RF-05).
+ * Perfil de una persona de la red (RF-05): copia local de su fila de `perfiles` en el servidor
+ * (E4-05.1, #121). El servidor es quien manda; Room guarda lo último descargado para que las
+ * pantallas se actualicen solas y se vean sin conexión.
  *
- * La app trabaja con un único usuario local, que se crea solo la primera vez que se abre
- * (RF-04, ver [com.retroconver.data.repository.UsuarioRepository]). Es el autor de las
- * publicaciones, los comentarios y los mensajes.
- *
- * El avatar se guarda como ruta a una copia reescalada a 720p en el almacenamiento interno,
- * nunca la imagen en sí (docs/datos/esquemadatos.md).
+ * El id es el UUID de su cuenta de Supabase Auth. Es el autor de las publicaciones,
+ * los comentarios y los mensajes.
  */
 @Entity(tableName = "usuarios")
 data class UsuarioEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey val id: String,
     /** Nombre público. Obligatorio. */
     val nombre: String,
     /** Texto libre del perfil. Vacío si no se ha escrito. */
     @ColumnInfo(defaultValue = "") val biografia: String = "",
     /** Frase del día, como el estado de MSN Messenger. Vacío si no se ha escrito. */
     @ColumnInfo(defaultValue = "") val estado: String = "",
-    /** URI del fichero del avatar (`file:///…/files/images/….jpg`), o `null` si no tiene foto. */
+    /** Ruta del avatar dentro del bucket `imagenes` (`{id}/{uuid}.jpg`), o `null`. Sirve para borrarlo del servidor. */
+    val avatarRuta: String? = null,
+    /** Dirección del avatar lista para Coil (la URL pública de [avatarRuta]), o `null` si no tiene foto. */
     val avatarUri: String? = null,
+    /** Color de fondo del perfil (RF-08, E4-11). `null` usa el de la guía de estilo. */
+    val colorFondo: String? = null,
+    /** Tema del perfil (RF-08, E4-11). `null` usa el de por defecto. */
+    val tema: String? = null,
     val fechaAlta: Instant,
 )

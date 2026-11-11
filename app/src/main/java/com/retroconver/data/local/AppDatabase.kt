@@ -19,7 +19,7 @@ import androidx.room.TypeConverters
         PublicacionEntity::class,
         ComentarioEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)
