@@ -51,18 +51,19 @@ erDiagram
     }
 
     ALBUMES {
-        long id PK "Autoincremental"
-        long usuarioId FK "FK -> USUARIOS.id (CASCADE)"
-        string titulo "Nombre del album"
+        string id PK "UUID del servidor (E4)"
+        string propietarioId FK "FK -> USUARIOS.id (CASCADE)"
+        string titulo "Nombre del album (1-40)"
         string descripcion "Descripcion opcional"
         long fechaCreacion "Timestamp ms"
     }
 
     FOTOS {
-        long id PK "Autoincremental"
-        long albumId FK "FK -> ALBUMES.id (CASCADE)"
-        string fotoUri "Ruta interna local (720p)"
-        string pieDeFoto "Descripcion corta"
+        string id PK "UUID del servidor (E4)"
+        string albumId FK "FK -> ALBUMES.id (CASCADE)"
+        string propietarioId "Duena de la foto"
+        string ruta "Ruta en el bucket imagenes"
+        string uri "URL publica (720p)"
         long fechaAnadida "Timestamp ms"
         int ancho "Resolucion max 720/1280"
         int alto "Resolucion vertical"
@@ -83,7 +84,7 @@ erDiagram
 ## 2. Definición de Claves y Relaciones
 
 ### 2.1 Claves Primarias (`PrimaryKey`)
-> **Desde la entrega 4** (E4-05.1, [#121](https://github.com/yeray06/Retroconver/issues/121)) las claves son `String` con el **UUID que pone el servidor**, no `Long` autoincrementales: así la copia de Room usa los mismos ids que Supabase y lo descargado se guarda con `@Upsert` sin duplicar. Ya están cambiadas `USUARIOS`, `PUBLICACIONES` y `COMENTARIOS` (base de datos versión 4); `ALBUMES`, `FOTOS` y `MENSAJES` nacen así en E4-09 y E4-10. Ver el apartado 5.4.
+> **Desde la entrega 4** (E4-05.1, [#121](https://github.com/yeray06/Retroconver/issues/121)) las claves son `String` con el **UUID que pone el servidor**, no `Long` autoincrementales: así la copia de Room usa los mismos ids que Supabase y lo descargado se guarda con `@Upsert` sin duplicar. Ya están `USUARIOS`, `PUBLICACIONES` y `COMENTARIOS` (versión 4) y `ALBUMES` y `FOTOS` (versión 5, E4-10.1, [#68](https://github.com/yeray06/Retroconver/issues/68)); `MENSAJES` nace así en E4-09. El pie de foto del boceto no se ha hecho: no está en los requisitos. Ver el apartado 5.4.
 
 En la primera versión, todas las entidades usaban una clave primaria de tipo `Long` autoincremental (`autoGenerate = true`):
 * `USUARIOS.id`
