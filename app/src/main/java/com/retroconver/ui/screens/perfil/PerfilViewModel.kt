@@ -1,11 +1,13 @@
 package com.retroconver.ui.screens.perfil
 
 import android.net.Uri
+import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.retroconver.R
 import com.retroconver.RetroconverApp
 import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.UsuarioEntity
@@ -28,8 +30,8 @@ data class PerfilUiState(
     val errorCarga: Int? = null,
     /** Se está reescalando y guardando la foto nueva del avatar. */
     val guardandoFoto: Boolean = false,
-    /** La última foto elegida no se ha podido usar. */
-    val errorFoto: Boolean = false,
+    /** La última foto elegida no se ha podido usar o subir: id del mensaje, o `null`. */
+    val errorFoto: Int? = null,
     /** Se está cerrando la sesión: el botón se desactiva. */
     val cerrandoSesion: Boolean = false,
 )
@@ -83,20 +85,22 @@ class PerfilViewModel(
     }
 
     /**
-     * Pone como avatar la foto elegida en el selector (E3-06.3, #55): guarda una copia a 720p,
-     * la asigna al usuario y borra el fichero del avatar anterior.
+     * Pone como avatar la foto elegida en el selector (E3-06.3 y E4-05.2): la reescala a 720p,
+     * la sube al servidor y borra el avatar anterior. La copia a 720p del móvil se borra al
+     * terminar, porque desde ese momento la imagen se carga del servidor.
      */
     fun cambiarAvatar(origen: Uri) {
         if (foto.value.guardando) return
         viewModelScope.launch {
             foto.value = EstadoFoto(guardando = true)
-            runCatching { imagenes.guardar(origen) }
-                .onSuccess { nueva ->
-                    val anterior = usuarios.cambiarAvatar(nueva)
-                    imagenes.borrar(anterior)
-                    foto.value = EstadoFoto()
-                }
-                .onFailure { foto.value = EstadoFoto(error = true) }
+            val copia = runCatching { imagenes.guardar(origen) }.getOrNull()
+            if (copia == null) {
+                foto.value = EstadoFoto(error = R.string.perfil_error_foto)
+                return@launch
+            }
+            val resultado = usuarios.cambiarAvatar(Uri.parse(copia).toFile())
+            imagenes.borrar(copia)
+            foto.value = if (resultado is ResultadoRed.Fallo) EstadoFoto(error = resultado.mensaje()) else EstadoFoto()
         }
     }
 
@@ -115,7 +119,7 @@ class PerfilViewModel(
         viewModelScope.launch { sesion.cerrarSesion() }
     }
 
-    private data class EstadoFoto(val guardando: Boolean = false, val error: Boolean = false)
+    private data class EstadoFoto(val guardando: Boolean = false, val error: Int? = null)
 
     companion object {
         val Factory = viewModelFactory {

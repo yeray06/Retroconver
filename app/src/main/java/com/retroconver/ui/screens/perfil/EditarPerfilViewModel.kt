@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.retroconver.RetroconverApp
+import com.retroconver.data.remote.ResultadoRed
+import com.retroconver.data.remote.mensaje
 import com.retroconver.data.repository.UsuarioRepository
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -45,6 +47,10 @@ class EditarPerfilViewModel(private val usuarios: UsuarioRepository) : ViewModel
     var guardado by mutableStateOf(false)
         private set
 
+    /** El servidor no ha guardado los cambios: id del mensaje, o `null`. Lo escrito se conserva. */
+    var errorGuardar by mutableStateOf<Int?>(null)
+        private set
+
     init {
         viewModelScope.launch {
             val usuario = usuarios.usuarioActual().filterNotNull().first()
@@ -59,29 +65,39 @@ class EditarPerfilViewModel(private val usuarios: UsuarioRepository) : ViewModel
     fun cambiarNombre(valor: String) {
         nombre = valor
         errores = errores.copy(nombre = null)
+        errorGuardar = null
     }
 
     fun cambiarBiografia(valor: String) {
         biografia = valor
         errores = errores.copy(biografia = null)
+        errorGuardar = null
     }
 
     fun cambiarEstado(valor: String) {
         estado = valor
         errores = errores.copy(estado = null)
+        errorGuardar = null
     }
 
-    /** Valida y, si todo está bien, guarda en Room sin los espacios de los bordes. */
+    /**
+     * Valida y, si todo está bien, guarda en el servidor sin los espacios de los bordes
+     * (E4-05.2, #122). Si no se puede (sin conexión, por ejemplo), se queda en el formulario
+     * con lo escrito y explica por qué.
+     */
     fun guardar() {
         if (!cargado || guardando) return
         val resultado = validarPerfil(nombre, biografia, estado)
         errores = resultado
         if (resultado.hayErrores) return
         guardando = true
+        errorGuardar = null
         viewModelScope.launch {
-            usuarios.actualizarPerfil(nombre.trim(), biografia.trim(), estado.trim())
+            when (val respuesta = usuarios.actualizarPerfil(nombre.trim(), biografia.trim(), estado.trim())) {
+                is ResultadoRed.Correcto -> guardado = true
+                is ResultadoRed.Fallo -> errorGuardar = respuesta.mensaje()
+            }
             guardando = false
-            guardado = true
         }
     }
 
