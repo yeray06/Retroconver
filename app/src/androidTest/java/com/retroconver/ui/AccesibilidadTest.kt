@@ -1,14 +1,14 @@
 package com.retroconver.ui
 
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.assertTouchHeightIsAtLeast
-import androidx.compose.ui.test.assertTouchWidthIsAtLeast
+import androidx.compose.ui.test.junit4.accessibility.enableAccessibilityChecks
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -16,8 +16,8 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.tryPerformAccessibilityChecks
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import com.retroconver.R
 import com.retroconver.data.local.AlbumConPortada
 import com.retroconver.data.local.AlbumEntity
@@ -61,8 +61,12 @@ import java.time.Instant
  * Si encuentra un error, la prueba falla y dice qué elemento es. Las pantallas se prueban con
  * su parte «Contenido», sin ViewModel ni servidor, en los estados más cargados (con errores,
  * sin conexión…).
+ *
+ * Las comprobaciones automáticas necesitan Android 14 (API 34) o superior: en un emulador más
+ * antiguo estas pruebas se saltan. La CI usa API 34.
  */
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 34)
 class AccesibilidadTest {
 
     @get:Rule
@@ -71,6 +75,7 @@ class AccesibilidadTest {
     private fun texto(@StringRes id: Int, vararg argumentos: Any): String = regla.activity.getString(id, *argumentos)
 
     /** Dibuja [contenido] con el tema de la app y le pasa las comprobaciones de accesibilidad. */
+    @RequiresApi(34)
     private fun comprobar(contenido: @Composable () -> Unit) {
         regla.setContent { RetroconverTheme { contenido() } }
         regla.enableAccessibilityChecks()
@@ -170,12 +175,9 @@ class AccesibilidadTest {
 
         regla.onNodeWithText(texto(R.string.acceso_email)).performTextInput("yeray@retroconver.es")
         regla.onNodeWithText(texto(R.string.acceso_contrasena)).performTextInput("secreta")
-        regla.onNodeWithContentDescription(texto(R.string.acceso_descripcion_ver))
-            .assertTouchHeightIsAtLeast(48.dp)
-            .assertTouchWidthIsAtLeast(48.dp)
-            .performClick()
+        regla.onNodeWithContentDescription(texto(R.string.acceso_descripcion_ver)).performClick()
         regla.onNodeWithContentDescription(texto(R.string.acceso_descripcion_ocultar)).performClick()
-        regla.onNodeWithText(texto(R.string.acceso_entrar)).assertTouchHeightIsAtLeast(48.dp).performClick()
+        regla.onNodeWithText(texto(R.string.acceso_entrar)).performClick()
 
         assertEquals("yeray@retroconver.es" to "secreta", credenciales)
     }
@@ -210,8 +212,8 @@ class AccesibilidadTest {
         regla.onNodeWithText(texto(R.string.acceso_nombre)).performTextInput("Yeray")
         regla.onNodeWithText(texto(R.string.acceso_email)).performTextInput("yeray@retroconver.es")
         regla.onNodeWithText(texto(R.string.acceso_contrasena)).performTextInput("secreta")
-        regla.onNodeWithText(texto(R.string.acceso_crear_cuenta)).assertTouchHeightIsAtLeast(48.dp).performClick()
-        regla.onNodeWithText(texto(R.string.acceso_ir_a_entrar)).assertTouchHeightIsAtLeast(48.dp).performClick()
+        regla.onNodeWithText(texto(R.string.acceso_crear_cuenta)).performClick()
+        regla.onNodeWithText(texto(R.string.acceso_ir_a_entrar)).performClick()
 
         assertTrue(cuentaCreada)
         assertTrue(irAEntrar)
@@ -240,16 +242,8 @@ class AccesibilidadTest {
     }
 
     @Test
-    fun losBotonesDelPerfilMidenAlMenos48dp() {
-        regla.setContent {
-            RetroconverTheme {
-                PerfilContenido(estado = PerfilUiState(usuario = yo), alCambiarFoto = {}, alEditar = {}, alCerrarSesion = {})
-            }
-        }
-        listOf(R.string.perfil_cambiar_foto, R.string.perfil_editar, R.string.perfil_cerrar_sesion).forEach { boton ->
-            regla.onNodeWithText(texto(boton)).assertTouchHeightIsAtLeast(48.dp).assertTouchWidthIsAtLeast(48.dp)
-        }
-        regla.onNodeWithContentDescription(texto(R.string.avatar_de, "Yeray")).assertExists()
+    fun perfilCompleto() = comprobar {
+        PerfilContenido(estado = PerfilUiState(usuario = yo), alCambiarFoto = {}, alEditar = {}, alCerrarSesion = {})
     }
 
     @Test
@@ -341,10 +335,8 @@ class AccesibilidadTest {
             }
         }
 
-        regla.onNodeWithContentDescription(texto(R.string.galeria_foto_n, 2, 2))
-            .assertTouchHeightIsAtLeast(48.dp)
-            .performClick()
-        regla.onNodeWithText(texto(R.string.galeria_volver)).assertTouchHeightIsAtLeast(48.dp)
+        regla.onNodeWithContentDescription(texto(R.string.galeria_foto_n, 2, 2)).performClick()
+        regla.onNodeWithContentDescription(texto(R.string.galeria_volver_descripcion)).assertExists()
         // Álbum ajeno: solo lectura
         regla.onNodeWithText(texto(R.string.galeria_anadir_fotos)).assertDoesNotExist()
         assertEquals("f2", abierta)
