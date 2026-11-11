@@ -5,12 +5,16 @@ import kotlinx.serialization.Serializable
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 /**
  * Cuentas con Supabase Auth (`/auth/v1`). Lo usa la sesión (E4-04).
  *
  * La contraseña solo viaja aquí, por HTTPS, y no se guarda en ningún sitio del móvil.
+ *
+ * Este servicio va en un cliente HTTP **sin** el token de la sesión: así renovar el token
+ * no depende del propio token. Por eso el cierre de sesión pasa su token a mano.
  */
 interface AuthService {
 
@@ -29,9 +33,13 @@ interface AuthService {
     @POST("auth/v1/token?grant_type=refresh_token")
     fun renovarSesion(@Body token: RenovarSesionDto): Call<SesionDto>
 
-    /** Invalida el token de renovación en el servidor. Responde sin cuerpo (204). */
+    /**
+     * Invalida la sesión en el servidor. Responde sin cuerpo (204).
+     *
+     * @param autorizacion `"Bearer {token de acceso}"` de la sesión que se cierra.
+     */
     @POST("auth/v1/logout")
-    suspend fun cerrarSesion(): Response<Unit>
+    suspend fun cerrarSesion(@Header("Authorization") autorizacion: String): Response<Unit>
 }
 
 @Serializable

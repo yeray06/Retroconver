@@ -84,8 +84,14 @@ class AppContainer(context: Context) {
         ClienteSupabase.crearRetrofit(configuracionSupabase.urlBase, clienteHttp)
     }
 
-    /** Registro, inicio y cierre de sesión. */
-    val authService: AuthService by lazy { retrofit.create(AuthService::class.java) }
+    /**
+     * Registro, inicio, renovación y cierre de sesión. Va en su propio cliente, sin el token
+     * de la sesión: así renovar el token no depende del token que ha caducado.
+     */
+    val authService: AuthService by lazy {
+        val clienteAuth = ClienteSupabase.crearClienteHttp(configuracionSupabase, FuenteDeToken { null })
+        ClienteSupabase.crearRetrofit(configuracionSupabase.urlBase, clienteAuth).create(AuthService::class.java)
+    }
 
     /** Tabla `perfiles`. */
     val perfilService: PerfilService by lazy { retrofit.create(PerfilService::class.java) }

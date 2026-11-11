@@ -176,9 +176,21 @@ class ClienteSupabaseTest {
     fun unaRespuestaSinCuerpoTambienEsCorrecta() = runBlocking<Unit> {
         responder(204)
 
-        val resultado = llamarAlServidor { auth.cerrarSesion().exigirExito() }
+        val resultado = llamarAlServidor { auth.cerrarSesion("Bearer token-que-se-cierra").exigirExito() }
 
         assertTrue(resultado is ResultadoRed.Correcto)
+    }
+
+    @Test
+    fun siLaPeticionYaTraeSuTokenNoSeCambia() = runBlocking<Unit> {
+        tokenDeSesion = "otro-token"
+        responder(204)
+
+        llamarAlServidor { auth.cerrarSesion("Bearer token-que-se-cierra").exigirExito() }
+
+        val peticion = servidor.takeRequest()
+        assertEquals("Bearer token-que-se-cierra", peticion.getHeader("Authorization"))
+        assertEquals(CLAVE, peticion.getHeader("apikey"))
     }
 
     // ---------- Errores ----------
@@ -227,7 +239,7 @@ class ClienteSupabaseTest {
     fun unErrorEnUnaRespuestaSinCuerpoTambienSeTraduce() = runBlocking<Unit> {
         responder(500)
 
-        val resultado = llamarAlServidor { auth.cerrarSesion().exigirExito() }
+        val resultado = llamarAlServidor { auth.cerrarSesion("Bearer token").exigirExito() }
 
         assertEquals(500, (resultado as ResultadoRed.ErrorServidor).estadoHttp)
     }

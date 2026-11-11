@@ -27,6 +27,7 @@ class ServidorNoConfiguradoException :
  * - `apikey`: la clave pública del proyecto.
  * - `Authorization: Bearer …`: el token de la sesión, o la clave pública si no hay sesión.
  *   Con el token, las políticas de seguridad del servidor saben quién hace la petición.
+ *   Si la petición ya trae su propio `Authorization` (como el cierre de sesión), se respeta.
  */
 class InterceptorSupabase(
     private val configuracion: ConfiguracionSupabase,
@@ -35,12 +36,13 @@ class InterceptorSupabase(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         if (!configuracion.configurada) throw ServidorNoConfiguradoException()
-        val token = fuenteDeToken.tokenDeAcceso() ?: configuracion.claveAnonima
-        val peticion = chain.request().newBuilder()
-            .header(CABECERA_CLAVE, configuracion.claveAnonima)
-            .header(CABECERA_AUTORIZACION, "Bearer $token")
-            .build()
-        return chain.proceed(peticion)
+        val original = chain.request()
+        val peticion = original.newBuilder().header(CABECERA_CLAVE, configuracion.claveAnonima)
+        if (original.header(CABECERA_AUTORIZACION) == null) {
+            val token = fuenteDeToken.tokenDeAcceso() ?: configuracion.claveAnonima
+            peticion.header(CABECERA_AUTORIZACION, "Bearer $token")
+        }
+        return chain.proceed(peticion.build())
     }
 
     companion object {
