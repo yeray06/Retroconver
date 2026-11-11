@@ -54,6 +54,28 @@ class AlmacenImagenesTest {
     }
 
     @Test
+    fun lasMedidasSonLasDeLaCopiaA720p() = runBlocking {
+        val uri = almacen.guardar(fotoDePrueba(4000, 3000))
+
+        assertEquals(960 to 720, almacen.medidas(uri))
+    }
+
+    @Test
+    fun sinFicheroNoHayMedidas() = runBlocking {
+        assertEquals(null, almacen.medidas("file:///no/existe.jpg"))
+    }
+
+    @Test
+    fun alCerrarSesionSeBorranTodasLasCopias() = runBlocking {
+        almacen.guardar(fotoDePrueba(800, 600))
+        almacen.guardar(fotoDePrueba(600, 800))
+
+        almacen.borrarTodo()
+
+        assertEquals(0, almacen.carpeta.listFiles()?.size ?: 0)
+    }
+
+    @Test
     fun unaFotoPequenaNoSeAgranda() = runBlocking {
         val uri = almacen.guardar(fotoDePrueba(640, 480))
 
