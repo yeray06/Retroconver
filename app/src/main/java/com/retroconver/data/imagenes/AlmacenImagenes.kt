@@ -107,6 +107,12 @@ class AlmacenImagenes(
         esNuestro && fichero.delete()
     }
 
+    /** Borra todas las copias. Se usa al cerrar sesión, para no dejar en el móvil fotos de esa persona (RF-25). */
+    suspend fun borrarTodo() = withContext(despachador) {
+        carpeta.listFiles()?.forEach { it.delete() }
+        Unit
+    }
+
     private fun abrir(uri: Uri): InputStream =
         contextoApp.contentResolver.openInputStream(uri) ?: throw IOException("No se puede abrir $uri")
 

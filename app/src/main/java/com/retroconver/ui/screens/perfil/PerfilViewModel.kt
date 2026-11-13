@@ -10,6 +10,7 @@ import com.retroconver.RetroconverApp
 import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.UsuarioEntity
 import com.retroconver.data.repository.UsuarioRepository
+import com.retroconver.data.sesion.SesionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +26,8 @@ data class PerfilUiState(
     val guardandoFoto: Boolean = false,
     /** La última foto elegida no se ha podido usar. */
     val errorFoto: Boolean = false,
+    /** Se está cerrando la sesión: el botón se desactiva. */
+    val cerrandoSesion: Boolean = false,
 )
 
 /**
@@ -34,12 +37,19 @@ data class PerfilUiState(
 class PerfilViewModel(
     private val usuarios: UsuarioRepository,
     private val imagenes: AlmacenImagenes,
+    private val sesion: SesionRepository,
 ) : ViewModel() {
 
     private val foto = MutableStateFlow(EstadoFoto())
+    private val cerrandoSesion = MutableStateFlow(false)
 
-    val estado: StateFlow<PerfilUiState> = combine(usuarios.usuarioLocal(), foto) { usuario, estadoFoto ->
-        PerfilUiState(usuario = usuario, guardandoFoto = estadoFoto.guardando, errorFoto = estadoFoto.error)
+    val estado: StateFlow<PerfilUiState> = combine(usuarios.usuarioLocal(), foto, cerrandoSesion) { usuario, estadoFoto, cerrando ->
+        PerfilUiState(
+            usuario = usuario,
+            guardandoFoto = estadoFoto.guardando,
+            errorFoto = estadoFoto.error,
+            cerrandoSesion = cerrando,
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -69,13 +79,23 @@ class PerfilViewModel(
         foto.value = EstadoFoto()
     }
 
+    /**
+     * Cierra la sesión (E4-04.3, #119) después de que la persona lo confirme. No hace falta
+     * navegar: al borrarse la sesión, la app vuelve sola al inicio de sesión.
+     */
+    fun cerrarSesion() {
+        if (cerrandoSesion.value) return
+        cerrandoSesion.value = true
+        viewModelScope.launch { sesion.cerrarSesion() }
+    }
+
     private data class EstadoFoto(val guardando: Boolean = false, val error: Boolean = false)
 
     companion object {
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as RetroconverApp
-                PerfilViewModel(app.container.usuarioRepository, app.container.almacenImagenes)
+                PerfilViewModel(app.container.usuarioRepository, app.container.almacenImagenes, app.container.sesionRepository)
             }
         }
     }

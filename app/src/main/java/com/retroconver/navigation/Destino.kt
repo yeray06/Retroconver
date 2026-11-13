@@ -36,3 +36,9 @@ object RutasMuro {
     const val VER = "muro/ver"
     const val NUEVA = "muro/nueva"
 }
+
+/** Pantallas de acceso, que se ven cuando no hay sesión (E4-04.2). Empieza en [INICIO]. */
+object RutasAcceso {
+    const val INICIO = "acceso/inicio"
+    const val REGISTRO = "acceso/registro"
+}

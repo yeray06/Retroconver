@@ -1,6 +1,9 @@
 package com.retroconver
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.AppDatabase
@@ -13,8 +16,15 @@ import com.retroconver.data.remote.MonitorConexion
 import com.retroconver.data.remote.PerfilService
 import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
+import com.retroconver.data.sesion.RenovadorDeSesion
+import com.retroconver.data.sesion.SesionRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+
+/** Fichero de DataStore con la sesión (tokens e id de la cuenta). Uno solo para toda la app. */
+private val Context.almacenSesion: DataStore<Preferences> by preferencesDataStore(name = "sesion")
 
 /**
  * Contenedor de dependencias de la app. Crea la base de datos, el cliente de red y los
@@ -72,12 +82,21 @@ class AppContainer(context: Context) {
     /** URL y clave pública del servidor, sacadas de local.properties. */
     val configuracionSupabase: ConfiguracionSupabase = ConfiguracionSupabase.desdeBuildConfig()
 
-    /** Token de la sesión para cada petición. Hasta que haya sesión (E4-04) se usa solo la clave pública. */
-    private val fuenteDeToken = FuenteDeToken { null }
+    /**
+     * Sesión de la persona usuaria (E4-04). Da el token a cada petición y, al cerrar sesión,
+     * borra la copia local: la base de datos y las imágenes.
+     */
+    val sesionRepository: SesionRepository by lazy {
+        SesionRepository(
+            almacen = contextoApp.almacenSesion,
+            auth = authService,
+            alTerminarSesion = { borrarDatosLocales() },
+        )
+    }
 
-    /** Cliente HTTP con la clave y el token en cada petición. */
+    /** Cliente HTTP con la clave y el token de la sesión en cada petición. Si el token caduca, lo renueva. */
     val clienteHttp: OkHttpClient by lazy {
-        ClienteSupabase.crearClienteHttp(configuracionSupabase, fuenteDeToken)
+        ClienteSupabase.crearClienteHttp(configuracionSupabase, sesionRepository, RenovadorDeSesion(sesionRepository))
     }
 
     private val retrofit: Retrofit by lazy {
@@ -101,6 +120,12 @@ class AppContainer(context: Context) {
 
     /** Si el móvil tiene red, para la franja de «Sin conexión». */
     val monitorConexion: MonitorConexion by lazy { MonitorConexion(contextoApp) }
+
+    /** Al salir no quedan en el móvil datos de esa persona (RF-25): ni la copia de Room ni sus imágenes. */
+    private suspend fun borrarDatosLocales() = withContext(Dispatchers.IO) {
+        baseDeDatos.clearAllTables()
+        almacenImagenes.borrarTodo()
+    }
 
     // Cada módulo añade aquí su repositorio cuando lo cree.
 }

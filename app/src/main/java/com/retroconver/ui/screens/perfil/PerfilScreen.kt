@@ -2,6 +2,7 @@ package com.retroconver.ui.screens.perfil
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,12 +13,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -59,6 +65,7 @@ fun PerfilScreen(
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val elegirFoto = rememberSelectorDeImagen { uri -> viewModel.cambiarAvatar(uri) }
+    var preguntarCerrarSesion by rememberSaveable { mutableStateOf(false) }
     PerfilContenido(
         estado = estado,
         alCambiarFoto = {
@@ -66,6 +73,32 @@ fun PerfilScreen(
             elegirFoto()
         },
         alEditar = alEditar,
+        alCerrarSesion = { preguntarCerrarSesion = true },
+    )
+    if (preguntarCerrarSesion) {
+        ConfirmarCerrarSesion(
+            alConfirmar = {
+                preguntarCerrarSesion = false
+                viewModel.cerrarSesion()
+            },
+            alCancelar = { preguntarCerrarSesion = false },
+        )
+    }
+}
+
+/** Pide confirmación antes de cerrar la sesión (E4-04.3, #119), porque se borra la copia del móvil. */
+@Composable
+private fun ConfirmarCerrarSesion(alConfirmar: () -> Unit, alCancelar: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = alCancelar,
+        title = { Text(stringResource(R.string.perfil_cerrar_sesion_pregunta)) },
+        text = { Text(stringResource(R.string.perfil_cerrar_sesion_explicacion)) },
+        confirmButton = {
+            TextButton(onClick = alConfirmar) { Text(stringResource(R.string.perfil_cerrar_sesion)) }
+        },
+        dismissButton = {
+            TextButton(onClick = alCancelar) { Text(stringResource(R.string.perfil_cerrar_sesion_cancelar)) }
+        },
     )
 }
 
@@ -75,6 +108,7 @@ internal fun PerfilContenido(
     estado: PerfilUiState,
     alCambiarFoto: () -> Unit,
     alEditar: () -> Unit,
+    alCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val usuario = estado.usuario ?: return
@@ -100,6 +134,13 @@ internal fun PerfilContenido(
             } else {
                 Text(text = usuario.biografia, style = MaterialTheme.typography.bodyLarge, color = RetroTextDark)
             }
+        }
+        // Al final del perfil, apartado, para no pulsarlo sin querer
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            RetroButton(
+                texto = stringResource(if (estado.cerrandoSesion) R.string.perfil_cerrando_sesion else R.string.perfil_cerrar_sesion),
+                onClick = { if (!estado.cerrandoSesion) alCerrarSesion() },
+            )
         }
     }
 }
@@ -206,6 +247,7 @@ private fun PerfilPreview() {
             ),
             alCambiarFoto = {},
             alEditar = {},
+            alCerrarSesion = {},
         )
     }
 }
@@ -218,6 +260,7 @@ private fun PerfilRecienCreadoPreview() {
             estado = PerfilUiState(usuario = UsuarioEntity(id = 1, nombre = "Yo", fechaAlta = Instant.now()), errorFoto = true),
             alCambiarFoto = {},
             alEditar = {},
+            alCerrarSesion = {},
         )
     }
 }
