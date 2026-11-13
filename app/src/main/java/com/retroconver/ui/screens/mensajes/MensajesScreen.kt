@@ -7,7 +7,7 @@ import com.retroconver.ui.screens.PantallaProvisional
 
 /**
  * Mensajes.
- * Provisional: David la sustituye en E4-03 (#22).
+ * Provisional: David la sustituye en E4-09 (#22).
  */
 @Composable
 fun MensajesScreen() {
