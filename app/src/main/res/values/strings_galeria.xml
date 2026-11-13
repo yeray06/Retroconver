@@ -30,6 +30,8 @@
     <string name="galeria_volver_descripcion">Volver atrás</string>
     <string name="galeria_anadir_fotos">Añadir fotos</string>
     <string name="galeria_subiendo">Subiendo %1$d de %2$d…</string>
+    <string name="galeria_subida_en_cola">Preparando la subida…</string>
+    <string name="galeria_subida_sigue">Puedes salir del álbum o cerrar la app: las fotos se siguen subiendo, y si no hay conexión se suben cuando vuelva.</string>
     <string name="galeria_album_vacio_mio">Este álbum está vacío. Pulsa «Añadir fotos» para llenarlo.</string>
     <string name="galeria_album_vacio_otro">Este álbum todavía no tiene fotos.</string>
     <string name="galeria_album_no_existe">Este álbum ya no existe.</string>

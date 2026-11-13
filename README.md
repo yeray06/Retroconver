@@ -100,7 +100,7 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 | Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | ✅ ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
 | Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | ✅ ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
 | Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/repository/GaleriaRepository.kt` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | ✅ ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142)) |
-| 150 pruebas automáticas, revisión de accesibilidad e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#135](https://github.com/yeray06/Retroconver/pull/135), [#143](https://github.com/yeray06/Retroconver/pull/143)) |
+| 161 pruebas automáticas, revisión de accesibilidad e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#135](https://github.com/yeray06/Retroconver/pull/135), [#143](https://github.com/yeray06/Retroconver/pull/143)) |
 | De la entrega 3: perfil con edición validada, Photo Picker sin permisos, reescalado a 720p, nueva publicación y muro | `ui/screens/perfil/`, `ui/screens/muro/`, `data/imagenes/` | Entrega 3 | ✅ |
 
 ### Qué falta para la versión candidata
@@ -125,8 +125,7 @@ Lo que ya está hecho les deja el camino preparado:
 
 ### Qué se termina o corrige antes de la entrega final
 
-- **Subir los esquemas de Room 3, 4 y 5** a `app/schemas/` ([#146](https://github.com/yeray06/Retroconver/issues/146)) y sustituir el borrado de la base de datos al actualizar por migraciones.
-- **Subir fotos en segundo plano** con WorkManager, para que no se cancelen al salir del álbum ([#147](https://github.com/yeray06/Retroconver/issues/147)).
+- **Migraciones de Room** en vez de borrar la copia local al actualizar. Los esquemas 1 a 5 ya están en `app/schemas/` ([#146](https://github.com/yeray06/Retroconver/issues/146)).
 - **Probar con TalkBack, el Accessibility Scanner y letra grande** en un móvil de verdad ([docs/pruebas.md](docs/pruebas.md), apartado 4).
 - Extras si hay tiempo: amistades ([#129](https://github.com/yeray06/Retroconver/issues/129)), «Me gusta» ([#130](https://github.com/yeray06/Retroconver/issues/130)) y mensajes directos ([#28](https://github.com/yeray06/Retroconver/issues/28)).
 
@@ -170,7 +169,7 @@ Primero abre el proyecto y **conecta la app con el servidor** como se explica en
 ### Qué falla o tiene límites
 
 - **Publicaciones y comentarios** todavía se guardan solo en el móvil hasta E4-06 y E4-07 (David).
-- Si se sale del álbum **mientras se suben fotos**, las que faltan no se suben ([#147](https://github.com/yeray06/Retroconver/issues/147)).
+- Las fotos se suben **en segundo plano** con WorkManager: siguen aunque se salga del álbum o se cierre la app ([#147](https://github.com/yeray06/Retroconver/issues/147)). Si se reinicia el móvil a mitad, puede que alguna no se pueda leer ya; la app dice cuántas no se han subido.
 - Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1. La app dice «No se ha podido usar esa foto». Desde Android 9 funcionan.
 - Al actualizar la app con un esquema de base de datos nuevo se borra la copia local. No se pierde nada, porque está en el servidor, pero hay que estar conectado para volver a verlo.
 - Si se borra una imagen del servidor sin conexión, puede quedar el archivo en *Storage* sin usar. No se ve en ningún sitio y no afecta a la app.
@@ -258,6 +257,7 @@ app/src/main/java/com/retroconver/
 ├── data/local/         AppDatabase, entidades, DAOs y convertidores
 ├── data/remote/        Cliente de Supabase: servicios de Retrofit, errores de red y aviso sin conexión
 ├── data/sesion/        Sesión con Supabase Auth guardada en DataStore
+├── data/subidas/       Subida de fotos en segundo plano con WorkManager
 ├── data/repository/    Repositorios de cada módulo
 ├── data/imagenes/      Reescalado a 720p y copias de las imágenes
 ├── navigation/         Rutas, barra inferior, NavHost y RetroconverRaiz (acceso o app)

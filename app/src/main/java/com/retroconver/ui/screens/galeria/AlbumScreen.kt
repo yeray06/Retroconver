@@ -142,19 +142,30 @@ private fun CuadriculaFotos(
         ) {
             if (estado.esMio) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    Button(
-                        onClick = alAnadirFotos,
-                        enabled = estado.subida == null,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        val progreso = estado.subida
-                        Text(
-                            if (progreso != null) {
-                                stringResource(R.string.galeria_subiendo, progreso.actual, progreso.total)
-                            } else {
-                                stringResource(R.string.galeria_anadir_fotos)
-                            },
-                        )
+                    val progreso = estado.subida
+                    Column {
+                        Button(
+                            onClick = alAnadirFotos,
+                            enabled = progreso == null,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                when {
+                                    progreso == null -> stringResource(R.string.galeria_anadir_fotos)
+                                    progreso.total == 0 -> stringResource(R.string.galeria_subida_en_cola)
+                                    else -> stringResource(R.string.galeria_subiendo, progreso.actual, progreso.total)
+                                },
+                            )
+                        }
+                        if (progreso != null) {
+                            // La subida va en segundo plano (#147): no hace falta esperar aquí
+                            Text(
+                                text = stringResource(R.string.galeria_subida_sigue),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = RetroGrayText,
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
+                        }
                     }
                 }
             }

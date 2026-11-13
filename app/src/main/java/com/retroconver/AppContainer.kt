@@ -20,6 +20,7 @@ import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
 import com.retroconver.data.sesion.RenovadorDeSesion
 import com.retroconver.data.sesion.SesionRepository
+import com.retroconver.data.subidas.GestorSubidasFotos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -141,11 +142,15 @@ class AppContainer(context: Context) {
         )
     }
 
+    /** Subidas de fotos en segundo plano con WorkManager (#147). */
+    val subidasFotos: GestorSubidasFotos by lazy { GestorSubidasFotos(contextoApp) }
+
     /** Si el móvil tiene red, para la franja de «Sin conexión». */
     val monitorConexion: MonitorConexion by lazy { MonitorConexion(contextoApp) }
 
-    /** Al salir no quedan en el móvil datos de esa persona (RF-25): ni la copia de Room ni sus imágenes. */
+    /** Al salir no quedan en el móvil datos de esa persona (RF-25): ni subidas pendientes, ni la copia de Room, ni sus imágenes. */
     private suspend fun borrarDatosLocales() = withContext(Dispatchers.IO) {
+        subidasFotos.cancelarTodo()
         baseDeDatos.clearAllTables()
         almacenImagenes.borrarTodo()
     }

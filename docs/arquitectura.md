@@ -83,7 +83,7 @@ El perfil fue el primer módulo en pasar a servidor (E4-05, [#120](https://githu
            .map { filas -> filas.firstOrNull()?.let { usuarioDao.guardar(it.aEntidad(configuracion)) }; Unit }
    ```
 5. **Escribir:** primero el servidor, con `Prefer: return=representation`, y después **la fila que devuelve** en Room. Si no hay red no se guarda nada y la pantalla conserva lo escrito.
-6. **Imágenes:** se reescalan a 720p con `AlmacenImagenes`, se suben a `imagenes/{id de la cuenta}/{uuid}.jpg` y la tabla guarda la ruta. Al cambiar o borrar, se borra la imagen anterior del servidor. Si falla el `INSERT`/`PATCH` después de subir, se borra la recién subida para no dejarla suelta.
+6. **Imágenes:** se reescalan a 720p con `AlmacenImagenes`, se suben a `imagenes/{id de la cuenta}/{uuid}.jpg` y la tabla guarda la ruta. Al cambiar o borrar, se borra la imagen anterior del servidor. Si falla el `INSERT`/`PATCH` después de subir, se borra la recién subida para no dejarla suelta. Las fotos de la galería se suben en segundo plano con WorkManager (`data/subidas/`, [#147](https://github.com/yeray06/Retroconver/issues/147)), así la subida sigue aunque se salga de la pantalla o se cierre la app.
 7. **Autores que vienen dentro de otra respuesta** (`select=*,autor:perfiles(*)`): se guardan con `usuarioRepository.guardarDelServidor(perfiles)`. Así el nombre y el avatar nuevos de cada persona se ven en sus publicaciones al refrescar.
 8. **ViewModel:** cada llamada devuelve `ResultadoRed`. En `Correcto` no hace falta tocar el estado, porque Room avisa solo. En `Fallo` se guarda `fallo.mensaje()` (el id del texto) y la pantalla lo muestra con `stringResource`.
    ```kotlin
