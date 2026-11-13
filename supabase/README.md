@@ -18,9 +18,7 @@ El porqué de cada tabla y de cada política está en [docs/datos/esquemadatos.m
    - **Database password:** pulsa *Generate a password* y guárdala en un sitio seguro. La app no la usa, pero hace falta para administrar la base de datos.
 3. En **Authentication → Sign In / Providers → Email**, desactiva **Confirm email**. El correo gratuito de Supabase envía muy pocos emails por hora, y con la confirmación activada no se podrían crear cuentas de prueba.
 4. En **SQL Editor → New query**, pega el contenido de `esquema.sql` y pulsa **Run**. Tiene que terminar con *Success. No rows returned*.
-5. Para comprobar la seguridad:
-   1. En **Authentication → Users → Add user → Create new user**, crea dos cuentas de prueba con *Auto Confirm User*.
-   2. Ejecuta `pruebas_seguridad.sql` en el SQL Editor. Tiene que salir una tabla con las 11 comprobaciones y ninguna línea que empiece por FALLO.
+5. Para comprobar la seguridad, ejecuta `pruebas_seguridad.sql` en el SQL Editor. Crea dos cuentas temporales, hace 12 comprobaciones y las borra al terminar. Tiene que salir una tabla con las 12 comprobaciones; si alguna falla, sale un error que empieza por FALLO.
 
 ## Conectar la app
 

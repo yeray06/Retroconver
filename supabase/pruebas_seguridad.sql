@@ -1,13 +1,12 @@
 -- =====================================================================
 -- Retroconver · prueba de las políticas de seguridad (E4-02.2, #112)
 --
--- Comprueba con las dos primeras cuentas del proyecto que cada una solo
--- puede tocar lo suyo. Antes hay que crear dos cuentas de prueba en
--- Authentication → Users → Add user → Create new user (con «Auto Confirm User»).
+-- Crea dos cuentas temporales (A y B, sin contraseña, no sirven para entrar),
+-- comprueba que cada una solo puede tocar lo suyo y las borra al terminar.
 --
 -- Cómo usarlo: SQL Editor → New query → pegar todo → Run.
 -- Devuelve una tabla con cada comprobación. Si alguna falla, se para con
--- un error que empieza por FALLO. No deja nada guardado: borra lo que crea.
+-- un error que empieza por FALLO y se deshace todo. No deja nada guardado.
 -- =====================================================================
 
 create or replace function pg_temp.probar_seguridad()
@@ -23,11 +22,19 @@ declare
     filas integer;
     informe text[] := '{}';
 begin
-    select id into a from auth.users order by created_at limit 1;
-    select id into b from auth.users order by created_at offset 1 limit 1;
-    if b is null then
-        raise exception 'Hacen falta dos cuentas de prueba: Authentication → Users → Add user';
+    -- Dos cuentas temporales. El trigger del esquema les crea el perfil.
+    a := gen_random_uuid();
+    b := gen_random_uuid();
+    insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, raw_app_meta_data, created_at, updated_at)
+    values
+        (a, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+         'prueba-a-' || a || '@retroconver.invalid', '{"nombre": "Prueba A"}', '{}', now(), now()),
+        (b, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+         'prueba-b-' || b || '@retroconver.invalid', '{"nombre": "Prueba B"}', '{}', now(), now());
+    if (select count(*) from public.perfiles where id in (a, b)) <> 2 then
+        raise exception 'FALLO: el trigger no ha creado los perfiles al registrar las cuentas';
     end if;
+    informe := informe || 'Al registrarse una cuenta se crea su perfil'::text;
 
     -- ---------- Como la cuenta A ----------
     perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
@@ -101,8 +108,8 @@ begin
 
     -- ---------- Limpieza ----------
     execute 'reset role';
-    delete from public.publicaciones where id = pub; -- borra también el comentario de B
-    delete from public.albumes where id = alb;
+    -- Borrar las cuentas borra en cascada sus perfiles y todo lo que han creado
+    delete from auth.users where id in (a, b);
 
     return query select t.n::int, t.r from unnest(informe) with ordinality as t(r, n);
 end;
