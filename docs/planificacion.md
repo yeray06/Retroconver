@@ -7,7 +7,7 @@ Reparto por módulos: cada integrante se encarga de sus módulos de principio a 
 | Yeray ([@yeray06](https://github.com/yeray06)) | Organización del repo, planificación, base del proyecto, navegación, Room, servidor Supabase, cliente de red, registro y sesión, **Perfil** y **Galería** |
 | David ([@DavidNC26](https://github.com/DavidNC26)) | README, memoria, guía de estilo y tema retro, bocetos, esquema de datos, perfiles de otras personas, personalización, **Muro** y **Mensajes** |
 
-El trabajo está dividido en **104 issues**: 46 tareas principales y 58 subtareas. Las subtareas son *sub-issues* de GitHub, así que el tablero muestra el progreso de cada tarea principal. Las dependencias están marcadas en cada issue como *Blocked by*.
+El trabajo está dividido en **105 issues**: 46 tareas principales y 59 subtareas. Las subtareas son *sub-issues* de GitHub, así que el tablero muestra el progreso de cada tarea principal. Las dependencias están marcadas en cada issue como *Blocked by*.
 
 > **Replanificación de la entrega 4.** Al pasar a red social con servidor (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)) se añadieron 20 tareas de servidor, sesión, copia local y perfiles ajenos, y las tareas de la entrega 4 que ya existían se renumeraron y se adaptaron al servidor. También se añadieron dos extras (EX-04 y EX-05).
 
@@ -33,10 +33,10 @@ El estado real de cada tarea se sigue en el [tablero Kanban](https://github.com/
 | Entrega 1 · Organización | 3 | 3 | 6 |
 | Entrega 2 · Diseño y base técnica | 12 | 12 | 24 |
 | Entrega 3 · Flujo principal | 11 | 10 | 21 |
-| Entrega 4 · Versión candidata | 23 | 20 | 43 |
+| Entrega 4 · Versión candidata | 24 | 20 | 44 |
 | Entrega final | 2 | 3 | 5 |
 | Si hay tiempo (extras) | 2 | 3 | 5 |
-| **Total** | **53** | **51** | **104** |
+| **Total** | **54** | **51** | **105** |
 
 En la entrega 4 Yeray tiene más tareas porque monta la base del servidor (Supabase, cliente de red, sesión y copia local), que necesitan los módulos de los dos. Para equilibrarlo, la personalización del perfil y los perfiles de otras personas pasan a David.
 
@@ -152,6 +152,7 @@ Las tareas están en orden de avance. Las subtareas aparecen con ↳ debajo de s
 | **E4-12** | [#24](https://github.com/yeray06/Retroconver/issues/24) | **Pruebas y accesibilidad de Perfil, Galería y servidor** | Yeray | E3-06, E4-04, E4-05, E4-10, E4-11 |
 | E4-12.1 | [#77](https://github.com/yeray06/Retroconver/issues/77) | ↳ Pruebas de reescalado, DAOs, sesión y cliente de red | Yeray | E3-05.1, E4-03.2, E4-04.1, E4-10.1 |
 | E4-12.2 | [#78](https://github.com/yeray06/Retroconver/issues/78) | ↳ Revisión de accesibilidad de Perfil, Galería y login | Yeray | E3-06.2, E4-04.2, E4-10.4 |
+| E4-12.3 | [#134](https://github.com/yeray06/Retroconver/issues/134) | ↳ Integración continua con GitHub Actions | Yeray | — |
 | **E4-13** | [#25](https://github.com/yeray06/Retroconver/issues/25) | **Pruebas y accesibilidad de Muro y Mensajes** | David | E3-07, E4-06, E4-07, E4-08, E4-09 |
 | E4-13.1 | [#79](https://github.com/yeray06/Retroconver/issues/79) | ↳ Pruebas de DAOs y repositorios de Muro y Mensajes | David | E3-02.2, E4-06.2, E4-09.1 |
 | E4-13.2 | [#80](https://github.com/yeray06/Retroconver/issues/80) | ↳ Revisión de accesibilidad de Muro y Mensajes | David | E4-07.2, E4-09.3 |
