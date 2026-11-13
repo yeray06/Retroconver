@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mensajes de la conexión con el servidor (E4-03.2, #115). Ver data/remote/MensajesRed.kt -->
+<resources>
+    <!-- Franja que aparece bajo la cabecera mientras no hay red (RNF-06) -->
+    <string name="red_aviso_sin_conexion">Sin conexión. Ves lo último guardado; no puedes publicar ni comentar hasta que vuelva la red.</string>
+
+    <!-- Casos generales -->
+    <string name="red_sin_conexion">No hay conexión. Comprueba la red e inténtalo de nuevo.</string>
+    <string name="red_sesion_caducada">Tu sesión ha caducado. Vuelve a iniciar sesión.</string>
+    <string name="red_servidor_caido">El servidor no responde bien ahora mismo. Inténtalo más tarde.</string>
+    <string name="red_error_desconocido">Algo ha ido mal en el servidor. Inténtalo de nuevo.</string>
+    <string name="red_respuesta_no_valida">El servidor ha enviado una respuesta que la app no entiende. Puede que haga falta actualizarla.</string>
+    <string name="red_sin_configurar">La app no tiene configurado el servidor. Falta SUPABASE_URL o SUPABASE_ANON_KEY en local.properties.</string>
+
+    <!-- Cuentas -->
+    <string name="red_credenciales_incorrectas">El email o la contraseña no son correctos.</string>
+    <string name="red_email_registrado">Ya hay una cuenta con ese email. Inicia sesión.</string>
+    <string name="red_contrasena_debil">La contraseña es demasiado débil. Usa al menos 6 caracteres.</string>
+    <string name="red_email_sin_confirmar">Todavía no has confirmado tu email. Revisa tu correo y pulsa el enlace.</string>
+    <string name="red_email_no_valido">El email no es válido.</string>
+    <string name="red_datos_no_validos">Revisa los datos: el email o la contraseña no son válidos.</string>
+    <string name="red_demasiados_intentos">Demasiados intentos seguidos. Espera un poco y vuelve a probar.</string>
+
+    <!-- Datos -->
+    <string name="red_texto_no_valido">El texto está vacío o es demasiado largo.</string>
+    <string name="red_sin_permiso">No tienes permiso para hacer eso.</string>
+    <string name="red_no_encontrado">Eso ya no existe en el servidor.</string>
+</resources>

@@ -4,12 +4,21 @@ import android.content.Context
 import androidx.room.Room
 import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.AppDatabase
+import com.retroconver.data.remote.AlmacenamientoService
+import com.retroconver.data.remote.AuthService
+import com.retroconver.data.remote.ClienteSupabase
+import com.retroconver.data.remote.ConfiguracionSupabase
+import com.retroconver.data.remote.FuenteDeToken
+import com.retroconver.data.remote.MonitorConexion
+import com.retroconver.data.remote.PerfilService
 import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
 
 /**
- * Contenedor de dependencias de la app. Crea la base de datos y los repositorios
- * una sola vez y los comparte con todas las pantallas.
+ * Contenedor de dependencias de la app. Crea la base de datos, el cliente de red y los
+ * repositorios una sola vez y los comparte con todas las pantallas.
  *
  * Lo crea [RetroconverApp] al arrancar, y se obtiene desde cualquier ViewModel así:
  *
@@ -57,6 +66,41 @@ class AppContainer(context: Context) {
 
     /** Copias de las imágenes a 720p en el almacenamiento interno (avatar, publicaciones y galería). */
     val almacenImagenes: AlmacenImagenes by lazy { AlmacenImagenes(contextoApp) }
+
+    // ---------- Servidor Supabase (E4-03, #113) ----------
+
+    /** URL y clave pública del servidor, sacadas de local.properties. */
+    val configuracionSupabase: ConfiguracionSupabase = ConfiguracionSupabase.desdeBuildConfig()
+
+    /** Token de la sesión para cada petición. Hasta que haya sesión (E4-04) se usa solo la clave pública. */
+    private val fuenteDeToken = FuenteDeToken { null }
+
+    /** Cliente HTTP con la clave y el token en cada petición. */
+    val clienteHttp: OkHttpClient by lazy {
+        ClienteSupabase.crearClienteHttp(configuracionSupabase, fuenteDeToken)
+    }
+
+    private val retrofit: Retrofit by lazy {
+        ClienteSupabase.crearRetrofit(configuracionSupabase.urlBase, clienteHttp)
+    }
+
+    /**
+     * Registro, inicio, renovación y cierre de sesión. Va en su propio cliente, sin el token
+     * de la sesión: así renovar el token no depende del token que ha caducado.
+     */
+    val authService: AuthService by lazy {
+        val clienteAuth = ClienteSupabase.crearClienteHttp(configuracionSupabase, FuenteDeToken { null })
+        ClienteSupabase.crearRetrofit(configuracionSupabase.urlBase, clienteAuth).create(AuthService::class.java)
+    }
+
+    /** Tabla `perfiles`. */
+    val perfilService: PerfilService by lazy { retrofit.create(PerfilService::class.java) }
+
+    /** Imágenes del bucket `imagenes`. */
+    val almacenamientoService: AlmacenamientoService by lazy { retrofit.create(AlmacenamientoService::class.java) }
+
+    /** Si el móvil tiene red, para la franja de «Sin conexión». */
+    val monitorConexion: MonitorConexion by lazy { MonitorConexion(contextoApp) }
 
     // Cada módulo añade aquí su repositorio cuando lo cree.
 }

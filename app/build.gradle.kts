@@ -1,11 +1,24 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
+
+// Datos del servidor Supabase (E4-03.1, #114). Salen de local.properties, que Git no sube,
+// o de variables de entorno con el mismo nombre. Sin ellos la app compila igual, pero no
+// conecta con el servidor. Cómo rellenarlos: supabase/README.md, «Conectar la app».
+val propiedadesLocales = Properties().apply {
+    val fichero = rootProject.file("local.properties")
+    if (fichero.isFile) fichero.inputStream().use { load(it) }
+}
+
+fun datoDelServidor(nombre: String): String =
+    (propiedadesLocales.getProperty(nombre) ?: System.getenv(nombre) ?: "").trim()
 
 android {
     namespace = "com.retroconver"
@@ -20,6 +33,9 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", "\"${datoDelServidor("SUPABASE_URL")}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${datoDelServidor("SUPABASE_ANON_KEY")}\"")
     }
 
     buildTypes {
@@ -39,6 +55,8 @@ android {
 
     buildFeatures {
         compose = true
+        // Para leer SUPABASE_URL y SUPABASE_ANON_KEY desde el código
+        buildConfig = true
     }
 }
 
@@ -79,11 +97,19 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
 
+    // Red: llamadas a Supabase
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.okhttp)
+    implementation(libs.kotlinx.serialization.json)
+
     // Imágenes
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     // Pruebas
     testImplementation(libs.junit)
+    testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

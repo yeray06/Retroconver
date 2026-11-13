@@ -129,6 +129,21 @@ Cada integrante trabaja en las carpetas de sus módulos, así casi nunca tocamos
 | Subir una imagen | `POST /storage/v1/object/imagenes/{id de la cuenta}/{uuid}.jpg` |
 | Ver una imagen | `GET /storage/v1/object/public/imagenes/{ruta}` (la carga Coil) |
 
+### Errores de red y funcionamiento sin conexión
+
+Ninguna excepción de red llega a las pantallas (E4-03.2, [#115](https://github.com/yeray06/Retroconver/issues/115)). Cada llamada pasa por `llamarAlServidor { … }`, que devuelve un `ResultadoRed`:
+
+| Caso | Cuándo | Qué hace la pantalla |
+|---|---|---|
+| `Correcto(datos)` | El servidor responde bien | El repositorio guarda los datos en Room y la pantalla se actualiza sola |
+| `SinConexion` | No hay red, el servidor no contesta o se agota el tiempo | Sigue mostrando la copia de Room y avisa de que no se ha podido guardar |
+| `SesionCaducada` | El token no vale y no se ha podido renovar | Vuelve al inicio de sesión |
+| `ErrorServidor(estado, código)` | El servidor rechaza la petición: email ya registrado, texto vacío, sin permiso… | Muestra el motivo |
+
+`fallo.mensaje()` (`data/remote/MensajesRed.kt`) traduce cada caso a un texto en español de `strings_red.xml`, también los códigos de Supabase más habituales (`user_already_exists`, `invalid_credentials`, `23514`…).
+
+Además, mientras el móvil no tiene red se muestra una franja amarilla bajo la cabecera: *«Sin conexión. Ves lo último guardado; no puedes publicar ni comentar hasta que vuelva la red»* (`MonitorConexion` y `AvisoSinConexion`).
+
 ## 5. Qué guarda cada sistema
 
 | Dato | Dónde | Motivo |

@@ -30,3 +30,7 @@ val RetroButtonBorder = Color(0xFFBBBBBB)
 val RetroTextDark = Color(0xFF222222)
 val RetroLinkBlue = Color(0xFF0066CC)
 val RetroGrayText = Color(0xFF555555)
+
+// Avisos (franja de «Sin conexión»): amarillo pálido como los avisos de Tuenti. Con RetroTextDark el contraste es de 14:1
+val RetroAvisoFondo = Color(0xFFFFF4C2)
+val RetroAvisoBorde = Color(0xFFE0C860)

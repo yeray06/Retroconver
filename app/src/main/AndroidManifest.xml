@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Conectar con el servidor Supabase (E4-03) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Saber si hay red para avisar de «Sin conexión». No se le pide a la persona: Android lo concede solo -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:name=".RetroconverApp"
         android:allowBackup="true"
