@@ -25,4 +25,6 @@
     <string name="red_texto_no_valido">El texto está vacío o es demasiado largo.</string>
     <string name="red_sin_permiso">No tienes permiso para hacer eso.</string>
     <string name="red_no_encontrado">Eso ya no existe en el servidor.</string>
+    <string name="red_imagen_demasiado_grande">La imagen es demasiado grande. Prueba con otra.</string>
+    <string name="red_imagen_no_valida">Solo se pueden subir imágenes JPEG o PNG.</string>
 </resources>

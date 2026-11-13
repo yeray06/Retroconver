@@ -76,6 +76,8 @@ class ResultadoRedTest {
             ResultadoRed.ErrorServidor(403, "42501") to R.string.red_sin_permiso,
             ResultadoRed.ErrorServidor(403) to R.string.red_sin_permiso,
             ResultadoRed.ErrorServidor(404, "not_found") to R.string.red_no_encontrado,
+            ResultadoRed.ErrorServidor(413, "Payload too large") to R.string.red_imagen_demasiado_grande,
+            ResultadoRed.ErrorServidor(415, "invalid_mime_type") to R.string.red_imagen_no_valida,
             ResultadoRed.ErrorServidor(500) to R.string.red_servidor_caido,
             ResultadoRed.ErrorServidor(418, "codigo_que_no_conocemos") to R.string.red_error_desconocido,
             ResultadoRed.ErrorServidor(0, ResultadoRed.CODIGO_SIN_CONFIGURAR) to R.string.red_sin_configurar,

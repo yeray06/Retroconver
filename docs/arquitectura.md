@@ -69,6 +69,30 @@ sequenceDiagram
     VM-->>U: La publicación aparece arriba del muro
 ```
 
+### Cómo pasa un módulo al servidor (patrón E4-05)
+
+El perfil fue el primer módulo en pasar a servidor (E4-05, [#120](https://github.com/yeray06/Retroconver/issues/120)). Los demás (muro, comentarios, tablón, galería) siguen los mismos pasos. Como ejemplo, `UsuarioRepository`:
+
+1. **DTO y servicio** en `data/remote/`. El DTO tiene los nombres de las columnas del servidor (`@SerialName("avatar_ruta")`) y el servicio las llamadas de Retrofit a su tabla (`PerfilService`).
+2. **Conversión a la entidad de Room** en `data/repository/Conversiones.kt`, por ejemplo `PerfilDto.aEntidad()`. Las fechas se leen con `instanteDelServidor()` y las rutas de imagen se convierten en URL pública con `configuracion.urlPublica(ruta)`.
+3. **Ids `String` (UUID)** y **`@Upsert`** en el DAO: lo que llega del servidor se crea o se actualiza sin duplicarse y sin borrar en cascada a los hijos.
+4. **Leer:** las pantallas observan Room. El repositorio tiene un `refrescar()` que descarga y guarda:
+   ```kotlin
+   suspend fun refrescar(id: String): ResultadoRed<Unit> =
+       llamarAlServidor { perfilService.obtener(igual(id)) }
+           .map { filas -> filas.firstOrNull()?.let { usuarioDao.guardar(it.aEntidad(configuracion)) }; Unit }
+   ```
+5. **Escribir:** primero el servidor, con `Prefer: return=representation`, y después **la fila que devuelve** en Room. Si no hay red no se guarda nada y la pantalla conserva lo escrito.
+6. **Imágenes:** se reescalan a 720p con `AlmacenImagenes`, se suben a `imagenes/{id de la cuenta}/{uuid}.jpg` y la tabla guarda la ruta. Al cambiar o borrar, se borra la imagen anterior del servidor. Si falla el `INSERT`/`PATCH` después de subir, se borra la recién subida para no dejarla suelta.
+7. **Autores que vienen dentro de otra respuesta** (`select=*,autor:perfiles(*)`): se guardan con `usuarioRepository.guardarDelServidor(perfiles)`. Así el nombre y el avatar nuevos de cada persona se ven en sus publicaciones al refrescar.
+8. **ViewModel:** cada llamada devuelve `ResultadoRed`. En `Correcto` no hace falta tocar el estado, porque Room avisa solo. En `Fallo` se guarda `fallo.mensaje()` (el id del texto) y la pantalla lo muestra con `stringResource`.
+   ```kotlin
+   when (val respuesta = usuarios.actualizarPerfil(nombre, biografia, estado)) {
+       is ResultadoRed.Correcto -> guardado = true
+       is ResultadoRed.Fallo -> errorGuardar = respuesta.mensaje()
+   }
+   ```
+
 ## 3. Estructura del código
 
 ```

@@ -19,7 +19,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -49,6 +51,7 @@ fun EditarPerfilScreen(
         biografia = viewModel.biografia,
         estado = viewModel.estado,
         errores = viewModel.errores,
+        errorGuardar = viewModel.errorGuardar,
         habilitado = viewModel.cargado && !viewModel.guardando,
         alCambiarNombre = viewModel::cambiarNombre,
         alCambiarBiografia = viewModel::cambiarBiografia,
@@ -71,6 +74,7 @@ internal fun EditarPerfilContenido(
     alGuardar: () -> Unit,
     alCancelar: () -> Unit,
     modifier: Modifier = Modifier,
+    errorGuardar: Int? = null,
 ) {
     Column(
         modifier = modifier
@@ -112,6 +116,17 @@ internal fun EditarPerfilContenido(
                 alCambiar = alCambiarBiografia,
                 unaLinea = false,
             )
+            if (errorGuardar != null) {
+                Text(
+                    text = stringResource(errorGuardar),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    // TalkBack lo lee en cuanto aparece
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .semantics { liveRegion = LiveRegionMode.Polite },
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

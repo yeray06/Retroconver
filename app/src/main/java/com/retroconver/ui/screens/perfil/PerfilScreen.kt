@@ -211,10 +211,10 @@ private fun CabeceraPerfil(
             )
             RetroButton(texto = stringResource(R.string.perfil_editar), onClick = alEditar)
         }
-        if (estado.errorFoto) {
+        if (estado.errorFoto != null) {
             Spacer(Modifier.height(8.dp))
             Text(
-                text = stringResource(R.string.perfil_error_foto),
+                text = stringResource(estado.errorFoto),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
                 // TalkBack lo lee en cuanto aparece
@@ -289,7 +289,7 @@ private fun PerfilPreview() {
 private fun PerfilRecienCreadoPreview() {
     RetroconverTheme {
         PerfilContenido(
-            estado = PerfilUiState(usuario = UsuarioEntity(id = "nueva", nombre = "Yo", fechaAlta = Instant.now()), errorFoto = true),
+            estado = PerfilUiState(usuario = UsuarioEntity(id = "nueva", nombre = "Yo", fechaAlta = Instant.now()), errorFoto = R.string.red_sin_conexion),
             alCambiarFoto = {},
             alEditar = {},
             alCerrarSesion = {},
