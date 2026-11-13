@@ -1,7 +1,6 @@
 package com.retroconver.data.repository
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import com.retroconver.data.local.UsuarioDao
 import com.retroconver.data.local.UsuarioEntity
 import com.retroconver.data.remote.AlmacenamientoService
 import com.retroconver.data.remote.AuthService
@@ -15,10 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -220,29 +216,5 @@ class UsuarioRepositoryTest {
 
     private companion object {
         const val YO = "6f1c2a1e-0000-4000-8000-000000000001"
-    }
-}
-
-/** Sustituto de Room para estas pruebas: los perfiles en un mapa que avisa de los cambios. */
-private class UsuarioDaoEnMemoria : UsuarioDao {
-
-    val perfiles = MutableStateFlow<Map<String, UsuarioEntity>>(emptyMap())
-
-    override suspend fun guardar(usuario: UsuarioEntity) {
-        perfiles.value = perfiles.value + (usuario.id to usuario)
-    }
-
-    override suspend fun guardarTodos(usuarios: List<UsuarioEntity>) = usuarios.forEach { guardar(it) }
-
-    override fun observar(id: String): Flow<UsuarioEntity?> = perfiles.map { it[id] }
-
-    override suspend fun obtener(id: String): UsuarioEntity? = perfiles.value[id]
-
-    override suspend fun actualizarDatos(id: String, nombre: String, biografia: String, estado: String) {
-        perfiles.value[id]?.let { guardar(it.copy(nombre = nombre, biografia = biografia, estado = estado)) }
-    }
-
-    override suspend fun actualizarAvatar(id: String, avatarRuta: String?, avatarUri: String?) {
-        perfiles.value[id]?.let { guardar(it.copy(avatarRuta = avatarRuta, avatarUri = avatarUri)) }
     }
 }

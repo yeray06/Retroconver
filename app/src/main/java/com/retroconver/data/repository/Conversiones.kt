@@ -1,7 +1,11 @@
 package com.retroconver.data.repository
 
+import com.retroconver.data.local.AlbumEntity
+import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.local.UsuarioEntity
+import com.retroconver.data.remote.AlbumDto
 import com.retroconver.data.remote.ConfiguracionSupabase
+import com.retroconver.data.remote.FotoDto
 import com.retroconver.data.remote.PerfilDto
 import com.retroconver.data.remote.instanteDelServidor
 
@@ -19,4 +23,25 @@ fun PerfilDto.aEntidad(configuracion: ConfiguracionSupabase): UsuarioEntity = Us
     colorFondo = colorFondo,
     tema = tema,
     fechaAlta = instanteDelServidor(creadoEn),
+)
+
+/** Pasa una fila de `albumes` a Room (E4-10.1, #68). Su dueño y sus fotos se convierten aparte. */
+fun AlbumDto.aEntidad(): AlbumEntity = AlbumEntity(
+    id = id,
+    propietarioId = propietarioId,
+    titulo = titulo,
+    descripcion = descripcion,
+    fechaCreacion = instanteDelServidor(creadoEn),
+)
+
+/** Pasa una fila de `fotos` a Room, con la URL pública para Coil (E4-10.1, #68). */
+fun FotoDto.aEntidad(configuracion: ConfiguracionSupabase): FotoEntity = FotoEntity(
+    id = id,
+    albumId = albumId,
+    propietarioId = propietarioId,
+    ruta = ruta,
+    uri = configuracion.urlPublica(ruta),
+    ancho = ancho,
+    alto = alto,
+    fechaAnadida = instanteDelServidor(creadaEn),
 )

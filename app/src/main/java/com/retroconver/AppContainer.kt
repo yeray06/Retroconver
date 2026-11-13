@@ -12,8 +12,10 @@ import com.retroconver.data.remote.AuthService
 import com.retroconver.data.remote.ClienteSupabase
 import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.FuenteDeToken
+import com.retroconver.data.remote.GaleriaService
 import com.retroconver.data.remote.MonitorConexion
 import com.retroconver.data.remote.PerfilService
+import com.retroconver.data.repository.GaleriaRepository
 import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
 import com.retroconver.data.sesion.RenovadorDeSesion
@@ -123,6 +125,21 @@ class AppContainer(context: Context) {
 
     /** Imágenes del bucket `imagenes`. */
     val almacenamientoService: AlmacenamientoService by lazy { retrofit.create(AlmacenamientoService::class.java) }
+
+    /** Tablas `albumes` y `fotos`. */
+    private val galeriaService: GaleriaService by lazy { retrofit.create(GaleriaService::class.java) }
+
+    /** Álbumes y fotos de la galería (E4-10), con su copia en Room. */
+    val galeriaRepository: GaleriaRepository by lazy {
+        GaleriaRepository(
+            baseDeDatos.galeriaDao(),
+            baseDeDatos.usuarioDao(),
+            galeriaService,
+            almacenamientoService,
+            sesionRepository,
+            configuracionSupabase,
+        )
+    }
 
     /** Si el móvil tiene red, para la franja de «Sin conexión». */
     val monitorConexion: MonitorConexion by lazy { MonitorConexion(contextoApp) }
