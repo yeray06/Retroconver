@@ -11,7 +11,7 @@ Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**
 
 ## 2. Pruebas automáticas
 
-**150 pruebas: 104 unitarias y 46 en el emulador.** Resultado: ✅ todas pasan en la CI ([#143](https://github.com/yeray06/Retroconver/pull/143)).
+**161 pruebas: 115 unitarias y 46 en el emulador.** Resultado: ✅ todas pasan en la CI.
 
 ### Unitarias (sin Android)
 
@@ -26,6 +26,7 @@ Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**
 | `UsuarioRepositoryTest` | Perfil en el servidor: usuario de la sesión, editar (PATCH y copia en Room), sin conexión, sin permiso, avatar (subir → apuntar → borrar el anterior), marcha atrás si falla | 8 | #121, #122 |
 | `ConversionesTest` | Perfil del servidor → Room (URL pública del avatar, fechas) | 2 | #121 |
 | `GaleriaRepositoryTest` | Álbumes y fotos en el servidor: refrescar, quitar lo borrado, crear álbum, subir foto y marcha atrás, borrar foto propia y no ajena, sin conexión | 9 | #68, #71 |
+| `SubidasFotosTest` | Subida en segundo plano: una tanda sigue si una foto no se lee o el servidor la rechaza, se para si caduca la sesión, limpia todas las copias; lo que ve la pantalla (progreso, en cola, último fallo de los últimos 10 minutos) | 11 | #147 |
 | `ValidacionGaleriaTest` | Nombre del álbum: obligatorio y de 40 caracteres como mucho | 3 | #69 |
 | `ValidacionPerfilTest` | Formulario del perfil (E3) | 6 | #54 |
 | `FechaRelativaTest` | Fecha relativa de las publicaciones del muro (David) | 6 | #59 |
@@ -141,8 +142,8 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 
 | Error | Issue | Estado |
 |---|---|---|
-| El rojo de error no llega a 4,5:1 sobre el fondo | [#144](https://github.com/yeray06/Retroconver/issues/144) | Corregido en #143 |
-| Los diálogos salen con el fondo lila de Material 3 | [#145](https://github.com/yeray06/Retroconver/issues/145) | Corregido en #143 |
-| Faltan en el repositorio los esquemas de Room 3, 4 y 5 | [#146](https://github.com/yeray06/Retroconver/issues/146) | Pendiente (Yeray) |
-| Al salir del álbum mientras se suben fotos, se cancelan las que faltan | [#147](https://github.com/yeray06/Retroconver/issues/147) | Para la entrega final |
-| *Confirm email* sigue activado en Supabase: cada cuenta nueva tiene que confirmar el correo | [#110](https://github.com/yeray06/Retroconver/issues/110) | Pendiente (Yeray, en el panel de Supabase) |
+| El rojo de error no llega a 4,5:1 sobre el fondo | [#144](https://github.com/yeray06/Retroconver/issues/144) | ✅ Corregido en #143 |
+| Los diálogos salen con el fondo lila de Material 3 | [#145](https://github.com/yeray06/Retroconver/issues/145) | ✅ Corregido en #143 |
+| Faltan en el repositorio los esquemas de Room 3, 4 y 5 | [#146](https://github.com/yeray06/Retroconver/issues/146) | ✅ Generados por la CI desde el código de cada versión ([#150](https://github.com/yeray06/Retroconver/pull/150)) |
+| Al salir del álbum mientras se suben fotos, se cancelan las que faltan | [#147](https://github.com/yeray06/Retroconver/issues/147) | ✅ Subida en segundo plano con WorkManager |
+| *Confirm email* estaba activado en Supabase: cada cuenta nueva tenía que confirmar el correo | [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ Desactivado el 13/11/2026 |
