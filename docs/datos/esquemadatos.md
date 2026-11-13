@@ -23,27 +23,29 @@ erDiagram
     ALBUMES ||--o{ FOTOS : "1:N (contiene)"
 
     USUARIOS {
-        long id PK "Autoincremental"
+        string id PK "UUID de la cuenta (E4)"
         string nombre "Nombre publico (obligatorio)"
-        string avatarUri "Ruta foto local (720p)"
+        string avatarRuta "Ruta en el bucket imagenes (E4)"
+        string avatarUri "URL publica del avatar (720p)"
         string estado "Frase estilo MSN Messenger"
         string biografia "Descripcion perfil"
         long fechaAlta "Timestamp ms"
     }
 
     PUBLICACIONES {
-        long id PK "Autoincremental"
-        long usuarioId FK "FK -> USUARIOS.id (CASCADE)"
+        string id PK "UUID del servidor (E4)"
+        string usuarioId FK "FK -> USUARIOS.id (CASCADE)"
         string texto "Contenido del post"
-        string imagenUri "Ruta imagen local (720p)"
+        string imagenRuta "Ruta en el bucket imagenes (E4)"
+        string imagenUri "URL de la imagen (720p)"
         long timestamp "Ordenacion DESC"
         int contadorLikes "Solo si se anade el Me gusta"
     }
 
     COMENTARIOS {
-        long id PK "Autoincremental"
-        long publicacionId FK "FK -> PUBLICACIONES.id (CASCADE)"
-        long usuarioId FK "FK -> USUARIOS.id (CASCADE)"
+        string id PK "UUID del servidor (E4)"
+        string publicacionId FK "FK -> PUBLICACIONES.id (CASCADE)"
+        string usuarioId FK "FK -> USUARIOS.id (CASCADE)"
         string texto "Texto del comentario"
         long timestamp "Fecha/Hora"
     }
@@ -81,7 +83,9 @@ erDiagram
 ## 2. Definición de Claves y Relaciones
 
 ### 2.1 Claves Primarias (`PrimaryKey`)
-Todas las entidades utilizan una clave primaria de tipo `Long` autoincremental (`autoGenerate = true`):
+> **Desde la entrega 4** (E4-05.1, [#121](https://github.com/yeray06/Retroconver/issues/121)) las claves son `String` con el **UUID que pone el servidor**, no `Long` autoincrementales: así la copia de Room usa los mismos ids que Supabase y lo descargado se guarda con `@Upsert` sin duplicar. Ya están cambiadas `USUARIOS`, `PUBLICACIONES` y `COMENTARIOS` (base de datos versión 4); `ALBUMES`, `FOTOS` y `MENSAJES` nacen así en E4-09 y E4-10. Ver el apartado 5.4.
+
+En la primera versión, todas las entidades usaban una clave primaria de tipo `Long` autoincremental (`autoGenerate = true`):
 * `USUARIOS.id`
 * `PUBLICACIONES.id`
 * `COMENTARIOS.id`

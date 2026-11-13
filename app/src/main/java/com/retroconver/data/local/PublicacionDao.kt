@@ -4,18 +4,26 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PublicacionDao {
 
-    /** Guarda la publicación y devuelve el id que le ha puesto Room. */
+    /** Guarda una publicación nueva. */
     @Insert
-    suspend fun insertar(publicacion: PublicacionEntity): Long
+    suspend fun insertar(publicacion: PublicacionEntity)
+
+    /**
+     * Guarda las publicaciones que llegan del servidor: crea las nuevas y actualiza las que ya
+     * estaban, sin borrar sus comentarios.
+     */
+    @Upsert
+    suspend fun guardar(publicaciones: List<PublicacionEntity>)
 
     /** Borra la publicación y, en cascada, sus comentarios. */
     @Query("DELETE FROM publicaciones WHERE id = :id")
-    suspend fun eliminar(id: Long)
+    suspend fun eliminar(id: String)
 
     /** Todas las publicaciones, la más reciente primero. El `id` desempata si coincide la fecha. */
     @Transaction
@@ -39,5 +47,5 @@ interface PublicacionDao {
         WHERE id = :id
         """,
     )
-    fun observarPorId(id: Long): Flow<PublicacionConAutor?>
+    fun observarPorId(id: String): Flow<PublicacionConAutor?>
 }

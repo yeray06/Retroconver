@@ -96,13 +96,13 @@ fun PublicacionCard(
 /** Datos de ejemplo de los bocetos, solo para las vistas previas. */
 internal fun publicacionesDeEjemplo(): List<PublicacionConAutor> {
     val ahora = Instant.now()
-    val cris = UsuarioEntity(id = 1, nombre = "Cris Reed", fechaAlta = ahora)
-    val simon = UsuarioEntity(id = 2, nombre = "Simon Garcia", fechaAlta = ahora)
+    val cris = UsuarioEntity(id = "cris", nombre = "Cris Reed", fechaAlta = ahora)
+    val simon = UsuarioEntity(id = "simon", nombre = "Simon Garcia", fechaAlta = ahora)
     return listOf(
         PublicacionConAutor(
             publicacion = PublicacionEntity(
-                id = 2,
-                usuarioId = 2,
+                id = "2",
+                usuarioId = "simon",
                 texto = "Desayunando en la terraza mientras escucho música en MSN. ¡Hoy va a ser un gran día de 2008!",
                 timestamp = ahora.minusSeconds(3 * 60),
             ),
@@ -111,8 +111,8 @@ internal fun publicacionesDeEjemplo(): List<PublicacionConAutor> {
         ),
         PublicacionConAutor(
             publicacion = PublicacionEntity(
-                id = 1,
-                usuarioId = 1,
+                id = "1",
+                usuarioId = "cris",
                 texto = "¡Adiós Nueva York! Menudo viaje, soy un poquito más pobre de lo que era, pero mereció la pena.",
                 timestamp = ahora.minusSeconds(2 * 60 * 60),
             ),

@@ -9,6 +9,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.retroconver.RetroconverApp
 import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.UsuarioEntity
+import com.retroconver.data.remote.ResultadoRed
+import com.retroconver.data.remote.mensaje
 import com.retroconver.data.repository.UsuarioRepository
 import com.retroconver.data.sesion.SesionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +22,10 @@ import kotlinx.coroutines.launch
 
 /** Lo que muestra la pantalla de perfil. */
 data class PerfilUiState(
-    /** Usuario local; `null` mientras Room responde por primera vez. */
+    /** Perfil de la sesión; `null` mientras no hay copia en Room. */
     val usuario: UsuarioEntity? = null,
+    /** No hay copia del perfil y no se ha podido descargar: id del mensaje, o `null`. */
+    val errorCarga: Int? = null,
     /** Se está reescalando y guardando la foto nueva del avatar. */
     val guardandoFoto: Boolean = false,
     /** La última foto elegida no se ha podido usar. */
@@ -33,6 +37,7 @@ data class PerfilUiState(
 /**
  * Estado de la pantalla de perfil (E3-06.1, #53). Room avisa de cada cambio del usuario,
  * así que al volver de editar el perfil o al cambiar la foto se ve enseguida.
+ * Al abrirse descarga el perfil del servidor (E4-05.1, #121).
  */
 class PerfilViewModel(
     private val usuarios: UsuarioRepository,
@@ -42,10 +47,18 @@ class PerfilViewModel(
 
     private val foto = MutableStateFlow(EstadoFoto())
     private val cerrandoSesion = MutableStateFlow(false)
+    private val errorCarga = MutableStateFlow<Int?>(null)
 
-    val estado: StateFlow<PerfilUiState> = combine(usuarios.usuarioLocal(), foto, cerrandoSesion) { usuario, estadoFoto, cerrando ->
+    val estado: StateFlow<PerfilUiState> = combine(
+        usuarios.usuarioActual(),
+        foto,
+        cerrandoSesion,
+        errorCarga,
+    ) { usuario, estadoFoto, cerrando, error ->
         PerfilUiState(
             usuario = usuario,
+            // Si hay copia en Room se enseña aunque no se haya podido actualizar
+            errorCarga = if (usuario == null) error else null,
             guardandoFoto = estadoFoto.guardando,
             errorFoto = estadoFoto.error,
             cerrandoSesion = cerrando,
@@ -55,6 +68,19 @@ class PerfilViewModel(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = PerfilUiState(),
     )
+
+    init {
+        actualizar()
+    }
+
+    /** Descarga el perfil del servidor. La pantalla se actualiza sola porque lee de Room. */
+    fun actualizar() {
+        errorCarga.value = null
+        viewModelScope.launch {
+            val resultado = usuarios.refrescarActual()
+            if (resultado is ResultadoRed.Fallo) errorCarga.value = resultado.mensaje()
+        }
+    }
 
     /**
      * Pone como avatar la foto elegida en el selector (E3-06.3, #55): guarda una copia a 720p,

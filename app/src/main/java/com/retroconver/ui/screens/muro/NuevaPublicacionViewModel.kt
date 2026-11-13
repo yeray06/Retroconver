@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
  */
 class NuevaPublicacionViewModel(
     private val publicaciones: PublicacionRepository,
+    private val usuarios: UsuarioRepository,
     private val imagenes: AlmacenImagenes,
 ) : ViewModel() {
 
@@ -107,8 +108,10 @@ class NuevaPublicacionViewModel(
         publicando = true
         viewModelScope.launch {
             runCatching {
+                // El autor es la cuenta de la sesión (E4-05.1, #121)
+                val autor = checkNotNull(usuarios.idActual()) { "No hay sesión" }
                 publicaciones.publicar(
-                    usuarioId = UsuarioRepository.ID_USUARIO_LOCAL,
+                    usuarioId = autor,
                     texto = texto.trim(),
                     imagenUri = imagenUri,
                 )
@@ -132,7 +135,11 @@ class NuevaPublicacionViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as RetroconverApp
-                NuevaPublicacionViewModel(app.container.publicacionRepository, app.container.almacenImagenes)
+                NuevaPublicacionViewModel(
+                    app.container.publicacionRepository,
+                    app.container.usuarioRepository,
+                    app.container.almacenImagenes,
+                )
             }
         }
     }

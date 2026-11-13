@@ -23,13 +23,11 @@ class RetroconverApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
-        // Provisional hasta E4-05.1 (#121): el perfil y el muro todavía usan el usuario local de Room.
-        // Cada vez que se abre una sesión se asegura que existe, porque al cerrar sesión se borra.
+        // Al abrir la app con sesión, o al entrar, se descarga el perfil propio (E4-05.1, #121).
+        // Sin conexión no pasa nada: se sigue con la copia de Room.
         ambitoApp.launch {
             container.sesionRepository.estado.collect { estado ->
-                if (estado is EstadoSesion.Iniciada) {
-                    container.usuarioRepository.asegurarUsuarioLocal(getString(R.string.usuario_local_nombre))
-                }
+                if (estado is EstadoSesion.Iniciada) container.usuarioRepository.refrescar(estado.idCuenta)
             }
         }
     }

@@ -29,9 +29,9 @@ import java.time.Instant
     indices = [Index("publicacionId"), Index("usuarioId")],
 )
 data class ComentarioEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val publicacionId: Long,
-    val usuarioId: Long,
+    @PrimaryKey val id: String,
+    val publicacionId: String,
+    val usuarioId: String,
     val texto: String,
     val timestamp: Instant,
 )

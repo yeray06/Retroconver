@@ -10,6 +10,7 @@
     <string name="perfil_sin_estado">Todavía no has escrito tu estado.</string>
     <string name="perfil_sobre_mi">Sobre mí</string>
     <string name="perfil_sin_biografia">Cuenta algo sobre ti desde «Editar perfil».</string>
+    <string name="perfil_reintentar">Reintentar</string>
 
     <!-- Perfil: cerrar sesión (E4-04.3) -->
     <string name="perfil_cerrar_sesion">Cerrar sesión</string>

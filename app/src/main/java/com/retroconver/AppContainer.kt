@@ -64,9 +64,9 @@ class AppContainer(context: Context) {
             .build()
     }
 
-    /** Usuario local y datos de su perfil. */
+    /** Perfiles: el de la sesión y los de las demás personas, con su copia en Room. */
     val usuarioRepository: UsuarioRepository by lazy {
-        UsuarioRepository(baseDeDatos.usuarioDao())
+        UsuarioRepository(baseDeDatos.usuarioDao(), perfilService, sesionRepository, configuracionSupabase)
     }
 
     /** Publicaciones del muro y sus comentarios. */
