@@ -42,3 +42,25 @@ object RutasAcceso {
     const val INICIO = "acceso/inicio"
     const val REGISTRO = "acceso/registro"
 }
+
+/**
+ * Pantallas dentro de la sección Galería (E4-10). La ruta de la sección ([Destino.GALERIA])
+ * abre [MIS_ALBUMES]. Para abrir los álbumes de otra persona desde su perfil (E4-08):
+ * `navController.navigate(RutasGaleria.albumesDe(idDeLaPersona))`.
+ */
+object RutasGaleria {
+    const val ARG_PROPIETARIO = "propietarioId"
+    const val ARG_ALBUM = "albumId"
+    const val ARG_FOTO = "fotoId"
+
+    const val MIS_ALBUMES = "galeria/mis-albumes"
+    const val ALBUMES_DE = "galeria/persona/{$ARG_PROPIETARIO}"
+    const val ALBUM = "galeria/album/{$ARG_ALBUM}"
+    const val FOTO = "galeria/foto/{$ARG_FOTO}"
+
+    fun albumesDe(propietarioId: String) = "galeria/persona/$propietarioId"
+
+    fun album(albumId: String) = "galeria/album/$albumId"
+
+    fun foto(fotoId: String) = "galeria/foto/$fotoId"
+}

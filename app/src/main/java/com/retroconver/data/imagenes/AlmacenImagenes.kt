@@ -107,6 +107,17 @@ class AlmacenImagenes(
         esNuestro && fichero.delete()
     }
 
+    /**
+     * Ancho y alto en píxeles de una copia guardada con [guardar], sin cargarla entera en memoria.
+     * `null` si no se puede leer.
+     */
+    suspend fun medidas(uri: String): Pair<Int, Int>? = withContext(despachador) {
+        val ruta = Uri.parse(uri).path ?: return@withContext null
+        val opciones = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(ruta, opciones)
+        if (opciones.outWidth > 0 && opciones.outHeight > 0) opciones.outWidth to opciones.outHeight else null
+    }
+
     /** Borra todas las copias. Se usa al cerrar sesión, para no dejar en el móvil fotos de esa persona (RF-25). */
     suspend fun borrarTodo() = withContext(despachador) {
         carpeta.listFiles()?.forEach { it.delete() }

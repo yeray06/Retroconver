@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Galería: álbumes y fotos (E4-10) -->
+<resources>
+    <!-- Lista de álbumes -->
+    <string name="galeria_mis_albumes">Mis álbumes</string>
+    <string name="galeria_albumes_de">Álbumes de %1$s</string>
+    <string name="galeria_nuevo_album">Nuevo álbum</string>
+    <plurals name="galeria_num_fotos">
+        <item quantity="one">%d foto</item>
+        <item quantity="other">%d fotos</item>
+    </plurals>
+    <string name="galeria_creado_el">Creado el %1$s</string>
+    <string name="galeria_abrir_album">Abrir el álbum</string>
+    <string name="galeria_sin_albumes_titulo">Todavía no tienes álbumes</string>
+    <string name="galeria_sin_albumes_mensaje">Crea uno con «Nuevo álbum» para guardar tus fotos, como en los viejos tiempos.</string>
+    <string name="galeria_sin_albumes_otro">%1$s todavía no tiene álbumes.</string>
+    <string name="galeria_alguien">Esta persona</string>
+
+    <!-- Nuevo álbum -->
+    <string name="galeria_dialogo_titulo">Nuevo álbum</string>
+    <string name="galeria_nombre_album">Nombre del álbum</string>
+    <string name="galeria_crear">Crear</string>
+    <string name="galeria_creando">Creando…</string>
+    <string name="galeria_cancelar">Cancelar</string>
+    <string name="galeria_error_titulo_obligatorio">Ponle un nombre al álbum.</string>
+    <string name="galeria_error_titulo_largo">Máximo %1$d caracteres.</string>
+
+    <!-- Álbum -->
+    <string name="galeria_volver">← Volver</string>
+    <string name="galeria_volver_descripcion">Volver atrás</string>
+    <string name="galeria_anadir_fotos">Añadir fotos</string>
+    <string name="galeria_subiendo">Subiendo %1$d de %2$d…</string>
+    <string name="galeria_album_vacio_mio">Este álbum está vacío. Pulsa «Añadir fotos» para llenarlo.</string>
+    <string name="galeria_album_vacio_otro">Este álbum todavía no tiene fotos.</string>
+    <string name="galeria_album_no_existe">Este álbum ya no existe.</string>
+    <string name="galeria_foto_n">Foto %1$d de %2$d</string>
+    <string name="galeria_error_subida">No se han podido subir %1$d de %2$d fotos.</string>
+    <string name="galeria_error_foto_no_valida">Alguna de las fotos no se ha podido leer. Prueba con otra.</string>
+
+    <!-- Foto a pantalla completa -->
+    <string name="galeria_foto_del_album">Foto del álbum %1$s</string>
+    <string name="galeria_borrar_foto">Borrar</string>
+    <string name="galeria_borrando">Borrando…</string>
+    <string name="galeria_borrar_pregunta">¿Borrar esta foto?</string>
+    <string name="galeria_borrar_explicacion">Se borrará del álbum y del servidor. No se puede deshacer.</string>
+</resources>

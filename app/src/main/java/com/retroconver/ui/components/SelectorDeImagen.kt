@@ -3,6 +3,7 @@ package com.retroconver.ui.components
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +39,21 @@ fun rememberSelectorDeImagen(alElegir: (Uri) -> Unit): () -> Unit {
     val alElegirActual by rememberUpdatedState(alElegir)
     val lanzador = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
         if (uri != null) alElegirActual(uri)
+    }
+    return remember(lanzador) {
+        { lanzador.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) }
+    }
+}
+
+/**
+ * Como [rememberSelectorDeImagen], pero para elegir varias fotos de una vez, hasta [maximo]
+ * (E4-10.4, #71). Si se cierra sin elegir ninguna, no pasa nada.
+ */
+@Composable
+fun rememberSelectorDeImagenes(maximo: Int, alElegir: (List<Uri>) -> Unit): () -> Unit {
+    val alElegirActual by rememberUpdatedState(alElegir)
+    val lanzador = rememberLauncherForActivityResult(PickMultipleVisualMedia(maxItems = maximo)) { uris ->
+        if (uris.isNotEmpty()) alElegirActual(uris)
     }
     return remember(lanzador) {
         { lanzador.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) }

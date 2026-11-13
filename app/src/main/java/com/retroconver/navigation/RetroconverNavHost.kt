@@ -3,10 +3,14 @@ package com.retroconver.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.retroconver.ui.screens.galeria.GaleriaScreen
+import androidx.navigation.navArgument
+import com.retroconver.ui.screens.galeria.AlbumScreen
+import com.retroconver.ui.screens.galeria.AlbumesScreen
+import com.retroconver.ui.screens.galeria.FotoScreen
 import com.retroconver.ui.screens.mensajes.MensajesScreen
 import com.retroconver.ui.screens.muro.MuroScreen
 import com.retroconver.ui.screens.muro.NuevaPublicacionScreen
@@ -42,7 +46,28 @@ fun RetroconverNavHost(
                 EditarPerfilScreen(alTerminar = { navController.popBackStack(RutasPerfil.VER, inclusive = false) })
             }
         }
-        composable(Destino.GALERIA.ruta) { GaleriaScreen() }
+        // Galería es un grafo: lista de álbumes, detalle en cuadrícula y foto a pantalla completa (E4-10)
+        navigation(startDestination = RutasGaleria.MIS_ALBUMES, route = Destino.GALERIA.ruta) {
+            val abrirAlbum: (String) -> Unit = { id -> navController.navigate(RutasGaleria.album(id)) }
+            composable(RutasGaleria.MIS_ALBUMES) { AlbumesScreen(alAbrirAlbum = abrirAlbum) }
+            composable(
+                RutasGaleria.ALBUMES_DE,
+                arguments = listOf(navArgument(RutasGaleria.ARG_PROPIETARIO) { type = NavType.StringType }),
+            ) { AlbumesScreen(alAbrirAlbum = abrirAlbum) }
+            composable(
+                RutasGaleria.ALBUM,
+                arguments = listOf(navArgument(RutasGaleria.ARG_ALBUM) { type = NavType.StringType }),
+            ) {
+                AlbumScreen(
+                    alVolver = { navController.popBackStack() },
+                    alAbrirFoto = { id -> navController.navigate(RutasGaleria.foto(id)) },
+                )
+            }
+            composable(
+                RutasGaleria.FOTO,
+                arguments = listOf(navArgument(RutasGaleria.ARG_FOTO) { type = NavType.StringType }),
+            ) { FotoScreen(alVolver = { navController.popBackStack() }) }
+        }
         composable(Destino.MENSAJES.ruta) { MensajesScreen() }
     }
 }
