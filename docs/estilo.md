@@ -33,6 +33,8 @@ Sale del prototipo final de los bocetos (E2-04). Está en `Color.kt`.
 | `RetroTextDark` | Texto principal | `#222222` |
 | `RetroGrayText` | Fechas, contadores y texto secundario | `#555555` |
 | `RetroLinkBlue` | Nombres y enlaces | `#0066CC` |
+| `RetroErrorRed` | Mensajes de error. Color `error` del tema (E4-12.2) | `#A3211B` |
+| `RetroAvisoFondo` / `RetroAvisoBorde` | Franja amarilla de «Sin conexión» (E4-03.2) | `#FFF4C2` / `#E0C860` |
 
 ### Colores del tema de Material
 
@@ -47,6 +49,8 @@ Sale del prototipo final de los bocetos (E2-04). Está en `Color.kt`.
 | `surface`, `surfaceContainer` / `onSurface` | `RetroCardBackground` / `RetroTextDark` |
 | `surfaceVariant` / `onSurfaceVariant` | `RetroProfileCardBg` / `RetroGrayText` |
 | `outline` | `RetroCardBorder` |
+| `surfaceContainerHigh` (diálogos) | `RetroCardBackground` |
+| `error` | `RetroErrorRed` |
 
 La app solo tiene tema claro. El color de fondo del perfil que elige la persona usuaria (RF-08) se guarda en DataStore en E4-04 y no cambia este tema.
 
@@ -63,6 +67,9 @@ Calculado con la fórmula de WCAG 2.1. El mínimo es 4,5:1 para texto normal y 3
 | `RetroLinkBlue` sobre blanco | 5,6:1 | Nombres y enlaces |
 | Blanco sobre `RetroGlossyDark` | 10,1:1 | Botones y barra de estado |
 | Blanco sobre `RetroGlossyTop` | 3,9:1 | Solo texto grande: el título de la cabecera (22 sp) |
+| `RetroErrorRed` sobre blanco | 7,5:1 | Errores dentro de tarjetas y formularios |
+| `RetroErrorRed` sobre `RetroBackground` | 5,1:1 | Errores sobre el fondo (galería). El rojo por defecto de Material, `#B3261E`, se quedaba en 4,4:1 |
+| `RetroTextDark` sobre `RetroAvisoFondo` | 14,4:1 | Franja de «Sin conexión» |
 
 ## 2. Tipografía
 
