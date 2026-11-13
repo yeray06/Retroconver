@@ -37,7 +37,7 @@ import java.time.Instant
 /**
  * Tarjeta de una publicación del muro: avatar, nombre, fecha, texto y, si la tiene, imagen.
  * Medidas del prototipo final (docs/diseño/diseñofinalvisual): avatar de 36 dp, imagen de 160 dp de alto.
- * Los contadores de comentarios y «Me gusta» se añaden con E4-01.2 (#67) y si se decide el «Me gusta».
+ * El contador de comentarios se añade en E4-07.2 (#67) y el de «Me gusta» en el extra EX-05 (#130).
  */
 @Composable
 fun PublicacionCard(
