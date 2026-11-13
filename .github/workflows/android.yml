@@ -1,0 +1,108 @@
+# Integración continua: en cada Pull Request y en cada cambio de main,
+# GitHub compila la app y pasa las pruebas. Si algo falla, la PR lo muestra en rojo.
+# Es gratis porque el repositorio es público.
+name: Compilación y pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compilar:
+    name: Compilar y pruebas unitarias
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21 para Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Compilar la app y pasar las pruebas unitarias
+        run: |
+          set -o pipefail
+          ./gradlew --stacktrace assembleDebug testDebugUnitTest 2>&1 | tee gradle.log
+
+      # Copia los errores de compilación y de pruebas a una anotación de la PR,
+      # para verlos sin abrir el registro completo
+      - name: Resumir los errores
+        if: failure()
+        run: |
+          errores=$(grep -E -A4 '^e: |FAILED$|What went wrong' gradle.log | grep -v '^--$' | head -120 | sed -e 's/%/%25/g' -e 's/\r//g' | sed ':a;N;$!ba;s/\n/%0A/g')
+          echo "::error title=Errores de compilación o de pruebas::${errores:-Mira el registro completo del paso anterior}"
+
+      - name: Guardar el informe de las pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas-unitarias
+          path: app/build/reports/tests/
+          if-no-files-found: ignore
+
+      - name: Guardar los esquemas de Room generados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: esquemas-room
+          path: app/schemas/
+          if-no-files-found: ignore
+
+  emulador:
+    name: Pruebas en el emulador
+    needs: compilar
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21 para Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Permitir la aceleración del emulador (KVM)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Pruebas de Room, imágenes y pantallas en un emulador con Android 14
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          # bash con pipefail: si fallan las pruebas, el paso falla aunque tee termine bien
+          script: bash -c "set -o pipefail && ./gradlew --stacktrace connectedDebugAndroidTest 2>&1 | tee gradle.log"
+
+      - name: Resumir los errores
+        if: failure()
+        run: |
+          errores=$(grep -E -A6 '^e: |FAILED$|What went wrong|Tests on .* failed' gradle.log | grep -v '^--$' | head -120 | sed -e 's/%/%25/g' -e 's/\r//g' | sed ':a;N;$!ba;s/\n/%0A/g')
+          echo "::error title=Errores de las pruebas en el emulador::${errores:-Mira el registro completo del paso anterior}"
+
+      - name: Guardar el informe de las pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas-emulador
+          path: app/build/reports/androidTests/
+          if-no-files-found: ignore
