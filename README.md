@@ -96,11 +96,11 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 | Qué | Dónde | Issue | Estado |
 |---|---|---|---|
 | Servidor Supabase (plan gratuito): tablas, políticas de seguridad (12/12 comprobaciones) e imágenes | `supabase/` | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ |
-| Cliente de red con Retrofit: errores traducidos al español y franja de «Sin conexión» | `data/remote/` | E4-03 [#113](https://github.com/yeray06/Retroconver/issues/113) | En revisión ([#137](https://github.com/yeray06/Retroconver/pull/137)) |
-| Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | En revisión ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
-| Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | En revisión ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
-| Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/repository/GaleriaRepository.kt` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | En revisión ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142)) |
-| 150 pruebas automáticas, revisión de accesibilidad e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | En revisión ([#135](https://github.com/yeray06/Retroconver/pull/135), [#143](https://github.com/yeray06/Retroconver/pull/143)) |
+| Cliente de red con Retrofit: errores traducidos al español y franja de «Sin conexión» | `data/remote/` | E4-03 [#113](https://github.com/yeray06/Retroconver/issues/113) | ✅ ([#137](https://github.com/yeray06/Retroconver/pull/137)) |
+| Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | ✅ ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
+| Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | ✅ ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
+| Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/repository/GaleriaRepository.kt` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | ✅ ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142)) |
+| 150 pruebas automáticas, revisión de accesibilidad e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#135](https://github.com/yeray06/Retroconver/pull/135), [#143](https://github.com/yeray06/Retroconver/pull/143)) |
 | De la entrega 3: perfil con edición validada, Photo Picker sin permisos, reescalado a 720p, nueva publicación y muro | `ui/screens/perfil/`, `ui/screens/muro/`, `data/imagenes/` | Entrega 3 | ✅ |
 
 ### Qué falta para la versión candidata
@@ -125,7 +125,6 @@ Lo que ya está hecho les deja el camino preparado:
 
 ### Qué se termina o corrige antes de la entrega final
 
-- **Desactivar *Confirm email* en Supabase** ([#110](https://github.com/yeray06/Retroconver/issues/110)). Con la confirmación activada, cada cuenta nueva tiene que pulsar un enlace del correo, y el correo gratuito de Supabase solo envía unos pocos por hora. La app lo explica, pero para probar es un estorbo.
 - **Subir los esquemas de Room 3, 4 y 5** a `app/schemas/` ([#146](https://github.com/yeray06/Retroconver/issues/146)) y sustituir el borrado de la base de datos al actualizar por migraciones.
 - **Subir fotos en segundo plano** con WorkManager, para que no se cancelen al salir del álbum ([#147](https://github.com/yeray06/Retroconver/issues/147)).
 - **Probar con TalkBack, el Accessibility Scanner y letra grande** en un móvil de verdad ([docs/pruebas.md](docs/pruebas.md), apartado 4).
@@ -139,7 +138,7 @@ Primero abre el proyecto y **conecta la app con el servidor** como se explica en
 
 1. Abre la app. Sale **Entra en Retroconver** con la cabecera azul.
 2. Pulsa **Regístrate** y luego **Crear cuenta** sin rellenar nada: cada campo dice qué le falta. Prueba un email sin dominio y una contraseña de 3 caracteres.
-3. Rellena nombre, email y una contraseña de 6 o más caracteres. Si *Confirm email* está desactivado, entras directamente al **Muro**. Si está activado, sale «Revisa tu correo»: pulsa el enlace del correo y entra.
+3. Rellena nombre, email y una contraseña de 6 o más caracteres: entras directamente al **Muro**. El proyecto tiene *Confirm email* desactivado, así que no hay que esperar ningún correo. Si alguien lo activa, la app muestra «Revisa tu correo» y hay que pulsar el enlace antes de entrar.
 4. Cierra la app del todo y ábrela: **sigue la sesión**.
 5. En Supabase, en *Authentication → Users*, está la cuenta, y en *Table Editor → perfiles*, su perfil con el nombre.
 

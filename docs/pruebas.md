@@ -141,8 +141,8 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 
 | Error | Issue | Estado |
 |---|---|---|
-| El rojo de error no llega a 4,5:1 sobre el fondo | [#144](https://github.com/yeray06/Retroconver/issues/144) | Corregido en #143 |
-| Los diálogos salen con el fondo lila de Material 3 | [#145](https://github.com/yeray06/Retroconver/issues/145) | Corregido en #143 |
+| El rojo de error no llega a 4,5:1 sobre el fondo | [#144](https://github.com/yeray06/Retroconver/issues/144) | ✅ Corregido en #143 |
+| Los diálogos salen con el fondo lila de Material 3 | [#145](https://github.com/yeray06/Retroconver/issues/145) | ✅ Corregido en #143 |
 | Faltan en el repositorio los esquemas de Room 3, 4 y 5 | [#146](https://github.com/yeray06/Retroconver/issues/146) | Pendiente (Yeray) |
 | Al salir del álbum mientras se suben fotos, se cancelan las que faltan | [#147](https://github.com/yeray06/Retroconver/issues/147) | Para la entrega final |
-| *Confirm email* sigue activado en Supabase: cada cuenta nueva tiene que confirmar el correo | [#110](https://github.com/yeray06/Retroconver/issues/110) | Pendiente (Yeray, en el panel de Supabase) |
+| *Confirm email* estaba activado en Supabase: cada cuenta nueva tenía que confirmar el correo | [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ Desactivado el 13/11/2026 |
