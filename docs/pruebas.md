@@ -1,6 +1,6 @@
 # Pruebas de Retroconver
 
-Lista de las pruebas de la entrega 4 y su resultado (E4-12, [#24](https://github.com/yeray06/Retroconver/issues/24)): las automáticas, la prueba de seguridad del servidor y la revisión de accesibilidad. Al final están los errores encontrados, cada uno con su issue.
+Lista de las pruebas de la entrega 4 y su resultado (E4-12, [#24](https://github.com/yeray06/Retroconver/issues/24)): las automáticas, la prueba de seguridad del servidor y la revisión de accesibilidad, diseño y usabilidad. Al final están los errores encontrados, cada uno con su issue y cómo se ha resuelto.
 
 ## 1. Cómo se ejecutan
 
@@ -138,7 +138,40 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 - [ ] **Accessibility Scanner:** pasarlo por inicio de sesión, registro, perfil, edición, galería, álbum y foto. Apuntar aquí lo que salga.
 - [ ] **Letra grande:** con el tamaño de letra al máximo en Ajustes, nada se corta ni se solapa.
 
-## 5. Errores encontrados
+## 5. Revisión de diseño y usabilidad
+
+### Qué se ha comprobado
+
+- **Diseño:** cada pantalla nueva de la entrega 4 (inicio de sesión, registro, galería, álbum y foto) se ha comparado con la guía de estilo ([docs/estilo.md](estilo.md)) y con los bocetos (`docs/diseño/`).
+  - Todas usan las mismas piezas: la cabecera azul con brillo (`RetroHeader`), las tarjetas blancas con borde (`RetroCard`), los botones Web 2.0 (`RetroButton`) y los colores del tema.
+  - La galería sigue el boceto de [docs/diseño/galeria.md](diseño/galeria.md): portadas con borde fino, cuadrícula de 3 columnas y cabecera con «← Volver» y el título del álbum.
+- **Usabilidad:** se ha recorrido cada flujo (registrarse, entrar, editar el perfil, cambiar la foto, crear un álbum, añadir y borrar fotos, cerrar sesión) buscando dónde una persona se puede quedar atascada, perder lo que ha escrito o hacer algo sin querer. También se ha probado sin conexión y con la sesión caducada.
+
+### Mejoras aplicadas
+
+| Mejora | Por qué |
+|---|---|
+| Los errores de cada campo salen debajo del campo al pulsar el botón, y desaparecen al corregirlo | Se ve qué falla y dónde, sin un mensaje genérico |
+| Los errores del servidor se traducen al español y dicen qué hacer: «Ya hay una cuenta con ese email. Inicia sesión», «La imagen es demasiado grande. Prueba con otra»… | Nadie entiende «Error 422» |
+| Franja amarilla de «Sin conexión» bajo la cabecera, como los avisos de Tuenti | Se sigue viendo lo último guardado y está claro por qué no se puede publicar |
+| Sin conexión, los formularios no se cierran ni pierden lo escrito | No hay que volver a escribirlo |
+| Cerrar sesión y borrar una foto piden confirmación | Son acciones que no se pueden deshacer |
+| Los botones cambian de texto y se desactivan mientras esperan al servidor («Entrando…», «Creando…», «Borrando…») | Se sabe que algo está pasando y no se envía dos veces |
+| Pantallas vacías que explican qué hacer: «Crea uno con “Nuevo álbum”…», «Pulsa “Añadir fotos” para llenarlo» | Una lista vacía sin texto parece un error |
+| Al crear un álbum, se abre directamente para añadir fotos | Un paso menos en lo que se va a hacer siempre |
+| Se pueden elegir hasta 10 fotos de una vez; se suben en segundo plano y se ve el progreso («Subiendo 2 de 5…») | No hay que esperar mirando la pantalla (#147) |
+| Deslizar hacia abajo para actualizar la galería | El gesto que todo el mundo conoce |
+| Botón «Ver» en la contraseña | Comprobar lo escrito en el teclado del móvil |
+| La sesión se mantiene al cerrar la app, y después de cerrar sesión «Atrás» no vuelve al muro | No hay que entrar cada vez, y en un móvil compartido no se ve la cuenta anterior |
+| En los álbumes de otra persona no salen «Nuevo álbum», «Añadir fotos» ni «Borrar» | No se ofrece lo que no se puede hacer |
+| Los diálogos son blancos como las tarjetas, en vez del lila de Material 3 (#145) | Coherencia con el estilo retro |
+| El formulario de acceso no pasa de 480 dp de ancho | En tablet y en horizontal no se estira de lado a lado |
+
+### Pendiente
+- Probarlo con dos o tres compañeros que no conozcan la app y apuntar dónde dudan.
+- La revisión de Muro y Mensajes es de David (E4-13, [#25](https://github.com/yeray06/Retroconver/issues/25)).
+
+## 6. Errores encontrados
 
 | Error | Issue | Estado |
 |---|---|---|

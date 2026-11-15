@@ -100,7 +100,7 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 | Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | ✅ ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
 | Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | ✅ ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
 | Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/repository/GaleriaRepository.kt` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | ✅ ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142)) |
-| 161 pruebas automáticas, revisión de accesibilidad e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#135](https://github.com/yeray06/Retroconver/pull/135), [#143](https://github.com/yeray06/Retroconver/pull/143)) |
+| 161 pruebas automáticas, revisión de accesibilidad, diseño y usabilidad, e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#135](https://github.com/yeray06/Retroconver/pull/135), [#143](https://github.com/yeray06/Retroconver/pull/143)) |
 | De la entrega 3: perfil con edición validada, Photo Picker sin permisos, reescalado a 720p, nueva publicación y muro | `ui/screens/perfil/`, `ui/screens/muro/`, `data/imagenes/` | Entrega 3 | ✅ |
 
 ### Qué falta para la versión candidata
@@ -175,7 +175,10 @@ Primero abre el proyecto y **conecta la app con el servidor** como se explica en
 - Si se borra una imagen del servidor sin conexión, puede quedar el archivo en *Storage* sin usar. No se ve en ningún sitio y no afecta a la app.
 - El plan gratuito de Supabase **pausa el proyecto tras una semana sin uso**. Antes de cada entrega y de la presentación hay que abrirlo en el panel (*Restore project* si hace falta).
 
-El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2).
+El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2):
+- **Completadas:** columna *Hecho*. La issue está cerrada por su PR.
+- **Pendientes:** *Backlog*, *Por hacer*, *En curso* y *En revisión*.
+- **Descartadas:** en esta entrega no hay ninguna. Los extras (EX-01 a EX-05) siguen en *Backlog* para la entrega final. Si se descarta alguno, se cierra como *not planned* con la etiqueta `wontfix`.
 
 ## Cómo trabajamos
 
