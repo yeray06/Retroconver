@@ -103,6 +103,9 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.kotlinx.serialization.json)
 
+    // Tareas en segundo plano: subida de fotos que sigue aunque se salga del álbum
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Imágenes
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)

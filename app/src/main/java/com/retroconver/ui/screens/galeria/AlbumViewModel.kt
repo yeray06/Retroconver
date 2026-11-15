@@ -1,22 +1,19 @@
 package com.retroconver.ui.screens.galeria
 
 import android.net.Uri
-import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.retroconver.R
 import com.retroconver.RetroconverApp
-import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.AlbumEntity
 import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.remote.ResultadoRed
 import com.retroconver.data.remote.mensaje
 import com.retroconver.data.repository.GaleriaRepository
-import com.retroconver.data.repository.ImagenParaSubir
+import com.retroconver.data.subidas.GestorSubidasFotos
 import com.retroconver.navigation.RutasGaleria
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,12 +22,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/** Cuántas fotos de una tanda se llevan subidas («Subiendo 2 de 5…»). */
+/**
+ * Cuántas fotos de una tanda se llevan subidas («Subiendo 2 de 5…»).
+ * Con `total = 0` la tanda está en cola o empezando.
+ */
 data class ProgresoSubida(val actual: Int, val total: Int)
 
 /** Resultado de una tanda con fallos: cuántas no se han subido y el motivo de la última. */
-data class FalloSubida(val fallidas: Int, val total: Int, val motivo: Int?)
-
+data class FalloSubida(val fallidas: Int, val total: Int, val motivo: Int?, val id: String? = null)
 /** Lo que muestra el detalle de un álbum. */
 data class AlbumUiState(
     /** Ya ha respondido Room. Hasta entonces no se enseña ni el álbum ni el «no existe». */
@@ -51,25 +50,46 @@ data class AlbumUiState(
 /**
  * Detalle de un álbum en cuadrícula (E4-10.3, #70) y subida de fotos (E4-10.4, #71).
  * Los álbumes de otras personas se ven igual, pero sin poder añadir ni borrar.
+ *
+ * Las fotos se suben en segundo plano con WorkManager (#147): la subida sigue aunque se salga
+ * del álbum, y al volver se ve por dónde va.
  */
 class AlbumViewModel(
     private val galeria: GaleriaRepository,
-    private val imagenes: AlmacenImagenes,
+    private val subidas: GestorSubidasFotos,
     private val albumId: String,
 ) : ViewModel() {
 
     private val idPropio = MutableStateFlow<String?>(null)
     private val actualizando = MutableStateFlow(false)
     private val error = MutableStateFlow<Int?>(null)
-    private val subida = MutableStateFlow<ProgresoSubida?>(null)
-    private val falloSubida = MutableStateFlow<FalloSubida?>(null)
+
+    /** Id del último fallo de subida que la persona ya ha visto y ha ocultado. */
+    private val falloOcultado = MutableStateFlow<String?>(null)
 
     private val datos = combine(galeria.album(albumId), galeria.fotos(albumId), idPropio) { album, fotos, propio ->
         AlbumUiState(cargado = true, album = album, fotos = fotos, esMio = album != null && album.propietarioId == propio)
     }
 
-    val estado: StateFlow<AlbumUiState> = combine(datos, actualizando, error, subida, falloSubida) { base, cargando, fallo, progreso, falloTanda ->
-        base.copy(actualizando = cargando, error = fallo, subida = progreso, falloSubida = falloTanda)
+    val estado: StateFlow<AlbumUiState> = combine(
+        datos,
+        actualizando,
+        error,
+        subidas.estado(albumId),
+        falloOcultado,
+    ) { base, cargando, fallo, enSegundoPlano, ocultado ->
+        base.copy(
+            actualizando = cargando,
+            error = fallo,
+            subida = when {
+                enSegundoPlano.subiendo -> ProgresoSubida(enSegundoPlano.actual, enSegundoPlano.total)
+                enSegundoPlano.enCola -> ProgresoSubida(0, 0)
+                else -> null
+            },
+            falloSubida = enSegundoPlano.ultimoFallo
+                ?.takeIf { enSegundoPlano.idUltimoFallo != ocultado }
+                ?.let { FalloSubida(it.fallidas, it.total, it.motivo, enSegundoPlano.idUltimoFallo) },
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AlbumUiState())
 
     init {
@@ -90,42 +110,18 @@ class AlbumViewModel(
     }
 
     /**
-     * Sube una tanda de fotos elegidas en el selector, de una en una (E4-10.4, #71). Cada una se
-     * reescala a 720p, se sube y se borra la copia del móvil. Si alguna falla, se sigue con las
+     * Sube las fotos elegidas en el selector (E4-10.4, #71) en segundo plano (#147). Cada una se
+     * reduce a 720p, se sube y aparece en la cuadrícula. Si alguna falla, se siguen subiendo las
      * demás y al final se dice cuántas no se han podido subir.
      */
     fun subirFotos(origenes: List<Uri>) {
-        if (subida.value != null || origenes.isEmpty()) return
-        falloSubida.value = null
-        viewModelScope.launch {
-            var fallidas = 0
-            var motivo: Int? = null
-            origenes.forEachIndexed { indice, origen ->
-                subida.value = ProgresoSubida(actual = indice + 1, total = origenes.size)
-                val copia = runCatching { imagenes.guardar(origen) }.getOrNull()
-                if (copia == null) {
-                    fallidas++
-                    motivo = R.string.galeria_error_foto_no_valida
-                    return@forEachIndexed
-                }
-                val medidas = imagenes.medidas(copia)
-                val resultado = galeria.subirFoto(
-                    albumId,
-                    ImagenParaSubir(Uri.parse(copia).toFile(), ancho = medidas?.first, alto = medidas?.second),
-                )
-                imagenes.borrar(copia)
-                if (resultado is ResultadoRed.Fallo) {
-                    fallidas++
-                    motivo = resultado.mensaje()
-                }
-            }
-            subida.value = null
-            if (fallidas > 0) falloSubida.value = FalloSubida(fallidas, origenes.size, motivo)
-        }
+        if (origenes.isEmpty()) return
+        ocultarFalloSubida()
+        subidas.subir(albumId, origenes)
     }
 
     fun ocultarFalloSubida() {
-        falloSubida.value = null
+        estado.value.falloSubida?.id?.let { falloOcultado.value = it }
     }
 
     companion object {
@@ -134,7 +130,7 @@ class AlbumViewModel(
                 val app = this[APPLICATION_KEY] as RetroconverApp
                 AlbumViewModel(
                     galeria = app.container.galeriaRepository,
-                    imagenes = app.container.almacenImagenes,
+                    subidas = app.container.subidasFotos,
                     albumId = checkNotNull(createSavedStateHandle().get<String>(RutasGaleria.ARG_ALBUM)),
                 )
             }
