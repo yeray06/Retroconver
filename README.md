@@ -15,6 +15,9 @@ Red social para Android con la estética y la sencillez de las redes de finales 
 | Guía de estilo y bocetos | [docs/estilo.md](docs/estilo.md) · [docs/diseño/](docs/diseño/) |
 | Navegación y recorrido principal | [docs/navegacion.md](docs/navegacion.md) · [docs/recorrido.md](docs/recorrido.md) |
 | Cómo trabajamos | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Versión candidata (entrega 4) | Etiqueta [`entrega-4`](https://github.com/yeray06/Retroconver/tree/entrega-4) en `main` |
+| Pruebas y revisión de accesibilidad | [docs/pruebas.md](docs/pruebas.md) |
+| Memoria (Word) | [docs/memoria/Retroconver_Memoria_v4.docx](docs/memoria/Retroconver_Memoria_v4.docx) |
 
 ## Equipo
 
@@ -115,7 +118,7 @@ Son las tareas de David de la entrega 4. Ahora mismo las publicaciones y los com
 | Tablón de mensajes | E4-09 [#22](https://github.com/yeray06/Retroconver/issues/22) |
 | Color de fondo y tema del perfil | E4-11 [#23](https://github.com/yeray06/Retroconver/issues/23) |
 | Pruebas y accesibilidad de Muro y Mensajes | E4-13 [#25](https://github.com/yeray06/Retroconver/issues/25) |
-| Memoria v4 | E4-14 [#81](https://github.com/yeray06/Retroconver/issues/81) |
+| Memoria v4: ya está en [docs/memoria/](docs/memoria/Retroconver_Memoria_v4.docx); David revisa y completa su parte | E4-14 [#81](https://github.com/yeray06/Retroconver/issues/81) |
 
 Lo que ya está hecho les deja el camino preparado:
 - El patrón para pasar un módulo al servidor está en [docs/arquitectura.md](docs/arquitectura.md), apartado 2.
