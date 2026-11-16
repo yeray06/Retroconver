@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Inicio de sesión y registro (E4-04.2, #118) -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <string name="acceso_lema">Tu red social de toda la vida</string>
 
     <!-- Campos -->
@@ -11,7 +11,7 @@
     <string name="acceso_ocultar">Ocultar</string>
     <string name="acceso_descripcion_ver">Mostrar la contraseña</string>
     <string name="acceso_descripcion_ocultar">Ocultar la contraseña</string>
-    <string name="acceso_pista_contrasena">Mínimo %1$d caracteres.</string>
+    <string name="acceso_pista_contrasena" tools:ignore="PluralsCandidate">Mínimo %1$d caracteres.</string>
 
     <!-- Inicio de sesión -->
     <string name="acceso_titulo_entrar">Entra en Retroconver</string>
@@ -34,6 +34,6 @@
     <!-- Errores de los campos -->
     <string name="acceso_error_obligatorio">Este campo es obligatorio.</string>
     <string name="acceso_error_email">Escribe un email válido, por ejemplo nombre@correo.es.</string>
-    <string name="acceso_error_contrasena_corta">La contraseña tiene que tener al menos %1$d caracteres.</string>
-    <string name="acceso_error_nombre_largo">Máximo %1$d caracteres.</string>
+    <string name="acceso_error_contrasena_corta" tools:ignore="PluralsCandidate">La contraseña tiene que tener al menos %1$d caracteres.</string>
+    <string name="acceso_error_nombre_largo" tools:ignore="PluralsCandidate">Máximo %1$d caracteres.</string>
 </resources>

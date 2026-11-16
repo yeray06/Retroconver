@@ -2,8 +2,8 @@ package com.retroconver.data.subidas
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -53,16 +53,16 @@ class SubidaFotosWorker(
 
     /** Copia a 720p en el móvil; `null` si la foto ya no se puede leer. */
     private suspend fun prepararImagen(imagenes: AlmacenImagenes, origen: String): ImagenParaSubir? {
-        val copia = runCatching { imagenes.guardar(Uri.parse(origen)) }.getOrNull() ?: return null
+        val copia = runCatching { imagenes.guardar(origen.toUri()) }.getOrNull() ?: return null
         val medidas = imagenes.medidas(copia)
-        return ImagenParaSubir(Uri.parse(copia).toFile(), ancho = medidas?.first, alto = medidas?.second)
+        return ImagenParaSubir(copia.toUri().toFile(), ancho = medidas?.first, alto = medidas?.second)
     }
 
     /** El permiso para leer la foto se pidió al encolarla; ya no hace falta. */
     private fun soltarPermiso(origen: String) {
         runCatching {
             applicationContext.contentResolver.releasePersistableUriPermission(
-                Uri.parse(origen),
+                origen.toUri(),
                 Intent.FLAG_GRANT_READ_URI_PERMISSION,
             )
         }

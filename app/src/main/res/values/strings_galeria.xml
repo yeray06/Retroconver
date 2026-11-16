@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Galería: álbumes y fotos (E4-10) -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <!-- Lista de álbumes -->
     <string name="galeria_mis_albumes">Mis álbumes</string>
     <string name="galeria_albumes_de">Álbumes de %1$s</string>
@@ -23,7 +23,7 @@
     <string name="galeria_creando">Creando…</string>
     <string name="galeria_cancelar">Cancelar</string>
     <string name="galeria_error_titulo_obligatorio">Ponle un nombre al álbum.</string>
-    <string name="galeria_error_titulo_largo">Máximo %1$d caracteres.</string>
+    <string name="galeria_error_titulo_largo" tools:ignore="PluralsCandidate">Máximo %1$d caracteres.</string>
 
     <!-- Álbum -->
     <string name="galeria_volver">← Volver</string>
@@ -36,7 +36,12 @@
     <string name="galeria_album_vacio_otro">Este álbum todavía no tiene fotos.</string>
     <string name="galeria_album_no_existe">Este álbum ya no existe.</string>
     <string name="galeria_foto_n">Foto %1$d de %2$d</string>
-    <string name="galeria_error_subida">No se han podido subir %1$d de %2$d fotos.</string>
+    <!-- Según cuántas fotos tenía la tanda (%2$d): con una sola no se dice «1 de 1 fotos» -->
+    <plurals name="galeria_error_subida">
+        <item quantity="one">No se ha podido subir la foto.</item>
+        <item quantity="many">No se han podido subir %1$d de %2$d fotos.</item>
+        <item quantity="other">No se han podido subir %1$d de %2$d fotos.</item>
+    </plurals>
     <string name="galeria_error_foto_no_valida">Alguna de las fotos no se ha podido leer. Prueba con otra.</string>
 
     <!-- Foto a pantalla completa -->

@@ -18,6 +18,8 @@ retrofit = "3.0.0"
 okhttp = "4.12.0"
 # Subir fotos en segundo plano (#147)
 work = "2.10.0"
+# Orientación de las fotos (EXIF). La de AndroidX tiene corregidos fallos de la del sistema
+exifinterface = "1.4.1"
 kotlinxSerialization = "1.9.0"
 junit = "4.13.2"
 androidxJunit = "1.3.0"
@@ -54,6 +56,9 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+
+# Imágenes: orientación EXIF de las fotos
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 
 # Red: Retrofit para las llamadas a Supabase, OkHttp por debajo y kotlinx.serialization para el JSON
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

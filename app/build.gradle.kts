@@ -138,6 +138,7 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
 
     // Imágenes
+    implementation(libs.androidx.exifinterface)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 

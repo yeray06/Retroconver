@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -207,7 +208,7 @@ private fun Avisos(estado: AlbumUiState) {
     ) {
         if (falloSubida != null) {
             Text(
-                text = stringResource(R.string.galeria_error_subida, falloSubida.fallidas, falloSubida.total),
+                text = pluralStringResource(R.plurals.galeria_error_subida, falloSubida.total, falloSubida.fallidas, falloSubida.total),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
             )

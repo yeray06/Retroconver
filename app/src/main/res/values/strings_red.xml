@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Mensajes de la conexión con el servidor (E4-03.2, #115). Ver data/remote/MensajesRed.kt -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <!-- Franja que aparece bajo la cabecera mientras no hay red (RNF-06) -->
     <string name="red_aviso_sin_conexion">Sin conexión. Ves lo último guardado; no puedes publicar ni comentar hasta que vuelva la red.</string>
 
