@@ -35,7 +35,17 @@ jobs:
       - name: Compilar la app y pasar las pruebas unitarias
         run: |
           set -o pipefail
-          ./gradlew --stacktrace assembleDebug testDebugUnitTest 2>&1 | tee gradle.log
+          ./gradlew --stacktrace assembleDebug assembleRelease testDebugUnitTest 2>&1 | tee gradle.log
+
+      # Android lint: falla con los errores y deja los avisos en una anotación de la PR
+      - name: Revisar el código con Android lint
+        run: |
+          set -o pipefail
+          ./gradlew --stacktrace lintDebug 2>&1 | tee -a gradle.log
+
+      - name: Resumir los avisos de lint
+        if: always()
+        run: python3 .github/scripts/resumir_lint.py app/build/reports/lint-results-debug.xml
 
       # Copia los errores de compilación y de pruebas a una anotación de la PR,
       # para verlos sin abrir el registro completo
@@ -51,6 +61,14 @@ jobs:
         with:
           name: informe-pruebas-unitarias
           path: app/build/reports/tests/
+          if-no-files-found: ignore
+
+      - name: Guardar el informe de lint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-lint
+          path: app/build/reports/lint-results-debug.*
           if-no-files-found: ignore
 
       - name: Guardar los esquemas de Room generados
