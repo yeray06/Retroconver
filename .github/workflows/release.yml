@@ -1,0 +1,82 @@
+# Publica una versión de la app (EF-01.1, #83).
+#
+# Al subir una etiqueta que empiece por «v» (por ejemplo v1.0), GitHub compila el APK de release,
+# lo firma con la clave guardada en los secretos del repositorio y crea la Release con el APK adjunto.
+#
+# Secretos necesarios (Settings → Secrets and variables → Actions):
+#   SUPABASE_URL, SUPABASE_ANON_KEY   datos del servidor, los mismos de local.properties
+#   FIRMA_BASE64                      el fichero .jks en base64
+#   FIRMA_CLAVE_ALMACEN, FIRMA_ALIAS, FIRMA_CLAVE
+# Cómo crearlos: README, «Publicar una versión».
+name: Publicar versión
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    name: APK firmado y Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Comprobar que están los secretos
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          FIRMA_BASE64: ${{ secrets.FIRMA_BASE64 }}
+          FIRMA_CLAVE_ALMACEN: ${{ secrets.FIRMA_CLAVE_ALMACEN }}
+          FIRMA_ALIAS: ${{ secrets.FIRMA_ALIAS }}
+          FIRMA_CLAVE: ${{ secrets.FIRMA_CLAVE }}
+        run: |
+          faltan=""
+          for nombre in SUPABASE_URL SUPABASE_ANON_KEY FIRMA_BASE64 FIRMA_CLAVE_ALMACEN FIRMA_ALIAS FIRMA_CLAVE; do
+            [ -n "${!nombre}" ] || faltan="$faltan $nombre"
+          done
+          if [ -n "$faltan" ]; then
+            echo "::error title=Faltan secretos::Añade en Settings → Secrets and variables → Actions:$faltan"
+            exit 1
+          fi
+
+      - name: Java 21 para Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Compilar y firmar el APK
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          FIRMA_BASE64: ${{ secrets.FIRMA_BASE64 }}
+          FIRMA_CLAVE_ALMACEN: ${{ secrets.FIRMA_CLAVE_ALMACEN }}
+          FIRMA_ALIAS: ${{ secrets.FIRMA_ALIAS }}
+          FIRMA_CLAVE: ${{ secrets.FIRMA_CLAVE }}
+        run: |
+          export FIRMA_FICHERO="$RUNNER_TEMP/retroconver.jks"
+          echo "$FIRMA_BASE64" | base64 -d > "$FIRMA_FICHERO"
+          ./gradlew --stacktrace assembleRelease
+          rm -f "$FIRMA_FICHERO"
+
+      - name: Comprobar la firma
+        run: |
+          apksigner=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
+
+      - name: Crear la Release con el APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk="Retroconver-${GITHUB_REF_NAME}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$apk"
+          gh release create "$GITHUB_REF_NAME" "$apk" \
+            --title "Retroconver ${GITHUB_REF_NAME}" \
+            --notes "APK firmado de Retroconver ${GITHUB_REF_NAME}. Se instala en Android 8.0 o superior (activa «Instalar apps desconocidas» si lo pide). Cómo probarla: README del repositorio." \
+            --generate-notes
