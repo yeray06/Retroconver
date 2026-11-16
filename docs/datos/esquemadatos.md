@@ -149,6 +149,8 @@ erDiagram
     PERFILES ||--o{ MENSAJES : escribe
     PERFILES ||--o{ ALBUMES : crea
     ALBUMES ||--o{ FOTOS : contiene
+    PERFILES ||--o{ AMISTADES : pide
+    PERFILES ||--o{ AMISTADES : recibe
 
     AUTH_USERS {
         uuid id PK "Supabase Auth"
@@ -161,7 +163,8 @@ erDiagram
         text estado "hasta 80"
         text avatar_ruta "ruta en el bucket, opcional"
         text color_fondo "opcional, RF-08"
-        text tema "opcional, RF-08"
+        text tema "opcional, RF-08 y RF-32"
+        text tipografia "opcional, RF-32"
         timestamptz creado_en
     }
     PUBLICACIONES {
@@ -201,6 +204,13 @@ erDiagram
         int alto
         timestamptz creada_en
     }
+    AMISTADES {
+        uuid id PK
+        uuid solicitante_id FK "quien pide"
+        uuid destinatario_id FK "quien acepta o rechaza"
+        bool aceptada "false mientras es solicitud"
+        timestamptz creada_en
+    }
 ```
 
 - **Borrado en cascada** en todas las claves foráneas: si se borra una cuenta se borra su perfil y todo lo suyo; si se borra una publicación, sus comentarios; si se borra un álbum, sus fotos.
@@ -208,6 +218,8 @@ erDiagram
 - **Perfil automático.** Un *trigger* sobre `auth.users` crea la fila de `perfiles` al registrarse, con el nombre que se escribió en el formulario de registro.
 - **Contadores calculados.** El número de comentarios de una publicación y el de fotos de un álbum se calculan en la consulta, no se guardan.
 - `contadorLikes` y `esZumbido` del diagrama de la entrega 2 no se crean: son los extras EX-05 y EX-01.
+- **Entrega final.** `perfiles.tipografia` guarda la tipografía del perfil (EX-03, RF-32). Solo acepta `normal`, `clasica`, `maquina` y `manuscrita`. `tema` guarda la clave del tema clásico (`clasico`, `noche`, `lima` o `chicle`); si no se conoce, la app usa el clásico.
+- **Amistades** (EX-04, RF-31): una fila por pareja, con un índice único sobre la pareja ordenada (`least`, `greatest`), así no puede haber dos solicitudes entre las mismas personas pida quien pida. Nadie se pide amistad a sí mismo (`CHECK`).
 
 ### 5.2 Imágenes
 
@@ -224,9 +236,12 @@ Todas las tablas tienen activadas las políticas de seguridad de Postgres (*Row 
 | `comentarios` | Con sesión | Como autor | Solo el autor | Solo el autor |
 | `mensajes` | Con sesión | Como autor, en cualquier tablón | — | El autor o el dueño del tablón |
 | `albumes` y `fotos` | Con sesión | Como propietario | Solo el propietario | Solo el propietario |
+| `amistades` | Las aceptadas, con sesión; las pendientes, solo sus dos personas | Como solicitante y sin aceptar | Solo quien la recibe, y solo la columna `aceptada` | Cualquiera de las dos |
 | Bucket `imagenes` | Cualquiera con la URL | En la carpeta propia | En la carpeta propia | En la carpeta propia |
 
 ### 5.4 Qué cambia en Room
 
 Room deja de ser la fuente de verdad y pasa a guardar **una copia de lo descargado** (E4-05, [#120](https://github.com/yeray06/Retroconver/issues/120)). Las entidades usan los mismos ids UUID (`String`) y los DAOs guardan con `@Upsert`. El usuario local fijo de la entrega 3 desaparece: el usuario actual es el de la sesión, que guarda DataStore. La tabla de qué guarda cada sistema está en [docs/arquitectura.md](../arquitectura.md#5-qué-guarda-cada-sistema).
+
+Desde la entrega final, al actualizar la app **ya no se borra la copia**: cada cambio de esquema tiene su migración (`data/local/Migraciones.kt`, versión 6 con la tipografía y versión 7 con `amistades`) y su prueba (`MigracionesTest`). Solo desde las versiones 1 a 4, que eran sin servidor, se crea de nuevo.
 

@@ -1,17 +1,19 @@
 # Pruebas de Retroconver
 
-Lista de las pruebas de la entrega 4 y su resultado (E4-12, [#24](https://github.com/yeray06/Retroconver/issues/24)): las automáticas, la prueba de seguridad del servidor y la revisión de accesibilidad, diseño y usabilidad. Al final están los errores encontrados, cada uno con su issue y cómo se ha resuelto.
+Lista de las pruebas y su resultado (E4-12, [#24](https://github.com/yeray06/Retroconver/issues/24), y entrega final): las automáticas, la prueba de seguridad del servidor y la revisión de accesibilidad, diseño y usabilidad. Al final están los errores encontrados, cada uno con su issue y cómo se ha resuelto.
 
 ## 1. Cómo se ejecutan
 
-- **En cada Pull Request**, GitHub las pasa todas: compila, ejecuta las unitarias y arranca un emulador con Android 14 para las demás. La PR enseña un check verde o rojo (README, *Integración continua*).
+- **En cada Pull Request**, GitHub las pasa todas: compila (también la variante release), ejecuta las unitarias, pasa Android lint y arranca un emulador con Android 14 para las demás. La PR enseña un check verde o rojo (README, *Integración continua*).
 - **En Android Studio:** las unitarias, con la tarea `testDebugUnitTest`; las del emulador, con `connectedDebugAndroidTest` y el emulador abierto.
 
 Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**, un servidor falso que devuelve respuestas preparadas como las de Supabase.
 
 ## 2. Pruebas automáticas
 
-**161 pruebas: 115 unitarias y 46 en el emulador.** Resultado: ✅ todas pasan en la CI.
+**193 pruebas: 131 unitarias y 62 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 9 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
+
+Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yeray06/Retroconver/pull/156)).
 
 ### Unitarias (sin Android)
 
@@ -23,8 +25,10 @@ Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**
 | `ResultadoRedTest` | Formatos de error de Auth, tablas y Storage; mensaje en español de cada caso; fechas del servidor; configuración | 14 | #115 |
 | `SesionRepositoryTest` | Sesión con DataStore real: entrar guarda los tokens y **no la contraseña**, credenciales incorrectas, registro, renovar antes de caducar, 401 → renovar y repetir, renovación rechazada → sesión cerrada, sin red se mantiene, cerrar sesión con y sin red | 11 | #117, #119 |
 | `ValidacionAccesoTest` | Formularios de acceso: emails válidos y no válidos, obligatorios, contraseña de 6 o más, límite del nombre | 10 | #118 |
-| `UsuarioRepositoryTest` | Perfil en el servidor: usuario de la sesión, editar (PATCH y copia en Room), sin conexión, sin permiso, avatar (subir → apuntar → borrar el anterior), marcha atrás si falla | 8 | #121, #122 |
-| `ConversionesTest` | Perfil del servidor → Room (URL pública del avatar, fechas) | 2 | #121 |
+| `UsuarioRepositoryTest` | Perfil en el servidor: usuario de la sesión, editar (PATCH y copia en Room), sin conexión, sin permiso, avatar (subir → apuntar → borrar el anterior), marcha atrás si falla, guardar el tema y la tipografía y que el servidor rechace una que no existe | 10 | #121, #122, #30 |
+| `ConversionesTest` | Perfil del servidor → Room (URL pública del avatar, tema, tipografía, fechas) | 2 | #121 |
+| `EstiloPerfilTest` | Temas clásicos y tipografías: al menos 3 temas, claves únicas, valores por defecto con claves desconocidas, el clásico es el de la guía y **contraste de 4,5:1 o más** de todos los textos en cada tema (WCAG) | 5 | #30 |
+| `AmistadesRepositoryTest` | Amistades contra el servidor falso: descargar amigos y solicitudes con sus perfiles, quitar las borradas, amigos de otra persona (solo aceptadas), pedir, aceptar, borrar, solicitud repetida (23505) y sin permiso; relación con otra persona en cada caso | 9 | #129 |
 | `GaleriaRepositoryTest` | Álbumes y fotos en el servidor: refrescar, quitar lo borrado, crear álbum, subir foto y marcha atrás, borrar foto propia y no ajena, sin conexión | 9 | #68, #71 |
 | `SubidasFotosTest` | Subida en segundo plano: una tanda sigue si una foto no se lee o el servidor la rechaza, se para si caduca la sesión, limpia todas las copias; lo que ve la pantalla (progreso, en cola, último fallo de los últimos 10 minutos) | 11 | #147 |
 | `ValidacionGaleriaTest` | Nombre del álbum: obligatorio y de 40 caracteres como mucho | 3 | #69 |
@@ -40,15 +44,17 @@ Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**
 | `PublicacionDaoTest` | Orden, comentarios, cascadas, UUID y `@Upsert` de lo que llega del servidor | 8 | #58, #121 |
 | `GaleriaDaoTest` | Álbumes con número de fotos y portada, orden, cascada, sincronizar quitando lo borrado sin tocar lo ajeno | 8 | #68 |
 | `AlmacenImagenesTest` | Fotos reales de 12 MP a 720p, no agrandar, girar según EXIF, nombres distintos, borrar solo lo propio, medidas y borrar todo al cerrar sesión | 8 | #63, #119 |
-| `AccesibilidadTest` | Revisión de accesibilidad automática (apartado 4) | 14 | #78 |
+| `AmistadDaoTest` | Amigos por los dos lados y por orden alfabético, solicitudes recibidas y enviadas con la otra persona, relación entre dos personas, sincronizar sin tocar lo ajeno, cascada al borrar un perfil | 6 | #129 |
+| `MigracionesTest` | Migraciones de Room: de 5 a 6 y de 6 a 7 conservando los datos, la app abriendo una copia de la versión 5 y una de la 4 (sin servidor) que se crea de nuevo | 4 | Entrega final |
+| `AccesibilidadTest` | Revisión de accesibilidad automática (apartado 4), también de cada tema del perfil, el selector de aspecto, las solicitudes de amistad y el botón de amistad en cada estado | 20 | #78, #30, #129 |
 
 ## 3. Servidor
 
 | Prueba | Cómo | Resultado |
 |---|---|---|
-| Políticas de seguridad (RLS) | `supabase/pruebas_seguridad.sql` en el SQL Editor del proyecto: crea dos cuentas temporales, hace 12 comprobaciones y las borra | ✅ 12/12 el 11/11/2026, sin restos ([#136](https://github.com/yeray06/Retroconver/pull/136)) |
+| Políticas de seguridad (RLS) | `supabase/pruebas_seguridad.sql` en el SQL Editor del proyecto: crea dos cuentas temporales, hace 22 comprobaciones y las borra | ✅ 22/22 el 16/11/2026, sin restos. En la entrega 4 eran 12/12 ([#136](https://github.com/yeray06/Retroconver/pull/136)) |
 
-Las 12 comprobaciones:
+Las comprobaciones de la entrega 4:
 1. Al registrarse se crea el perfil.
 2. Se puede publicar.
 3. No se puede publicar en nombre de otra persona.
@@ -61,6 +67,18 @@ Las 12 comprobaciones:
 10. No se pueden añadir fotos a un álbum ajeno.
 11. El dueño de un tablón puede borrar los mensajes que le dejan.
 12. Sin sesión no se ve nada.
+
+Las 10 nuevas de la entrega final (EX-03 y EX-04):
+1. Se puede cambiar el tema y la tipografía del perfil propio.
+2. El servidor rechaza una tipografía que no existe.
+3. No se puede crear una amistad ya aceptada.
+4. Nadie puede pedirse amistad a sí mismo.
+5. Se puede pedir amistad a otra persona.
+6. Quien pide la amistad no puede aceptarla.
+7. Solo puede haber una solicitud entre dos personas.
+8. Quien recibe la solicitud no puede cambiar quién la pidió.
+9. Quien recibe la solicitud puede aceptarla.
+10. Sin sesión no se ve ninguna amistad.
 
 ## 4. Revisión de accesibilidad (E4-12.2, #78)
 
@@ -145,6 +163,7 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 - **Diseño:** cada pantalla nueva de la entrega 4 (inicio de sesión, registro, galería, álbum y foto) se ha comparado con la guía de estilo ([docs/estilo.md](estilo.md)) y con los bocetos (`docs/diseño/`).
   - Todas usan las mismas piezas: la cabecera azul con brillo (`RetroHeader`), las tarjetas blancas con borde (`RetroCard`), los botones Web 2.0 (`RetroButton`) y los colores del tema.
   - La galería sigue el boceto de [docs/diseño/galeria.md](diseño/galeria.md): portadas con borde fino, cuadrícula de 3 columnas y cabecera con «← Volver» y el título del álbum.
+- **Entrega final:** lo mismo con el aspecto del perfil (temas y tipografías) y las amistades. Los temas siguen las paletas de la época (azul Tuenti, oscuro MySpace, verde MSN y rosa fotolog) con las mismas piezas de la guía de estilo.
 - **Usabilidad:** se ha recorrido cada flujo (registrarse, entrar, editar el perfil, cambiar la foto, crear un álbum, añadir y borrar fotos, cerrar sesión) buscando dónde una persona se puede quedar atascada, perder lo que ha escrito o hacer algo sin querer. También se ha probado sin conexión y con la sesión caducada.
 
 ### Mejoras aplicadas
@@ -166,6 +185,12 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 | En los álbumes de otra persona no salen «Nuevo álbum», «Añadir fotos» ni «Borrar» | No se ofrece lo que no se puede hacer |
 | Los diálogos son blancos como las tarjetas, en vez del lila de Material 3 (#145) | Coherencia con el estilo retro |
 | El formulario de acceso no pasa de 480 dp de ancho | En tablet y en horizontal no se estira de lado a lado |
+| *(EF)* Los cuatro temas del perfil se comprueban solos: una prueba calcula el contraste de cada texto sobre su fondo | Un tema nuevo con poco contraste rompe la CI, no llega a la app |
+| *(EF)* El aspecto del perfil tiene vista previa antes de guardar, y cada tipografía se ve escrita con su letra | Se elige viendo el resultado, sin guardar y volver atrás para probar |
+| *(EF)* Las solicitudes de amistad van arriba del perfil, antes de la lista de amigos | Es lo único que hay que contestar |
+| *(EF)* Cada botón de una solicitud dice a TalkBack de quién es («Aceptar la solicitud de Bea») | Con varias solicitudes, «Aceptar» repetido no dice cuál |
+| *(EF)* «Dejar de ser amigos» pide confirmación; cancelar una solicitud no | Lo primero no se deshace con un toque; lo segundo sí (se vuelve a pedir) |
+| *(EF)* «No se ha podido subir la foto» con una sola foto, en vez de «1 de 1 fotos» | Texto natural en los dos casos (plural de Android) |
 
 ### Pendiente
 - Probarlo con dos o tres compañeros que no conozcan la app y apuntar dónde dudan.
@@ -180,3 +205,7 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 | Faltan en el repositorio los esquemas de Room 3, 4 y 5 | [#146](https://github.com/yeray06/Retroconver/issues/146) | ✅ Generados por la CI desde el código de cada versión ([#150](https://github.com/yeray06/Retroconver/pull/150)) |
 | Al salir del álbum mientras se suben fotos, se cancelan las que faltan | [#147](https://github.com/yeray06/Retroconver/issues/147) | ✅ Subida en segundo plano con WorkManager |
 | *Confirm email* estaba activado en Supabase: cada cuenta nueva tenía que confirmar el correo | [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ Desactivado el 13/11/2026 |
+| Quien recibía una solicitud de amistad podía cambiar quién la había pedido. Supabase da todos los permisos a las tablas nuevas, así que el permiso solo sobre la columna `aceptada` no limitaba nada. Lo encontró la prueba de seguridad | [#155](https://github.com/yeray06/Retroconver/pull/155) | ✅ `revoke all` antes de dar los permisos; la comprobación 8 lo vigila |
+| Al actualizar la app con un esquema nuevo se borraba la copia local | Memoria v4, apartado 17 | ✅ Migraciones de Room con su prueba ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
+| 18 avisos de Android lint (ExifInterface del sistema, sin icono temático, plurales, `Uri.parse`, «momento» como errata) | [#156](https://github.com/yeray06/Retroconver/pull/156) | ✅ 0 avisos |
+| Con una sola foto fallida, el aviso decía «No se han podido subir 1 de 1 fotos» | [#156](https://github.com/yeray06/Retroconver/pull/156) | ✅ Plural: «No se ha podido subir la foto» |

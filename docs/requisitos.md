@@ -5,6 +5,8 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 **Prioridad:** *Imprescindible* entra en la primera versión. *Extra* solo se hace si hay tiempo.
 
 > **Cambio de alcance en la entrega 4** (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)). Hasta la entrega 3 todo se guardaba en el móvil y había un único usuario local. Así no era una red social: nadie más podía comentar ni escribir en tu tablón. Desde la entrega 4 hay cuentas de verdad y los datos se comparten en un servidor **Supabase** (plan gratuito). El móvil guarda una copia en Room para funcionar sin conexión. Los requisitos afectados están marcados con *(E4)*.
+>
+> **Entrega final.** Se han hecho dos extras: los temas clásicos y las tipografías del perfil (RF-32, EX-03) y las amistades (RF-31, EX-04). De amistades falta lo que depende de las pantallas de David: el botón en el perfil de otra persona (E4-08.1) y el muro solo con amigos (E4-06). Los marcados con *(EF)* son nuevos o cambian en la entrega final.
 
 ## Requisitos funcionales
 
@@ -28,7 +30,8 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 | RF-08 | *(E4)* Puede elegir el color de fondo y el tema de su perfil. Quien visita el perfil lo ve así. | Imprescindible | E4-11.1 [#75](https://github.com/yeray06/Retroconver/issues/75), E4-11.2 [#76](https://github.com/yeray06/Retroconver/issues/76) |
 | RF-26 | *(E4)* Puede ver el perfil de otra persona (datos, tablón y álbumes) tocando su avatar o su nombre. | Imprescindible | E4-08.1 [#127](https://github.com/yeray06/Retroconver/issues/127) |
 | RF-27 | *(E4)* Puede ver la lista de personas de la red y buscarlas por nombre. | Imprescindible | E4-08.2 [#128](https://github.com/yeray06/Retroconver/issues/128) |
-| RF-31 | *(E4)* Puede enviar y aceptar solicitudes de amistad, y el muro muestra solo a sus amigos. | Extra | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) |
+| RF-31 | *(E4)* Puede enviar y aceptar solicitudes de amistad, y el muro muestra solo a sus amigos. *(EF)* Hecho: las solicitudes recibidas y enviadas, la lista de amigos en el perfil y el botón para el perfil de otra persona. Falta poner el botón en ese perfil (E4-08.1) y filtrar el muro (E4-06). | Extra | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) |
+| RF-32 | *(EF)* Puede elegir uno de los temas clásicos (Clásico, Noche, Lima y Chicle) y la tipografía de su perfil, con vista previa. Quien visita el perfil lo ve así. | Extra | EX-03 [#30](https://github.com/yeray06/Retroconver/issues/30) |
 
 ### Muro
 
@@ -76,6 +79,8 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 | RNF-06 | *(E4)* Sin conexión, la app muestra la última copia guardada en Room y avisa de que no puede publicar ni comentar. No se cierra por falta de red. | E4-03.2 [#115](https://github.com/yeray06/Retroconver/issues/115), E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) |
 | RNF-07 | *(E4)* La URL y la clave del servidor no se suben al repositorio. El móvil guarda los tokens de sesión, nunca la contraseña. | E4-03.1 [#114](https://github.com/yeray06/Retroconver/issues/114), E4-04.1 [#117](https://github.com/yeray06/Retroconver/issues/117) |
 | RNF-08 | *(E4)* Coste cero: el servidor funciona con el plan gratuito de Supabase (500 MB de base de datos y 1 GB de imágenes), sin tarjeta. | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) |
+| RNF-09 | *(EF)* Al actualizar la app se conserva la copia local: cada cambio de la base de datos Room tiene su migración y su prueba. | Entrega final ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
+| RNF-10 | *(EF)* Cada versión se publica como APK firmado en una Release de GitHub. La clave de firma no se sube al repositorio. | EF-01.1 [#83](https://github.com/yeray06/Retroconver/issues/83) |
 
 ## Decisiones sobre los bocetos
 
@@ -86,4 +91,4 @@ Los bocetos (E2-04) incluían cosas que no estaban en el alcance. Se decidieron 
 | Pantalla de inicio de sesión (`docs/diseño/recorrido.md`) | **Sí.** Cuentas de verdad con Supabase Auth: registro, inicio de sesión y cierre de sesión (E4-04) |
 | Pestaña «Chats» con conversaciones privadas y zumbidos | La pestaña Mensajes es el **tablón** del perfil (E4-09). El chat privado con zumbido queda como extra (EX-01) |
 | Botón «Me gusta» con contador | **Extra** (EX-05) |
-| Contactos y publicaciones de amigos | Con servidor, el muro muestra a **todas las personas de la red** (E4-06). Las amistades quedan como extra (EX-04) |
+| Contactos y publicaciones de amigos | Con servidor, el muro muestra a **todas las personas de la red** (E4-06). Las amistades quedan como extra (EX-04): hechas en la entrega final, salvo el filtro del muro |
