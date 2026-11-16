@@ -63,6 +63,20 @@ class MigracionesTest {
         }
     }
 
+    @Test
+    fun de6a7SeCreaLaTablaDeAmistades() {
+        ayudante.createDatabase(NOMBRE, 6).use { db -> insertarPerfil(db) }
+
+        ayudante.runMigrationsAndValidate(NOMBRE, 7, true, MIGRACION_6_7).use { db ->
+            db.execSQL("INSERT INTO usuarios (id, nombre, fechaAlta) VALUES ('ana', 'Ana', 0)")
+            db.execSQL("INSERT INTO amistades (id, solicitanteId, destinatarioId, aceptada, fechaCreacion) VALUES ('1', 'yo', 'ana', 1, 0)")
+            db.query("SELECT COUNT(*) FROM amistades").use { fila ->
+                fila.moveToFirst()
+                assertEquals(1, fila.getInt(0))
+            }
+        }
+    }
+
     /** Lo que hace la app al abrirse después de actualizarla: Room con todas las migraciones. */
     @Test
     fun laAppAbreUnaCopiaDeLaVersion5SinBorrarla() = runBlocking {

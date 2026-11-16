@@ -62,6 +62,7 @@ import java.time.format.FormatStyle
 fun PerfilScreen(
     alEditar: () -> Unit,
     viewModel: PerfilViewModel = viewModel(factory = PerfilViewModel.Factory),
+    alAbrirPerfil: ((String) -> Unit)? = null,
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val elegirFoto = rememberSelectorDeImagen { uri -> viewModel.cambiarAvatar(uri) }
@@ -75,6 +76,9 @@ fun PerfilScreen(
         alEditar = alEditar,
         alCerrarSesion = { preguntarCerrarSesion = true },
         alReintentar = viewModel::actualizar,
+        alAceptarAmistad = viewModel::aceptarAmistad,
+        alBorrarSolicitud = viewModel::borrarSolicitud,
+        alAbrirPerfil = alAbrirPerfil,
     )
     if (preguntarCerrarSesion) {
         ConfirmarCerrarSesion(
@@ -112,6 +116,9 @@ internal fun PerfilContenido(
     alCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier,
     alReintentar: () -> Unit = {},
+    alAceptarAmistad: (String) -> Unit = {},
+    alBorrarSolicitud: (String) -> Unit = {},
+    alAbrirPerfil: ((String) -> Unit)? = null,
 ) {
     val usuario = estado.usuario
     if (usuario == null) {
@@ -146,6 +153,20 @@ internal fun PerfilContenido(
                     Text(text = usuario.biografia, style = MaterialTheme.typography.bodyLarge, color = colores.texto)
                 }
             }
+            // Amistades (EX-04, #129): primero lo que hay que contestar
+            TarjetaSolicitudes(
+                recibidas = estado.amistades.recibidas,
+                enviadas = estado.amistades.enviadas,
+                enCurso = estado.amistades.enCurso,
+                error = estado.amistades.error,
+                alAceptar = alAceptarAmistad,
+                alBorrar = alBorrarSolicitud,
+            )
+            TarjetaAmigos(
+                amigos = estado.amistades.amigos,
+                vacio = stringResource(R.string.amistades_sin_amigos),
+                alAbrirPerfil = alAbrirPerfil,
+            )
             // Al final del perfil, apartado, para no pulsarlo sin querer
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 RetroButton(

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Amistades (EX-04, #129) -->
+    <string name="amistades_amigos">Amigos (%1$d)</string>
+    <string name="amistades_sin_amigos">Todavía no tienes amigos en Retroconver.</string>
+    <string name="amistades_sin_amigos_de">%1$s todavía no tiene amigos en Retroconver.</string>
+    <string name="amistades_recibidas">Solicitudes de amistad</string>
+    <string name="amistades_enviadas">Solicitudes enviadas</string>
+    <string name="amistades_te_ha_pedido">Te ha pedido amistad</string>
+    <string name="amistades_esperando">Esperando su respuesta</string>
+    <string name="amistades_aceptar">Aceptar</string>
+    <string name="amistades_rechazar">Rechazar</string>
+    <string name="amistades_cancelar">Cancelar</string>
+    <string name="amistades_aceptar_de">Aceptar la solicitud de %1$s</string>
+    <string name="amistades_rechazar_de">Rechazar la solicitud de %1$s</string>
+    <string name="amistades_cancelar_a">Cancelar la solicitud a %1$s</string>
+    <string name="amistades_ver_perfil">ver su perfil</string>
+    <string name="amistades_un_momento">Un momento…</string>
+
+    <!-- Botón del perfil de otra persona -->
+    <string name="amistades_anadir">Añadir a amigos</string>
+    <string name="amistades_enviada">Solicitud enviada</string>
+    <string name="amistades_son_amigos">Sois amigos</string>
+    <string name="amistades_dejar">Dejar de ser amigos</string>
+    <string name="amistades_dejar_pregunta">¿Dejar de ser amigos?</string>
+    <string name="amistades_dejar_explicacion">Dejaréis de aparecer en la lista de amigos del otro. Podéis volver a pediros amistad cuando queráis.</string>
+    <string name="amistades_dejar_cancelar">Cancelar</string>
+</resources>

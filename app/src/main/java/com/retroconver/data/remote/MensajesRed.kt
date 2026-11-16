@@ -33,6 +33,8 @@ private fun mensajeDeError(error: ResultadoRed.ErrorServidor): Int {
         error.estadoHttp == 429 || codigo.startsWith("over_") -> R.string.red_demasiados_intentos
         // Postgres: 23514 = no cumple un CHECK (texto vacío o demasiado largo); 42501 = política de seguridad
         codigo == "23514" -> R.string.red_texto_no_valido
+        // 23505 = ya existe (por ejemplo, dos solicitudes de amistad entre las mismas personas)
+        codigo == "23505" -> R.string.red_ya_existe
         codigo == "42501" || error.estadoHttp == 403 -> R.string.red_sin_permiso
         // Storage: la imagen pasa del límite del bucket (2 MB) o no es JPEG ni PNG
         error.estadoHttp == 413 || codigo == "Payload too large" -> R.string.red_imagen_demasiado_grande

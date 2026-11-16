@@ -2,8 +2,11 @@ package com.retroconver.data.repository
 
 import com.retroconver.data.local.AlbumConPortada
 import com.retroconver.data.local.AlbumEntity
+import com.retroconver.data.local.AmistadDao
+import com.retroconver.data.local.AmistadEntity
 import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.local.GaleriaDao
+import com.retroconver.data.local.SolicitudConPersona
 import com.retroconver.data.local.UsuarioDao
 import com.retroconver.data.local.UsuarioEntity
 import kotlinx.coroutines.flow.Flow
@@ -92,5 +95,60 @@ internal class GaleriaDaoEnMemoria : GaleriaDao() {
 
     override suspend fun borrarFotosQueYaNoEstan(albumId: String, conservar: List<String>) {
         fotos.value = fotos.value.filterValues { it.albumId != albumId || it.id in conservar }
+    }
+}
+
+internal class AmistadDaoEnMemoria(private val usuarios: UsuarioDaoEnMemoria) : AmistadDao() {
+
+    val amistades = MutableStateFlow<Map<String, AmistadEntity>>(emptyMap())
+
+    private fun AmistadEntity.participa(id: String) = solicitanteId == id || destinatarioId == id
+
+    override fun observarAmigosDe(id: String): Flow<List<UsuarioEntity>> =
+        combine(amistades, usuarios.perfiles) { todas, perfiles ->
+            todas.values
+                .filter { it.aceptada && it.participa(id) }
+                .mapNotNull { perfiles[it.otraPersona(id)] }
+                .sortedBy { it.nombre.lowercase() }
+        }
+
+    override fun observarIdsDeAmigos(id: String): Flow<List<String>> =
+        amistades.map { todas -> todas.values.filter { it.aceptada && it.participa(id) }.map { it.otraPersona(id) } }
+
+    override fun observarSolicitudesRecibidas(id: String): Flow<List<SolicitudConPersona>> =
+        pendientes { if (it.destinatarioId == id) it.solicitanteId else null }
+
+    override fun observarSolicitudesEnviadas(id: String): Flow<List<SolicitudConPersona>> =
+        pendientes { if (it.solicitanteId == id) it.destinatarioId else null }
+
+    /** Solicitudes pendientes con la persona que devuelve [persona], o fuera si devuelve `null`. */
+    private fun pendientes(persona: (AmistadEntity) -> String?): Flow<List<SolicitudConPersona>> =
+        combine(amistades, usuarios.perfiles) { todas, perfiles ->
+            todas.values
+                .filter { !it.aceptada }
+                .sortedByDescending { it.fechaCreacion }
+                .mapNotNull { amistad -> persona(amistad)?.let { perfiles[it] }?.let { SolicitudConPersona(amistad.id, it) } }
+        }
+
+    override fun observarEntre(a: String, b: String): Flow<AmistadEntity?> = amistades.map { todas ->
+        todas.values.firstOrNull { (it.solicitanteId == a && it.destinatarioId == b) || (it.solicitanteId == b && it.destinatarioId == a) }
+    }
+
+    override suspend fun guardar(amistad: AmistadEntity) {
+        amistades.value = amistades.value + (amistad.id to amistad)
+    }
+
+    override suspend fun guardarTodas(amistades: List<AmistadEntity>) = amistades.forEach { guardar(it) }
+
+    override suspend fun borrar(id: String) {
+        amistades.value = amistades.value - id
+    }
+
+    override suspend fun borrarLasDeQueYaNoEstan(id: String, conservar: List<String>) {
+        amistades.value = amistades.value.filterValues { !it.participa(id) || it.id in conservar }
+    }
+
+    override suspend fun borrarAmistadesDeQueYaNoEstan(id: String, conservar: List<String>) {
+        amistades.value = amistades.value.filterValues { !(it.aceptada && it.participa(id)) || it.id in conservar }
     }
 }

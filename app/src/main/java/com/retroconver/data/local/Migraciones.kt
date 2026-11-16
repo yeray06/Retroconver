@@ -25,8 +25,23 @@ val MIGRACION_5_6 = object : Migration(5, 6) {
     }
 }
 
+/** 6 → 7 (EX-04, #129): amistades y solicitudes. */
+val MIGRACION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `amistades` (`id` TEXT NOT NULL, `solicitanteId` TEXT NOT NULL, " +
+                "`destinatarioId` TEXT NOT NULL, `aceptada` INTEGER NOT NULL, `fechaCreacion` INTEGER NOT NULL, " +
+                "PRIMARY KEY(`id`), " +
+                "FOREIGN KEY(`solicitanteId`) REFERENCES `usuarios`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE, " +
+                "FOREIGN KEY(`destinatarioId`) REFERENCES `usuarios`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_amistades_solicitanteId` ON `amistades` (`solicitanteId`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_amistades_destinatarioId` ON `amistades` (`destinatarioId`)")
+    }
+}
+
 /** Todas las migraciones, en orden. Se registran en AppContainer. */
-val MIGRACIONES: Array<Migration> = arrayOf(MIGRACION_5_6)
+val MIGRACIONES: Array<Migration> = arrayOf(MIGRACION_5_6, MIGRACION_6_7)
 
 /** Versiones sin servidor: desde ellas se borra la copia y se crea de nuevo. */
 val VERSIONES_SIN_MIGRACION: IntArray = intArrayOf(1, 2, 3, 4)

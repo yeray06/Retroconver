@@ -73,6 +73,7 @@ class ResultadoRedTest {
             ResultadoRed.ErrorServidor(429, "over_email_send_rate_limit") to R.string.red_demasiados_intentos,
             ResultadoRed.ErrorServidor(429) to R.string.red_demasiados_intentos,
             ResultadoRed.ErrorServidor(400, "23514") to R.string.red_texto_no_valido,
+            ResultadoRed.ErrorServidor(409, "23505") to R.string.red_ya_existe,
             ResultadoRed.ErrorServidor(403, "42501") to R.string.red_sin_permiso,
             ResultadoRed.ErrorServidor(403) to R.string.red_sin_permiso,
             ResultadoRed.ErrorServidor(404, "not_found") to R.string.red_no_encontrado,

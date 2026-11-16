@@ -1,7 +1,7 @@
 -- =====================================================================
 -- Retroconver · esquema del servidor Supabase
 -- E4-02.1 (#111): tablas y relaciones · E4-02.2 (#112): seguridad e imágenes
--- EX-03 (#30): tipografía del perfil
+-- EX-03 (#30): tipografía del perfil · EX-04 (#129): amistades
 --
 -- Cómo usarlo: Supabase → SQL Editor → New query → pegar todo → Run.
 -- Se puede ejecutar las veces que haga falta: crea lo que falta y
@@ -75,6 +75,17 @@ create table if not exists public.fotos (
     creada_en      timestamptz not null default now()
 );
 
+-- Amistades (EX-04): quien pide es solicitante_id y destinatario_id la acepta o la rechaza.
+-- Mientras aceptada = false es una solicitud pendiente. Una sola fila por pareja, la pida quien la pida.
+create table if not exists public.amistades (
+    id              uuid primary key default gen_random_uuid(),
+    solicitante_id  uuid not null default auth.uid() references public.perfiles (id) on delete cascade,
+    destinatario_id uuid not null references public.perfiles (id) on delete cascade,
+    aceptada        boolean not null default false,
+    creada_en       timestamptz not null default now(),
+    check (solicitante_id <> destinatario_id)
+);
+
 -- Índices para las consultas de cada pantalla (por fecha y por clave foránea)
 create index if not exists publicaciones_creada_en_idx on public.publicaciones (creada_en desc);
 create index if not exists publicaciones_autor_idx     on public.publicaciones (autor_id);
@@ -86,6 +97,10 @@ create index if not exists albumes_propietario_idx     on public.albumes (propie
 create index if not exists fotos_album_idx             on public.fotos (album_id, creada_en desc);
 create index if not exists fotos_propietario_idx       on public.fotos (propietario_id);
 create index if not exists perfiles_nombre_idx         on public.perfiles (lower(nombre));
+create unique index if not exists amistades_pareja_idx
+    on public.amistades (least(solicitante_id, destinatario_id), greatest(solicitante_id, destinatario_id));
+create index if not exists amistades_solicitante_idx   on public.amistades (solicitante_id);
+create index if not exists amistades_destinatario_idx  on public.amistades (destinatario_id);
 
 
 -- =====================================================================
@@ -135,6 +150,9 @@ grant usage on schema public to authenticated;
 grant select, update on public.perfiles to authenticated;
 grant select, insert, update, delete on public.publicaciones, public.comentarios, public.albumes, public.fotos to authenticated;
 grant select, insert, delete on public.mensajes to authenticated;
+-- Amistades: de una fila ya creada solo se puede cambiar «aceptada»
+grant select, insert, delete on public.amistades to authenticated;
+grant update (aceptada) on public.amistades to authenticated;
 
 alter table public.perfiles      enable row level security;
 alter table public.publicaciones enable row level security;
@@ -142,6 +160,7 @@ alter table public.comentarios   enable row level security;
 alter table public.mensajes      enable row level security;
 alter table public.albumes       enable row level security;
 alter table public.fotos         enable row level security;
+alter table public.amistades     enable row level security;
 
 -- perfiles: se crean con el trigger; cada cuenta solo cambia el suyo
 drop policy if exists "perfiles: leer con sesión" on public.perfiles;
@@ -228,6 +247,27 @@ create policy "fotos: cambiar las propias" on public.fotos
 drop policy if exists "fotos: borrar las propias" on public.fotos;
 create policy "fotos: borrar las propias" on public.fotos
     for delete to authenticated using ((select auth.uid()) = propietario_id);
+
+
+-- amistades (EX-04): las aceptadas son públicas para quien tiene sesión (se ven en el perfil);
+-- las pendientes, solo para sus dos personas. Se pide en nombre propio y sin aceptar;
+-- acepta solo quien la recibe; borra cualquiera de las dos (rechazar, cancelar o dejar de ser amigos).
+drop policy if exists "amistades: leer las aceptadas y las propias" on public.amistades;
+create policy "amistades: leer las aceptadas y las propias" on public.amistades
+    for select to authenticated
+    using (aceptada or (select auth.uid()) in (solicitante_id, destinatario_id));
+drop policy if exists "amistades: pedir en nombre propio" on public.amistades;
+create policy "amistades: pedir en nombre propio" on public.amistades
+    for insert to authenticated
+    with check ((select auth.uid()) = solicitante_id and not aceptada);
+drop policy if exists "amistades: aceptar las recibidas" on public.amistades;
+create policy "amistades: aceptar las recibidas" on public.amistades
+    for update to authenticated
+    using ((select auth.uid()) = destinatario_id) with check ((select auth.uid()) = destinatario_id);
+drop policy if exists "amistades: borrar las propias" on public.amistades;
+create policy "amistades: borrar las propias" on public.amistades
+    for delete to authenticated
+    using ((select auth.uid()) in (solicitante_id, destinatario_id));
 
 
 -- =====================================================================

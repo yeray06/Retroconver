@@ -1,9 +1,11 @@
 package com.retroconver.data.repository
 
 import com.retroconver.data.local.AlbumEntity
+import com.retroconver.data.local.AmistadEntity
 import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.local.UsuarioEntity
 import com.retroconver.data.remote.AlbumDto
+import com.retroconver.data.remote.AmistadDto
 import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.FotoDto
 import com.retroconver.data.remote.PerfilDto
@@ -45,4 +47,13 @@ fun FotoDto.aEntidad(configuracion: ConfiguracionSupabase): FotoEntity = FotoEnt
     ancho = ancho,
     alto = alto,
     fechaAnadida = instanteDelServidor(creadaEn),
+)
+
+/** Pasa una fila de `amistades` a Room (EX-04, #129). Los perfiles que trae se guardan aparte. */
+fun AmistadDto.aEntidad(): AmistadEntity = AmistadEntity(
+    id = id,
+    solicitanteId = solicitanteId,
+    destinatarioId = destinatarioId,
+    aceptada = aceptada,
+    fechaCreacion = instanteDelServidor(creadaEn),
 )
