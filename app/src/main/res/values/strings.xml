@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <string name="app_name">Retroconver</string>
 
     <!-- Secciones de la barra de navegación inferior -->

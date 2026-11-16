@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <!-- Cabecera del muro: botón para publicar -->
     <string name="muro_boton_mas" translatable="false">+</string>
     <string name="muro_nueva_publicacion">Nueva publicación</string>
@@ -9,7 +9,7 @@
     <string name="publicar_etiqueta">¿Qué estás pensando?</string>
     <string name="publicar_contador">%1$d/%2$d</string>
     <string name="publicar_error_vacio">Escribe algo para publicar.</string>
-    <string name="publicar_error_demasiado_largo">Máximo %1$d caracteres.</string>
+    <string name="publicar_error_demasiado_largo" tools:ignore="PluralsCandidate">Máximo %1$d caracteres.</string>
     <string name="publicar_anadir_foto">Añadir foto</string>
     <string name="publicar_quitar_foto">Quitar foto</string>
     <string name="publicar_guardando_foto">Guardando foto…</string>

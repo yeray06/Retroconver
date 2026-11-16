@@ -4,8 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
+import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -101,7 +102,7 @@ class AlmacenImagenes(
      * No hace nada con `null` ni con ficheros de fuera de [carpeta], por seguridad.
      */
     suspend fun borrar(uri: String?): Boolean = withContext(despachador) {
-        val ruta = uri?.let { Uri.parse(it).path } ?: return@withContext false
+        val ruta = uri?.toUri()?.path ?: return@withContext false
         val fichero = File(ruta)
         val esNuestro = fichero.parentFile?.canonicalPath == carpeta.canonicalPath
         esNuestro && fichero.delete()
@@ -112,7 +113,7 @@ class AlmacenImagenes(
      * `null` si no se puede leer.
      */
     suspend fun medidas(uri: String): Pair<Int, Int>? = withContext(despachador) {
-        val ruta = Uri.parse(uri).path ?: return@withContext null
+        val ruta = uri.toUri().path ?: return@withContext null
         val opciones = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(ruta, opciones)
         if (opciones.outWidth > 0 && opciones.outHeight > 0) opciones.outWidth to opciones.outHeight else null

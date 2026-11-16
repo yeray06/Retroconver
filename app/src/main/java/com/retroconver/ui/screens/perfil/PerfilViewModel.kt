@@ -2,6 +2,7 @@ package com.retroconver.ui.screens.perfil
 
 import android.net.Uri
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
@@ -149,7 +150,7 @@ class PerfilViewModel(
                 foto.value = EstadoFoto(error = R.string.perfil_error_foto)
                 return@launch
             }
-            val resultado = usuarios.cambiarAvatar(Uri.parse(copia).toFile())
+            val resultado = usuarios.cambiarAvatar(copia.toUri().toFile())
             imagenes.borrar(copia)
             foto.value = if (resultado is ResultadoRed.Fallo) EstadoFoto(error = resultado.mensaje()) else EstadoFoto()
         }
