@@ -101,23 +101,29 @@ app/src/main/java/com/retroconver/
 ├── MainActivity.kt            Única Activity: aplica el tema y la navegación
 ├── AppContainer.kt            Base de datos, Retrofit y repositorios (una sola instancia)
 ├── data/
-│   ├── local/                 AppDatabase, entidades, DAOs y convertidores (copia local)
+│   ├── local/                 AppDatabase, entidades, DAOs, convertidores y migraciones (copia local)
 │   ├── remote/                Servicios de Retrofit y DTOs del servidor
 │   ├── sesion/                Sesión con DataStore
+│   ├── subidas/               Subida de fotos en segundo plano con WorkManager
 │   ├── imagenes/              Reescalado a 720p
-│   └── repository/            Repositorios de cada módulo
+│   └── repository/            Repositorios de cada módulo (también amistades, EX-04)
 ├── navigation/                Rutas y barra de navegación inferior
 └── ui/
-    ├── theme/                 Colores, tipografías y formas retro
+    ├── theme/                 Colores, tipografías y formas retro; temas clásicos del perfil (EX-03)
     ├── components/            RetroCard, RetroButton, RetroHeader, Avatar…
     └── screens/
         ├── acceso/            Inicio de sesión y registro (Yeray)
-        ├── perfil/            Yeray (perfiles ajenos: David)
+        ├── perfil/            Yeray, con aspecto y amistades (perfiles ajenos: David)
         ├── galeria/           Yeray
         ├── muro/              David
         └── mensajes/          David
 supabase/
-└── esquema.sql                Tablas, seguridad y almacenamiento del servidor
+├── esquema.sql                Tablas, seguridad y almacenamiento del servidor
+└── pruebas_seguridad.sql      Prueba de las políticas con dos cuentas temporales
+.github/workflows/
+├── android.yml                CI de cada PR: compilar, pruebas, lint y emulador
+├── release.yml                APK firmado y Release al subir una etiqueta v*
+└── capturas.yml               Capturas de pantalla para el README
 ```
 
 Cada integrante trabaja en las carpetas de sus módulos, así casi nunca tocamos el mismo fichero. Los ficheros compartidos son `AppDatabase`, `AppContainer`, la navegación, el tema, el catálogo de versiones y `supabase/esquema.sql`. En esos hacemos cambios pequeños y nos avisamos.
@@ -230,8 +236,11 @@ class MuroViewModel(private val repo: PublicacionRepository) : ViewModel() {
 |---|---|
 | Reescalado a 720p y validaciones | Pruebas unitarias con distintos tamaños, orientaciones y textos |
 | DAOs de Room | Pruebas con una base de datos en memoria: inserción, orden por fecha y borrado en cascada |
+| Migraciones de Room | `MigrationTestHelper` con los esquemas de `app/schemas`: cada migración conserva los datos y el resultado es igual que el esquema nuevo |
+| Contraste de los temas del perfil | Prueba unitaria que calcula el contraste WCAG de cada texto en cada tema |
 | Sesión y cliente de red | Pruebas con **MockWebServer**, un servidor falso que devuelve respuestas preparadas: correctas, errores y token caducado |
-| Políticas de seguridad | Pruebas manuales con dos cuentas: una no puede borrar ni cambiar lo de la otra |
+| Políticas de seguridad | `supabase/pruebas_seguridad.sql` con dos cuentas temporales: 22 comprobaciones de lo que cada una puede y no puede hacer |
+| Código | Android lint en cada PR, sin avisos |
 | Accesibilidad | Comprobaciones automáticas del Accessibility Test Framework en cada pantalla, y revisión con TalkBack y el Accessibility Scanner |
 
 La lista completa de pruebas y su resultado está en [docs/pruebas.md](pruebas.md).

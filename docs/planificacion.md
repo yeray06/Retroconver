@@ -10,6 +10,8 @@ Reparto por módulos: cada integrante se encarga de sus módulos de principio a 
 El trabajo está dividido en **105 issues**: 46 tareas principales y 59 subtareas. Las subtareas son *sub-issues* de GitHub, así que el tablero muestra el progreso de cada tarea principal. Las dependencias están marcadas en cada issue como *Blocked by*.
 
 > **Replanificación de la entrega 4.** Al pasar a red social con servidor (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)) se añadieron 20 tareas de servidor, sesión, copia local y perfiles ajenos, y las tareas de la entrega 4 que ya existían se renumeraron y se adaptaron al servidor. También se añadieron dos extras (EX-04 y EX-05).
+>
+> **Entrega final.** Además de lo planificado, se han adelantado la subida de fotos en segundo plano (#147) y las migraciones de Room, y se han hecho los extras EX-03 y EX-04, este último salvo lo que depende de E4-06 y E4-08. Qué está hecho y qué falta: README, «Estado actual».
 
 ### Código de orden
 

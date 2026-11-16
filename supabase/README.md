@@ -4,7 +4,7 @@ Retroconver guarda las cuentas, los datos y las imágenes en un proyecto [Supaba
 
 | Fichero | Qué hace |
 |---|---|
-| `esquema.sql` | Crea las tablas, el perfil automático al registrarse, las políticas de seguridad y el bucket de imágenes. Se puede ejecutar varias veces sin perder datos |
+| `esquema.sql` | Crea las tablas (también `amistades` y la tipografía del perfil de la entrega final), el perfil automático al registrarse, las políticas de seguridad y el bucket de imágenes. Se puede ejecutar varias veces sin perder datos, y pone al día un proyecto que ya existía |
 | `pruebas_seguridad.sql` | Comprueba con dos cuentas que cada una solo puede tocar lo suyo. No deja nada guardado |
 
 El porqué de cada tabla y de cada política está en [docs/datos/esquemadatos.md](../docs/datos/esquemadatos.md#5-servidor-supabase-entrega-4).
@@ -18,7 +18,9 @@ El porqué de cada tabla y de cada política está en [docs/datos/esquemadatos.m
    - **Database password:** pulsa *Generate a password* y guárdala en un sitio seguro. La app no la usa, pero hace falta para administrar la base de datos.
 3. En **Authentication → Sign In / Providers → Email**, desactiva **Confirm email**. El correo gratuito de Supabase envía muy pocos emails por hora, y con la confirmación activada no se podrían crear cuentas de prueba.
 4. En **SQL Editor → New query**, pega el contenido de `esquema.sql` y pulsa **Run**. Tiene que terminar con *Success. No rows returned*.
-5. Para comprobar la seguridad, ejecuta `pruebas_seguridad.sql` en el SQL Editor. Crea dos cuentas temporales, hace 12 comprobaciones y las borra al terminar. Tiene que salir una tabla con las 12 comprobaciones; si alguna falla, sale un error que empieza por FALLO.
+5. Para comprobar la seguridad, ejecuta `pruebas_seguridad.sql` en el SQL Editor. Crea dos cuentas temporales, hace 22 comprobaciones y las borra al terminar. Tiene que salir una tabla con las 22 comprobaciones; si alguna falla, sale un error que empieza por FALLO.
+
+Al ejecutar cualquiera de los dos, Supabase avisa de *Potential issue detected* porque hay `drop policy` (se borran y se vuelven a crear) y la prueba borra sus cuentas temporales. Es lo esperado: pulsa **Run query**.
 
 ## Conectar la app
 

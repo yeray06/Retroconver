@@ -65,10 +65,10 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 ### Si hay tiempo
 
 - Mensajes directos con zumbido, como en MSN (EX-01, [#28](https://github.com/yeray06/Retroconver/issues/28))
-- Amistades: solicitudes y muro solo con amigos (EX-04, [#129](https://github.com/yeray06/Retroconver/issues/129))
+- Amistades: solicitudes y muro solo con amigos (EX-04, [#129](https://github.com/yeray06/Retroconver/issues/129)). **Hecho en la entrega final**, salvo lo que depende de E4-06 y E4-08
 - «Me gusta» en publicaciones (EX-05, [#130](https://github.com/yeray06/Retroconver/issues/130))
 - Comentarios anidados o respuestas (EX-02, [#29](https://github.com/yeray06/Retroconver/issues/29))
-- Temas clásicos y tipografías seleccionables por perfil (EX-03, [#30](https://github.com/yeray06/Retroconver/issues/30))
+- Temas clásicos y tipografías seleccionables por perfil (EX-03, [#30](https://github.com/yeray06/Retroconver/issues/30)). **Hecho en la entrega final**
 - Vídeos cortos, también limitados a 720p
 
 ### Fuera de alcance
@@ -79,7 +79,7 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 
 ## Tecnologías
 
-| Tecnología | Para qué la usaremos |
+| Tecnología | Para qué se usa |
 |---|---|
 | Kotlin | Lenguaje de toda la aplicación |
 | Jetpack Compose | Interfaz y tema visual retro |
@@ -89,26 +89,44 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 | Room | Copia local de lo descargado, para que las pantallas se actualicen solas y funcionen sin conexión |
 | DataStore | Sesión: tokens e id de la cuenta |
 | Photo Picker de Android | Elegir imágenes del dispositivo sin pedir permisos |
+| WorkManager | Subir fotos en segundo plano, aunque se cierre la app |
+| Coil | Mostrar las imágenes del servidor y del móvil |
+| JUnit, MockWebServer y Accessibility Test Framework | Pruebas sin servidor real y comprobaciones de accesibilidad |
+| GitHub Actions | Compilar y probar cada PR, publicar el APK firmado y generar las capturas |
 
 ## Estado actual
 
-**Entrega 4 · Versión candidata** (15/11/2026). Retroconver pasa a ser una red social de verdad, con cuentas y datos compartidos en un servidor Supabase (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)).
+**Entrega final** (20/11/2026). Sobre la versión candidata de la entrega 4 se han añadido dos extras (temas clásicos y amistades), las migraciones de Room, la publicación del APK firmado desde la CI y un proyecto sin avisos de Android lint.
+
+### Capturas
+
+Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos de ejemplo). Se vuelven a generar subiendo una rama `capturas/…` (`.github/workflows/capturas.yml`).
+
+| Inicio de sesión | Muro | Perfil | Perfil con el tema Noche |
+|---|---|---|---|
+| <img src="docs/capturas/01-inicio-sesion.png" width="200" alt="Inicio de sesión"> | <img src="docs/capturas/03-muro.png" width="200" alt="Muro"> | <img src="docs/capturas/04-perfil.png" width="200" alt="Perfil con amigos y una solicitud"> | <img src="docs/capturas/05-perfil-tema-noche.png" width="200" alt="Perfil con el tema Noche"> |
+| **Aspecto del perfil** | **Galería** | **Álbum** | **Foto** |
+| <img src="docs/capturas/06-aspecto-del-perfil.png" width="200" alt="Elegir tema y tipografía"> | <img src="docs/capturas/07-galeria.png" width="200" alt="Álbumes"> | <img src="docs/capturas/08-album.png" width="200" alt="Álbum subiendo fotos"> | <img src="docs/capturas/09-foto.png" width="200" alt="Foto a pantalla completa"> |
 
 ### Qué funciona
 
 | Qué | Dónde | Issue | Estado |
 |---|---|---|---|
-| Servidor Supabase (plan gratuito): tablas, políticas de seguridad (12/12 comprobaciones) e imágenes | `supabase/` | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ |
+| Servidor Supabase (plan gratuito): tablas, políticas de seguridad (22/22 comprobaciones) e imágenes | `supabase/` | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ |
 | Cliente de red con Retrofit: errores traducidos al español y franja de «Sin conexión» | `data/remote/` | E4-03 [#113](https://github.com/yeray06/Retroconver/issues/113) | ✅ ([#137](https://github.com/yeray06/Retroconver/pull/137)) |
 | Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | ✅ ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
 | Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | ✅ ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
-| Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/repository/GaleriaRepository.kt` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | ✅ ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142)) |
-| 161 pruebas automáticas, revisión de accesibilidad, diseño y usabilidad, e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#135](https://github.com/yeray06/Retroconver/pull/135), [#143](https://github.com/yeray06/Retroconver/pull/143)) |
+| Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos en segundo plano y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/subidas/` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | ✅ ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142), [#151](https://github.com/yeray06/Retroconver/pull/151)) |
+| **Temas clásicos y tipografías del perfil:** cuatro temas (Clásico, Noche, Lima y Chicle) y cuatro tipografías, con vista previa. Quien visita el perfil lo ve así | `ui/theme/EstiloPerfil.kt`, `ui/screens/perfil/` | EX-03 [#30](https://github.com/yeray06/Retroconver/issues/30) | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
+| **Amistades:** solicitudes recibidas (aceptar o rechazar) y enviadas (cancelar), lista de amigos en el perfil y botón de amistad para el perfil de otra persona | `data/repository/AmistadesRepository.kt`, `ui/screens/perfil/Amistades.kt` | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) | 🟡 ([#155](https://github.com/yeray06/Retroconver/pull/155)): falta lo que depende de las pantallas de David (abajo) |
+| **Migraciones de Room:** al actualizar la app se conserva la copia local | `data/local/Migraciones.kt` | Entrega final | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
+| **APK firmado** y Release en GitHub al subir una etiqueta `v*` | `.github/workflows/release.yml` | EF-01.1 [#83](https://github.com/yeray06/Retroconver/issues/83) | ✅ Preparado: falta crear la clave ([Publicar una versión](#publicar-una-versión-apk-firmado)) |
+| 193 pruebas automáticas, revisión de accesibilidad, diseño y usabilidad, Android lint sin avisos e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#143](https://github.com/yeray06/Retroconver/pull/143), [#156](https://github.com/yeray06/Retroconver/pull/156)) |
 | De la entrega 3: perfil con edición validada, Photo Picker sin permisos, reescalado a 720p, nueva publicación y muro | `ui/screens/perfil/`, `ui/screens/muro/`, `data/imagenes/` | Entrega 3 | ✅ |
 
-### Qué falta para la versión candidata
+### Qué falta
 
-Son las tareas de David de la entrega 4. Ahora mismo las publicaciones y los comentarios todavía se guardan solo en el móvil.
+Son las tareas de David. Mientras no estén, las publicaciones y los comentarios se guardan solo en el móvil.
 
 | Tarea | Issue |
 |---|---|
@@ -116,23 +134,31 @@ Son las tareas de David de la entrega 4. Ahora mismo las publicaciones y los com
 | Comentarios | E4-07 [#18](https://github.com/yeray06/Retroconver/issues/18) |
 | Perfiles de otras personas y buscador | E4-08 [#126](https://github.com/yeray06/Retroconver/issues/126) |
 | Tablón de mensajes | E4-09 [#22](https://github.com/yeray06/Retroconver/issues/22) |
-| Color de fondo y tema del perfil | E4-11 [#23](https://github.com/yeray06/Retroconver/issues/23) |
+| Color de fondo del perfil (el tema ya está, EX-03) | E4-11 [#23](https://github.com/yeray06/Retroconver/issues/23) |
 | Pruebas y accesibilidad de Muro y Mensajes | E4-13 [#25](https://github.com/yeray06/Retroconver/issues/25) |
-| Memoria v4: ya está en [docs/memoria/](docs/memoria/Retroconver_Memoria_v4.docx); David revisa y completa su parte | E4-14 [#81](https://github.com/yeray06/Retroconver/issues/81) |
+| Presentación y memoria final | EF-02 [#27](https://github.com/yeray06/Retroconver/issues/27), EF-03 [#85](https://github.com/yeray06/Retroconver/issues/85) |
 
 Lo que ya está hecho les deja el camino preparado:
 - El patrón para pasar un módulo al servidor está en [docs/arquitectura.md](docs/arquitectura.md), apartado 2.
 - `UsuarioRepository.guardarDelServidor()` guarda los autores del muro.
 - Los álbumes de otra persona se abren con `RutasGaleria.albumesDe(id)`.
-- `UsuarioEntity` ya tiene `colorFondo` y `tema`.
+- En el perfil de otra persona (E4-08.1) basta con reutilizar `PerfilContenido`, que ya sale con su tema y su tipografía, y añadir `BotonAmistad(idPersona = id)` y `TarjetaAmigos(...)`. Después, el muro de amigos de EX-04 es filtrar el muro (E4-06) con `AmistadesRepository.circulo()`.
 
-### Qué se termina o corrige antes de la entrega final
+### Qué falla o tiene límites
 
-- **Migraciones de Room** en vez de borrar la copia local al actualizar. Los esquemas 1 a 5 ya están en `app/schemas/` ([#146](https://github.com/yeray06/Retroconver/issues/146)).
-- **Probar con TalkBack, el Accessibility Scanner y letra grande** en un móvil de verdad ([docs/pruebas.md](docs/pruebas.md), apartado 4).
-- Extras si hay tiempo: amistades ([#129](https://github.com/yeray06/Retroconver/issues/129)), «Me gusta» ([#130](https://github.com/yeray06/Retroconver/issues/130)) y mensajes directos ([#28](https://github.com/yeray06/Retroconver/issues/28)).
+- **Publicaciones y comentarios** se guardan solo en el móvil hasta E4-06 y E4-07 (David).
+- **Amistades:** hasta que esté el perfil de otra persona (E4-08.1) no se puede enviar una solicitud desde la app. Para probarlas, la solicitud se crea en el panel de Supabase (paso 6 de abajo). El muro sigue enseñando a todos hasta que se filtre (E4-06).
+- Las fotos se suben **en segundo plano** con WorkManager: siguen aunque se salga del álbum o se cierre la app ([#147](https://github.com/yeray06/Retroconver/issues/147)). Si se reinicia el móvil a mitad, puede que alguna no se pueda leer ya; la app dice cuántas no se han subido.
+- Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1. La app dice «No se ha podido usar esa foto». Desde Android 9 funcionan.
+- Si se borra una imagen del servidor sin conexión, puede quedar el archivo en *Storage* sin usar. No se ve en ningún sitio y no afecta a la app.
+- El plan gratuito de Supabase **pausa el proyecto tras una semana sin uso**. Antes de cada entrega y de la presentación hay que abrirlo en el panel (*Restore project* si hace falta).
 
-## Cómo probar la versión candidata (entrega 4)
+El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2):
+- **Completadas:** columna *Hecho*. La issue está cerrada por su PR.
+- **Pendientes:** *Backlog*, *Por hacer*, *En curso* y *En revisión*.
+- **Descartadas:** se cierran como *not planned* con la etiqueta `wontfix`. Los extras que no dé tiempo a hacer (EX-01, EX-02 y EX-05, de David) se descartan así al cerrar la entrega final.
+
+## Cómo probar la app
 
 Primero abre el proyecto y **conecta la app con el servidor** como se explica en [Cómo abrir y ejecutar el proyecto](#cómo-abrir-y-ejecutar-el-proyecto) (paso 4: `SUPABASE_URL` y `SUPABASE_ANON_KEY` en `local.properties`). Para crear el servidor desde cero, mira [supabase/README.md](supabase/README.md).
 
@@ -162,31 +188,35 @@ Primero abre el proyecto y **conecta la app con el servidor** como se explica en
 1. **Perfil → Cerrar sesión** (al final) → confirmar. Vuelve al inicio de sesión y «Atrás» no lleva al muro.
 2. Entra otra vez con la misma cuenta: el perfil y los álbumes vuelven, porque están en el servidor.
 
+### 5. Aspecto del perfil (EX-03)
+
+1. **Perfil → Editar perfil**, baja hasta **Aspecto del perfil**.
+2. Elige un tema (por ejemplo **Noche**) y una tipografía (**Máquina de escribir**). La vista previa cambia al momento, antes de guardar.
+3. **Guardar**: el perfil se ve con ese tema y esa letra. En *Table Editor → perfiles* salen `tema = noche` y `tipografia = maquina`.
+
+### 6. Amistades (EX-04)
+
+Hasta que esté el perfil de otra persona (E4-08, David) la solicitud se crea desde el panel:
+
+1. Crea una segunda cuenta en la app (o usa la del compañero) y copia su id de *Authentication → Users*.
+2. En *Table Editor → amistades → Insert row*, pon `solicitante_id` = el id de la otra cuenta y `destinatario_id` = el tuyo. Deja `aceptada` en `false`.
+3. En la app, **Perfil** (desliza hacia abajo o vuelve a entrar): sale **Solicitudes de amistad** con esa persona. **Aceptar** la pasa a **Amigos (1)**; **Rechazar** la borra. En el panel, `aceptada` cambia a `true` o la fila desaparece.
+
+### Cuentas de prueba
+
+Las dos cuentas de prueba para el profesor se dan en la entrega, no en el repositorio.
+
 ### Evidencias de Room, DataStore y el servidor
 
-- **Room.** En *App Inspection → Database Inspector* están las tablas `usuarios`, `publicaciones`, `comentarios`, `albumes` y `fotos`, con los ids UUID del servidor. Al cerrar sesión quedan vacías.
+- **Room.** En *App Inspection → Database Inspector* están las tablas `usuarios`, `publicaciones`, `comentarios`, `albumes`, `fotos` y `amistades`, con los ids UUID del servidor. Al cerrar sesión quedan vacías.
 - **DataStore.** En *Device Explorer*, `files/datastore/sesion.preferences_pb` guarda los tokens y el id de la cuenta, nunca la contraseña. Lo comprueba `SesionRepositoryTest`.
 - **Servidor.** En el panel de Supabase: *Authentication* (cuentas), *Table Editor* (perfiles, álbumes y fotos) y *Storage → imagenes* (una carpeta por cuenta).
 - **Pruebas.** Lista y resultados en [docs/pruebas.md](docs/pruebas.md). Cada PR las pasa en GitHub (ver [Integración continua](#integración-continua-el-check-de-las-pr)).
 
-### Qué falla o tiene límites
-
-- **Publicaciones y comentarios** todavía se guardan solo en el móvil hasta E4-06 y E4-07 (David).
-- Las fotos se suben **en segundo plano** con WorkManager: siguen aunque se salga del álbum o se cierre la app ([#147](https://github.com/yeray06/Retroconver/issues/147)). Si se reinicia el móvil a mitad, puede que alguna no se pueda leer ya; la app dice cuántas no se han subido.
-- Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1. La app dice «No se ha podido usar esa foto». Desde Android 9 funcionan.
-- Al actualizar la app con un esquema de base de datos nuevo se borra la copia local. No se pierde nada, porque está en el servidor, pero hay que estar conectado para volver a verlo.
-- Si se borra una imagen del servidor sin conexión, puede quedar el archivo en *Storage* sin usar. No se ve en ningún sitio y no afecta a la app.
-- El plan gratuito de Supabase **pausa el proyecto tras una semana sin uso**. Antes de cada entrega y de la presentación hay que abrirlo en el panel (*Restore project* si hace falta).
-
-El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2):
-- **Completadas:** columna *Hecho*. La issue está cerrada por su PR.
-- **Pendientes:** *Backlog*, *Por hacer*, *En curso* y *En revisión*.
-- **Descartadas:** en esta entrega no hay ninguna. Los extras (EX-01 a EX-05) siguen en *Backlog* para la entrega final. Si se descarta alguno, se cierra como *not planned* con la etiqueta `wontfix`.
-
 ## Cómo trabajamos
 
 - **Tablero Kanban** con las columnas Backlog, Por hacer, En curso, En revisión y Hecho.
-- **105 issues en orden de avance.** Cada título empieza por un código: `E2-01` es la primera tarea principal de la entrega 2 y `E2-01.1` su primera subtarea. `EF` es la entrega final y `EX`, los extras. El tablero está ordenado por este código, así que se lee de arriba abajo en el orden en que hay que avanzar.
+- **109 issues en orden de avance.** Cada título empieza por un código: `E2-01` es la primera tarea principal de la entrega 2 y `E2-01.1` su primera subtarea. `EF` es la entrega final y `EX`, los extras. El tablero está ordenado por este código, así que se lee de arriba abajo en el orden en que hay que avanzar.
 - **Errores encontrados al probar:** se registran como issues aparte con la etiqueta `bug`, en la entrega en la que se van a corregir (por ejemplo [#144](https://github.com/yeray06/Retroconver/issues/144)).
 - **Tareas principales y subtareas.** Las tareas grandes se dividen en subtareas (*sub-issues*). Se trabaja sobre las subtareas, y la tarea principal se cierra cuando están todas terminadas. El tablero muestra el progreso de cada tarea principal.
 - **Cada issue tiene** responsable, criterios de terminado, entrega (milestone) y dependencias (*Blocked by*).
@@ -240,18 +270,46 @@ En cada Pull Request y en cada cambio de `main`, GitHub compila la app y pasa to
 
 | Trabajo | Qué hace | Tarda |
 |---|---|---|
-| **Compilar y pruebas unitarias** | `assembleDebug` y `testDebugUnitTest` | ~5 min |
+| **Compilar y pruebas unitarias** | `assembleDebug`, `assembleRelease`, `testDebugUnitTest` y Android lint (`lintDebug`) | ~7 min |
 | **Pruebas en el emulador** | Arranca un emulador con Android 14 y pasa `connectedDebugAndroidTest` (Room, imágenes, pantallas) | ~10 min |
 
 En la PR, abajo del todo:
 
 - ✅ **Check verde:** compila y pasan todas las pruebas. Se puede revisar y fusionar.
-- ❌ **Check rojo:** algo no compila o alguna prueba falla. **No se fusiona.** Pulsa *Details*: arriba sale un resumen con los errores (*Errores de compilación o de pruebas*) y en *Summary → Artifacts* están los informes de las pruebas (`informe-pruebas-unitarias`, `informe-pruebas-emulador`).
+- ❌ **Check rojo:** algo no compila, alguna prueba falla o lint encuentra un error. **No se fusiona.** Pulsa *Details*: arriba sale un resumen con los errores (*Errores de compilación o de pruebas*) y en *Summary → Artifacts* están los informes (`informe-pruebas-unitarias`, `informe-pruebas-emulador`, `informe-lint`). Los avisos de lint salen en una anotación aparte.
 - 🟡 **En curso:** hay que esperar a que termine.
 
-Los esquemas de Room que genera cada compilación quedan en el artefacto `esquemas-room`. Si una PR sube la versión de la base de datos, hay que descargarlo y subir el `.json` nuevo a `app/schemas/`.
+Si una PR sube la versión de la base de datos y no trae el esquema nuevo de Room (`app/schemas/…/{versión}.json`), el check se pone rojo con la anotación *Esquema de Room sin subir*. El esquema también queda en el artefacto `esquemas-room`: hay que subirlo con la PR, junto con su migración (`data/local/Migraciones.kt`) y su prueba (`MigracionesTest`).
 
 La CI no tiene `local.properties`, así que compila sin la URL ni la clave de Supabase. Las pruebas usan un servidor falso (MockWebServer) y no necesitan el de verdad.
+
+### Publicar una versión (APK firmado)
+
+Al subir una etiqueta que empiece por `v`, `.github/workflows/release.yml` compila el APK de release, lo firma, comprueba la firma y crea la Release con `Retroconver-v1.0.apk` adjunto (EF-01.1, [#83](https://github.com/yeray06/Retroconver/issues/83)). La clave de firma nunca se sube al repositorio (`*.jks` está en `.gitignore`).
+
+**La primera vez**, crea la clave y guárdala fuera del repositorio. `keytool` viene con Android Studio, en `jbr/bin`. Pide una contraseña para el almacén y otra para la clave; apúntalas, porque sin ellas no se pueden publicar más versiones:
+```bash
+keytool -genkeypair -v -keystore retroconver.jks -alias retroconver -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Después, en GitHub, ve a *Settings → Secrets and variables → Actions → New repository secret* y añade:
+
+| Secreto | Valor |
+|---|---|
+| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Los mismos de `local.properties`, para que el APK conecte con el servidor |
+| `FIRMA_BASE64` | El fichero en base64: `base64 -w0 retroconver.jks` (en Windows, PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("retroconver.jks"))`) |
+| `FIRMA_CLAVE_ALMACEN` | La contraseña del almacén |
+| `FIRMA_ALIAS` | `retroconver` |
+| `FIRMA_CLAVE` | La contraseña de la clave |
+
+**Cada versión:** sube `versionName` (y `versionCode`) en `app/build.gradle.kts` si cambia, y publica la etiqueta:
+```bash
+git tag v1.0
+git push origin v1.0
+```
+A los 5 minutos está en *Releases*. Si falta algún secreto, el trabajo falla diciendo cuál.
+
+Para firmar en tu ordenador, añade a `local.properties` `FIRMA_FICHERO` (ruta al `.jks`), `FIRMA_CLAVE_ALMACEN`, `FIRMA_ALIAS` y `FIRMA_CLAVE`, y lanza `assembleRelease`. Sin ellos, el APK de release sale sin firmar.
 
 ### Estructura del código
 
@@ -260,19 +318,19 @@ app/src/main/java/com/retroconver/
 ├── RetroconverApp.kt   Application: crea el AppContainer
 ├── MainActivity.kt     Única Activity: tema, y acceso o app según haya sesión
 ├── AppContainer.kt     Base de datos, cliente de red y repositorios (una sola instancia)
-├── data/local/         AppDatabase, entidades, DAOs y convertidores
+├── data/local/         AppDatabase, entidades, DAOs, convertidores y migraciones
 ├── data/remote/        Cliente de Supabase: servicios de Retrofit, errores de red y aviso sin conexión
 ├── data/sesion/        Sesión con Supabase Auth guardada en DataStore
 ├── data/subidas/       Subida de fotos en segundo plano con WorkManager
-├── data/repository/    Repositorios de cada módulo
+├── data/repository/    Repositorios de cada módulo (también amistades)
 ├── data/imagenes/      Reescalado a 720p y copias de las imágenes
 ├── navigation/         Rutas, barra inferior, NavHost y RetroconverRaiz (acceso o app)
 └── ui/
-    ├── theme/          Tema retro: colores, tipografía y formas
+    ├── theme/          Tema retro: colores, tipografía y formas; temas clásicos del perfil
     ├── components/     Componentes base: RetroHeader, RetroCard, RetroButton, Avatar y selector de imágenes
     └── screens/        Pantallas: acceso, perfil, muro, galeria y mensajes
 supabase/               Esquema del servidor y prueba de seguridad
-.github/workflows/      Integración continua
+.github/workflows/      Integración continua, Release firmada y capturas de pantalla
 ```
 
 El porqué de cada decisión está en [docs/arquitectura.md](docs/arquitectura.md).
@@ -285,6 +343,6 @@ El porqué de cada decisión está en [docs/arquitectura.md](docs/arquitectura.m
 | 2 · Diseño y base técnica | 01/11/2026 | Estilo, bocetos, esquema de datos, proyecto Android, navegación y Room |
 | 3 · Flujo principal | 08/11/2026 | Perfil, muro y publicaciones con imagen funcionando en local |
 | 4 · Versión candidata | 15/11/2026 | Servidor Supabase, cuentas, muro compartido, perfiles ajenos, comentarios, tablón, álbumes, personalización y pruebas |
-| Final | 20/11/2026 | APK, README definitivo, memoria final y presentación |
+| Final | 20/11/2026 | Lo pendiente de la entrega 4, migraciones, extras, APK firmado, README definitivo, memoria final y presentación |
 
 El reparto completo con dependencias está en [docs/planificacion.md](docs/planificacion.md).
