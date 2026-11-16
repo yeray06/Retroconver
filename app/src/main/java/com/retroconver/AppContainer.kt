@@ -10,6 +10,7 @@ import com.retroconver.data.local.AppDatabase
 import com.retroconver.data.local.MIGRACIONES
 import com.retroconver.data.local.VERSIONES_SIN_MIGRACION
 import com.retroconver.data.remote.AlmacenamientoService
+import com.retroconver.data.remote.AmistadesService
 import com.retroconver.data.remote.AuthService
 import com.retroconver.data.remote.ClienteSupabase
 import com.retroconver.data.remote.ConfiguracionSupabase
@@ -17,6 +18,7 @@ import com.retroconver.data.remote.FuenteDeToken
 import com.retroconver.data.remote.GaleriaService
 import com.retroconver.data.remote.MonitorConexion
 import com.retroconver.data.remote.PerfilService
+import com.retroconver.data.repository.AmistadesRepository
 import com.retroconver.data.repository.GaleriaRepository
 import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
@@ -143,6 +145,14 @@ class AppContainer(context: Context) {
             sesionRepository,
             configuracionSupabase,
         )
+    }
+
+    /** Tabla `amistades`. */
+    private val amistadesService: AmistadesService by lazy { retrofit.create(AmistadesService::class.java) }
+
+    /** Amistades y solicitudes (EX-04, #129), con su copia en Room. */
+    val amistadesRepository: AmistadesRepository by lazy {
+        AmistadesRepository(baseDeDatos.amistadDao(), amistadesService, usuarioRepository, sesionRepository)
     }
 
     /** Subidas de fotos en segundo plano con WorkManager (#147). */

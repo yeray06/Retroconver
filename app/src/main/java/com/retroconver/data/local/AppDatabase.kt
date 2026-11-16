@@ -21,8 +21,9 @@ import androidx.room.TypeConverters
         ComentarioEntity::class,
         AlbumEntity::class,
         FotoEntity::class,
+        AmistadEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)
@@ -35,6 +36,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun comentarioDao(): ComentarioDao
 
     abstract fun galeriaDao(): GaleriaDao
+
+    abstract fun amistadDao(): AmistadDao
 
     companion object {
         /** Nombre del fichero de la base de datos en el móvil. */

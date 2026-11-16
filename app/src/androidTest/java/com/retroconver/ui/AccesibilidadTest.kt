@@ -25,7 +25,9 @@ import com.retroconver.R
 import com.retroconver.data.local.AlbumConPortada
 import com.retroconver.data.local.AlbumEntity
 import com.retroconver.data.local.FotoEntity
+import com.retroconver.data.local.SolicitudConPersona
 import com.retroconver.data.local.UsuarioEntity
+import com.retroconver.data.repository.RelacionAmistad
 import com.retroconver.ui.screens.acceso.ErrorAcceso
 import com.retroconver.ui.screens.acceso.ErroresAcceso
 import com.retroconver.ui.screens.acceso.InicioSesionContenido
@@ -37,6 +39,9 @@ import com.retroconver.ui.screens.galeria.AlbumesUiState
 import com.retroconver.ui.screens.galeria.FalloSubida
 import com.retroconver.ui.screens.galeria.FotoContenido
 import com.retroconver.ui.screens.galeria.FotoUiState
+import com.retroconver.ui.screens.perfil.AmistadesDelPerfil
+import com.retroconver.ui.screens.perfil.BotonAmistadContenido
+import com.retroconver.ui.screens.perfil.BotonAmistadUiState
 import com.retroconver.ui.screens.perfil.EditarPerfilContenido
 import com.retroconver.ui.screens.perfil.ErrorCampo
 import com.retroconver.ui.screens.perfil.ErroresPerfil
@@ -335,6 +340,79 @@ class AccesibilidadTest {
         regla.onNodeWithText(texto(R.string.tema_lima)).performScrollTo().performClick()
         assertEquals(TemaPerfil.LIMA, elegido)
         regla.onNode(hasText(texto(R.string.tema_lima)) and isSelected(), useUnmergedTree = false).assertExists()
+    }
+
+    // ---------- Amistades (EX-04) ----------
+
+    private val ana = UsuarioEntity(id = "ana", nombre = "Ana", fechaAlta = Instant.EPOCH)
+    private val bea = UsuarioEntity(id = "bea", nombre = "Bea", fechaAlta = Instant.EPOCH)
+    private val cris = UsuarioEntity(id = "cris", nombre = "Cris", fechaAlta = Instant.EPOCH)
+
+    @Test
+    fun perfilConAmigosYSolicitudes() = comprobar {
+        PerfilContenido(
+            estado = PerfilUiState(
+                usuario = yo,
+                amistades = AmistadesDelPerfil(
+                    amigos = listOf(ana),
+                    recibidas = listOf(SolicitudConPersona("s1", bea)),
+                    enviadas = listOf(SolicitudConPersona("s2", cris)),
+                    enCurso = "s1",
+                    error = R.string.red_sin_conexion,
+                ),
+            ),
+            alCambiarFoto = {},
+            alEditar = {},
+            alCerrarSesion = {},
+            alAbrirPerfil = {},
+        )
+    }
+
+    @Test
+    fun cadaBotonDeUnaSolicitudDiceDeQuienEs() {
+        var aceptada: String? = null
+        regla.setContent {
+            RetroconverTheme {
+                PerfilContenido(
+                    estado = PerfilUiState(
+                        usuario = yo,
+                        amistades = AmistadesDelPerfil(recibidas = listOf(SolicitudConPersona("s1", bea), SolicitudConPersona("s2", cris))),
+                    ),
+                    alCambiarFoto = {},
+                    alEditar = {},
+                    alCerrarSesion = {},
+                    alAceptarAmistad = { aceptada = it },
+                )
+            }
+        }
+        regla.onNodeWithContentDescription(texto(R.string.amistades_aceptar_de, "Cris")).performScrollTo().performClick()
+        assertEquals("s2", aceptada)
+    }
+
+    @Test
+    fun botonDeAmistadEnCadaEstado() {
+        var relacion by mutableStateOf<RelacionAmistad>(RelacionAmistad.Ninguna)
+        regla.setContent {
+            RetroconverTheme {
+                BotonAmistadContenido(
+                    estado = BotonAmistadUiState(relacion = relacion, error = R.string.red_sin_conexion),
+                    alPedir = {},
+                    alAceptar = {},
+                    alBorrar = {},
+                )
+            }
+        }
+        regla.enableAccessibilityChecks()
+        listOf(
+            RelacionAmistad.Ninguna,
+            RelacionAmistad.SolicitudEnviada("1"),
+            RelacionAmistad.SolicitudRecibida("1"),
+            RelacionAmistad.Amigos("1"),
+        ).forEach { siguiente ->
+            relacion = siguiente
+            regla.waitForIdle()
+            regla.onRoot().tryPerformAccessibilityChecks()
+        }
     }
 
     // ---------- Galería ----------

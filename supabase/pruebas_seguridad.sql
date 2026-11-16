@@ -19,6 +19,7 @@ declare
     pub uuid;
     msj uuid;
     alb uuid;
+    amis uuid;
     filas integer;
     informe text[] := '{}';
 begin
@@ -72,6 +73,29 @@ begin
         informe := informe || 'El servidor rechaza una tipografía que no existe'::text;
     end;
 
+    -- Amistades (EX-04)
+    begin
+        insert into public.amistades (destinatario_id, aceptada) values (b, true);
+        raise exception 'FALLO: A se ha hecho amiga de B sin que B acepte';
+    exception when insufficient_privilege then
+        informe := informe || 'A no puede crear una amistad ya aceptada'::text;
+    end;
+
+    begin
+        insert into public.amistades (destinatario_id) values (a);
+        raise exception 'FALLO: A se ha pedido amistad a sí misma';
+    exception when check_violation then
+        informe := informe || 'Nadie puede pedirse amistad a sí mismo'::text;
+    end;
+
+    insert into public.amistades (destinatario_id) values (b) returning id into amis;
+    informe := informe || 'A puede pedir amistad a B'::text;
+
+    update public.amistades set aceptada = true where id = amis;
+    get diagnostics filas = row_count;
+    if filas <> 0 then raise exception 'FALLO: A ha aceptado su propia solicitud'; end if;
+    informe := informe || 'A no puede aceptar su propia solicitud'::text;
+
     -- ---------- Como la cuenta B ----------
     perform set_config('request.jwt.claims', json_build_object('sub', b, 'role', 'authenticated')::text, true);
 
@@ -84,6 +108,25 @@ begin
     get diagnostics filas = row_count;
     if filas <> 0 then raise exception 'FALLO: B ha cambiado el perfil de A'; end if;
     informe := informe || 'B no puede cambiar el perfil de A'::text;
+
+    begin
+        insert into public.amistades (destinatario_id) values (a);
+        raise exception 'FALLO: hay dos solicitudes de amistad entre A y B';
+    exception when unique_violation then
+        informe := informe || 'Solo puede haber una solicitud entre dos personas'::text;
+    end;
+
+    begin
+        update public.amistades set solicitante_id = b where id = amis;
+        raise exception 'FALLO: B ha cambiado quién pidió la amistad';
+    exception when insufficient_privilege then
+        informe := informe || 'B no puede cambiar quién pidió la amistad'::text;
+    end;
+
+    update public.amistades set aceptada = true where id = amis;
+    get diagnostics filas = row_count;
+    if filas <> 1 then raise exception 'FALLO: B no ha podido aceptar la solicitud de A'; end if;
+    informe := informe || 'B puede aceptar la solicitud de A'::text;
 
     insert into public.comentarios (publicacion_id, texto) values (pub, 'Comentario de B');
     informe := informe || 'B puede comentar la publicación de A'::text;
@@ -117,6 +160,13 @@ begin
         null; -- sin permisos: también vale
     end;
     informe := informe || 'Sin sesión no se ve ninguna publicación'::text;
+    begin
+        select count(*) into filas from public.amistades;
+        if filas <> 0 then raise exception 'FALLO: sin sesión se ven amistades'; end if;
+    exception when insufficient_privilege then
+        null;
+    end;
+    informe := informe || 'Sin sesión no se ve ninguna amistad'::text;
 
     -- ---------- Limpieza ----------
     execute 'reset role';

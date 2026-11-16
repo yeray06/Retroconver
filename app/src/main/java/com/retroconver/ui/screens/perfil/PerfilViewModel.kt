@@ -10,9 +10,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.retroconver.R
 import com.retroconver.RetroconverApp
 import com.retroconver.data.imagenes.AlmacenImagenes
+import com.retroconver.data.local.SolicitudConPersona
 import com.retroconver.data.local.UsuarioEntity
 import com.retroconver.data.remote.ResultadoRed
 import com.retroconver.data.remote.mensaje
+import com.retroconver.data.repository.AmistadesRepository
 import com.retroconver.data.repository.UsuarioRepository
 import com.retroconver.data.sesion.SesionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +36,19 @@ data class PerfilUiState(
     val errorFoto: Int? = null,
     /** Se está cerrando la sesión: el botón se desactiva. */
     val cerrandoSesion: Boolean = false,
+    /** Amigos y solicitudes de amistad (EX-04, #129). */
+    val amistades: AmistadesDelPerfil = AmistadesDelPerfil(),
+)
+
+/** Amistades de la cuenta de la sesión que enseña su perfil (EX-04, #129). */
+data class AmistadesDelPerfil(
+    val amigos: List<UsuarioEntity> = emptyList(),
+    val recibidas: List<SolicitudConPersona> = emptyList(),
+    val enviadas: List<SolicitudConPersona> = emptyList(),
+    /** Solicitud que se está contestando o cancelando: sus botones se desactivan. */
+    val enCurso: String? = null,
+    /** No se ha podido contestar la última: id del mensaje, o `null`. */
+    val error: Int? = null,
 )
 
 /**
@@ -45,18 +60,32 @@ class PerfilViewModel(
     private val usuarios: UsuarioRepository,
     private val imagenes: AlmacenImagenes,
     private val sesion: SesionRepository,
+    private val amistades: AmistadesRepository,
 ) : ViewModel() {
 
     private val foto = MutableStateFlow(EstadoFoto())
     private val cerrandoSesion = MutableStateFlow(false)
     private val errorCarga = MutableStateFlow<Int?>(null)
+    private val amistadEnCurso = MutableStateFlow<String?>(null)
+    private val errorAmistad = MutableStateFlow<Int?>(null)
+
+    private val datosAmistades = combine(
+        amistades.misAmigos(),
+        amistades.solicitudesRecibidas(),
+        amistades.solicitudesEnviadas(),
+        amistadEnCurso,
+        errorAmistad,
+    ) { amigos, recibidas, enviadas, enCurso, error ->
+        AmistadesDelPerfil(amigos, recibidas, enviadas, enCurso, error)
+    }
 
     val estado: StateFlow<PerfilUiState> = combine(
         usuarios.usuarioActual(),
         foto,
         cerrandoSesion,
         errorCarga,
-    ) { usuario, estadoFoto, cerrando, error ->
+        datosAmistades,
+    ) { usuario, estadoFoto, cerrando, error, deAmistades ->
         PerfilUiState(
             usuario = usuario,
             // Si hay copia en Room se enseña aunque no se haya podido actualizar
@@ -64,6 +93,7 @@ class PerfilViewModel(
             guardandoFoto = estadoFoto.guardando,
             errorFoto = estadoFoto.error,
             cerrandoSesion = cerrando,
+            amistades = deAmistades,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -75,12 +105,33 @@ class PerfilViewModel(
         actualizar()
     }
 
-    /** Descarga el perfil del servidor. La pantalla se actualiza sola porque lee de Room. */
+    /** Descarga el perfil y las amistades del servidor. La pantalla se actualiza sola porque lee de Room. */
     fun actualizar() {
         errorCarga.value = null
         viewModelScope.launch {
             val resultado = usuarios.refrescarActual()
             if (resultado is ResultadoRed.Fallo) errorCarga.value = resultado.mensaje()
+        }
+        viewModelScope.launch { amistades.refrescarMias() }
+    }
+
+    /** Acepta una solicitud de amistad recibida (EX-04, #129). */
+    fun aceptarAmistad(idAmistad: String) = contestar(idAmistad) { amistades.aceptar(idAmistad) }
+
+    /** Rechaza una solicitud recibida o cancela una enviada. */
+    fun borrarSolicitud(idAmistad: String) = contestar(idAmistad) { amistades.borrar(idAmistad) }
+
+    private fun contestar(idAmistad: String, accion: suspend () -> ResultadoRed<Unit>) {
+        if (amistadEnCurso.value != null) return
+        viewModelScope.launch {
+            amistadEnCurso.value = idAmistad
+            errorAmistad.value = null
+            val resultado = accion()
+            if (resultado is ResultadoRed.Fallo) {
+                errorAmistad.value = resultado.mensaje()
+                amistades.refrescarMias()
+            }
+            amistadEnCurso.value = null
         }
     }
 
@@ -125,7 +176,12 @@ class PerfilViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as RetroconverApp
-                PerfilViewModel(app.container.usuarioRepository, app.container.almacenImagenes, app.container.sesionRepository)
+                PerfilViewModel(
+                    app.container.usuarioRepository,
+                    app.container.almacenImagenes,
+                    app.container.sesionRepository,
+                    app.container.amistadesRepository,
+                )
             }
         }
     }
