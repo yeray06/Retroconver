@@ -22,6 +22,7 @@ class ConversionesTest {
             avatarRuta = "cuenta/avatar.jpg",
             colorFondo = "#C5D7E8",
             tema = "clasico",
+            tipografia = "maquina",
             creadoEn = "2026-11-11T09:30:00.123456+00:00",
         )
 
@@ -35,6 +36,7 @@ class ConversionesTest {
         assertEquals("https://abc.supabase.co/storage/v1/object/public/imagenes/cuenta/avatar.jpg", entidad.avatarUri)
         assertEquals("#C5D7E8", entidad.colorFondo)
         assertEquals("clasico", entidad.tema)
+        assertEquals("maquina", entidad.tipografia)
         assertEquals(Instant.parse("2026-11-11T09:30:00.123456Z"), entidad.fechaAlta)
     }
 

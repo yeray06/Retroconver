@@ -45,6 +45,17 @@ jobs:
           errores=$(grep -E -A4 '^e: |FAILED$|What went wrong' gradle.log | grep -v '^--$' | head -120 | sed -e 's/%/%25/g' -e 's/\r//g' | sed ':a;N;$!ba;s/\n/%0A/g')
           echo "::error title=Errores de compilación o de pruebas::${errores:-Mira el registro completo del paso anterior}"
 
+      # Room genera al compilar el esquema de cada versión de la base de datos (app/schemas). Hace
+      # falta subirlo para las migraciones: si hay uno nuevo sin subir, la PR falla y lo deja en una
+      # anotación (en base64) para poder copiarlo
+      - name: Comprobar que los esquemas de Room están subidos
+        run: |
+          nuevos=$(git status --porcelain --untracked-files=all app/schemas | awk '{print $2}')
+          for f in $nuevos; do
+            echo "::error title=Esquema de Room sin subir: $f::$(base64 -w0 "$f")"
+          done
+          [ -z "$nuevos" ]
+
       - name: Guardar el informe de las pruebas
         if: always()
         uses: actions/upload-artifact@v4

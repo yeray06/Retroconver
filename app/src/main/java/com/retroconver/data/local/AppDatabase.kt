@@ -12,6 +12,7 @@ import androidx.room.TypeConverters
  * 2. Añade la entidad a la lista `entities` de abajo.
  * 3. Añade una función abstracta que devuelva el DAO, por ejemplo `abstract fun publicacionDao(): PublicacionDao`.
  * 4. Sube `version` en 1. El esquema nuevo se guarda solo en app/schemas: súbelo con tu PR.
+ * 5. Escribe su migración en Migraciones.kt y su prueba en MigracionesTest.
  */
 @Database(
     entities = [
@@ -21,7 +22,7 @@ import androidx.room.TypeConverters
         AlbumEntity::class,
         FotoEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)

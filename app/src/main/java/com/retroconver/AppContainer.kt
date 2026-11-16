@@ -7,6 +7,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.retroconver.data.imagenes.AlmacenImagenes
 import com.retroconver.data.local.AppDatabase
+import com.retroconver.data.local.MIGRACIONES
+import com.retroconver.data.local.VERSIONES_SIN_MIGRACION
 import com.retroconver.data.remote.AlmacenamientoService
 import com.retroconver.data.remote.AuthService
 import com.retroconver.data.remote.ClienteSupabase
@@ -61,9 +63,10 @@ class AppContainer(context: Context) {
     /** Base de datos Room. Se crea la primera vez que alguien la usa y ya no se vuelve a crear. */
     val baseDeDatos: AppDatabase by lazy {
         Room.databaseBuilder(contextoApp, AppDatabase::class.java, AppDatabase.NOMBRE)
-            // Mientras desarrollamos, si cambia el esquema la base de datos se borra y se crea de nuevo.
-            // Antes de la entrega final se sustituye por migraciones para no perder datos.
-            .fallbackToDestructiveMigration(dropAllTables = true)
+            // Al actualizar la app se conserva la copia local (Migraciones.kt). Solo desde las
+            // versiones sin servidor (1 a 4) se borra y se crea de nuevo
+            .addMigrations(*MIGRACIONES)
+            .fallbackToDestructiveMigrationFrom(true, *VERSIONES_SIN_MIGRACION)
             .build()
     }
 

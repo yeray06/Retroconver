@@ -4,6 +4,7 @@ import com.retroconver.data.local.UsuarioDao
 import com.retroconver.data.local.UsuarioEntity
 import com.retroconver.data.remote.AlmacenamientoService
 import com.retroconver.data.remote.CambioAvatarDto
+import com.retroconver.data.remote.CambioEstiloDto
 import com.retroconver.data.remote.CambiosPerfilDto
 import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.PerfilDto
@@ -96,6 +97,17 @@ class UsuarioRepository(
             perfilService.actualizarDatos(igual(id), CambiosPerfilDto(nombre, biografia, estado))
         }
         return guardarFilaDevuelta(resultado)
+    }
+
+    /**
+     * Guarda el tema y la tipografía del perfil (EX-03, #30), con las claves de `TemaPerfil` y
+     * `TipografiaPerfil`. Igual que [actualizarPerfil]: primero el servidor y después Room.
+     */
+    suspend fun cambiarEstilo(tema: String, tipografia: String): ResultadoRed<Unit> {
+        val id = idActual() ?: return ResultadoRed.SesionCaducada
+        return guardarFilaDevuelta(
+            llamarAlServidor { perfilService.actualizarEstilo(igual(id), CambioEstiloDto(tema, tipografia)) },
+        )
     }
 
     /**

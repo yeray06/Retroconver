@@ -29,4 +29,20 @@
     <string name="editar_contador">%1$d/%2$d</string>
     <string name="error_nombre_obligatorio">El nombre es obligatorio.</string>
     <string name="error_demasiado_largo">Máximo %1$d caracteres.</string>
+
+    <!-- Perfil: aspecto (EX-03, #30) -->
+    <string name="estilo_titulo">Aspecto del perfil</string>
+    <string name="estilo_explicacion">Así verán tu perfil todas las personas que lo visiten.</string>
+    <string name="estilo_tema">Tema</string>
+    <string name="estilo_tipografia">Tipografía</string>
+    <string name="estilo_vista_previa">Vista previa</string>
+    <string name="estilo_vista_previa_estado">«¡Bienvenidos a mi perfil!»</string>
+    <string name="tema_clasico">Clásico</string>
+    <string name="tema_noche">Noche</string>
+    <string name="tema_lima">Lima</string>
+    <string name="tema_chicle">Chicle</string>
+    <string name="tipografia_normal">Normal</string>
+    <string name="tipografia_clasica">Clásica</string>
+    <string name="tipografia_maquina">Máquina de escribir</string>
+    <string name="tipografia_manuscrita">Manuscrita</string>
 </resources>
