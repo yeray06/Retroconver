@@ -3,7 +3,6 @@
     <!-- Amistades (EX-04, #129) -->
     <string name="amistades_amigos">Amigos (%1$d)</string>
     <string name="amistades_sin_amigos">Todavía no tienes amigos en Retroconver.</string>
-    <string name="amistades_sin_amigos_de">%1$s todavía no tiene amigos en Retroconver.</string>
     <string name="amistades_recibidas">Solicitudes de amistad</string>
     <string name="amistades_enviadas">Solicitudes enviadas</string>
     <string name="amistades_te_ha_pedido">Te ha pedido amistad</string>
