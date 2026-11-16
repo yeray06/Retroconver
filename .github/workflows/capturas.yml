@@ -1,0 +1,57 @@
+# Capturas de las pantallas principales para el README (EF-01, #26).
+#
+# Al subir una rama que empiece por «capturas/», GitHub abre la app en un emulador con el tamaño
+# de un Pixel 6, dibuja cada pantalla con datos de ejemplo (CapturasTest) y sube las imágenes a
+# docs/capturas en esa misma rama. Después se fusionan con una PR como cualquier otro cambio.
+name: Capturas de pantalla
+
+on:
+  push:
+    branches: ["capturas/**"]
+
+permissions:
+  contents: write
+
+jobs:
+  capturas:
+    name: Capturas en el emulador
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Java 21 para Gradle
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Permitir la aceleración del emulador (KVM)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Dibujar las pantallas y bajar las capturas
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            ./gradlew --stacktrace connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.retroconver.ui.CapturasTest -Pandroid.testInstrumentationRunnerArguments.capturas=true -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
+            mkdir -p docs/capturas
+            adb pull /sdcard/Android/data/com.retroconver/files/capturas/. docs/capturas/
+
+      - name: Subir las capturas a la rama
+        run: |
+          ls -la docs/capturas
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/capturas
+          git commit -m "Capturas de las pantallas principales (CapturasTest)" || echo "Sin cambios"
+          git push
