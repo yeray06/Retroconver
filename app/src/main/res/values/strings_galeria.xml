@@ -7,6 +7,8 @@
     <string name="galeria_nuevo_album">Nuevo álbum</string>
     <plurals name="galeria_num_fotos">
         <item quantity="one">%d foto</item>
+        <!-- «many» es para cifras como un millón en español; se escribe igual que «other» -->
+        <item quantity="many">%d fotos</item>
         <item quantity="other">%d fotos</item>
     </plurals>
     <string name="galeria_creado_el">Creado el %1$s</string>
