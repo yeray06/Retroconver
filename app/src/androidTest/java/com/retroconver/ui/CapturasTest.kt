@@ -67,6 +67,7 @@ import org.junit.runner.RunWith
 import java.io.File
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 
 /**
  * Capturas de las pantallas principales para el README (EF-01, #26).
@@ -84,6 +85,8 @@ class CapturasTest {
     @Before
     fun soloSiSePiden() {
         assumeTrue(InstrumentationRegistry.getArguments().getString("capturas") == "true")
+        // El emulador de la CI está en inglés: las fechas salen en español, como en un móvil de aquí
+        Locale.setDefault(Locale.forLanguageTag("es-ES"))
     }
 
     private fun texto(@StringRes id: Int): String = regla.activity.getString(id)
@@ -276,7 +279,8 @@ class CapturasTest {
     fun aspectoDelPerfil() = capturar(
         "06-aspecto-del-perfil",
         Destino.PERFIL,
-        antes = { regla.onNodeWithText(texto(R.string.estilo_tema)).performScrollTo() },
+        // Hasta abajo: la tipografía, la vista previa y los botones
+        antes = { regla.onNodeWithText(texto(R.string.editar_guardar)).performScrollTo() },
     ) {
         EditarPerfilContenido(
             nombre = "Yeray",
