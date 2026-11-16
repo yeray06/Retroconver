@@ -30,6 +30,11 @@ interface PerfilService {
     @Headers("Prefer: return=representation")
     @PATCH("rest/v1/perfiles")
     suspend fun actualizarAvatar(@Query("id") filtroId: String, @Body cambio: CambioAvatarDto): List<PerfilDto>
+
+    /** Cambia el tema y la tipografía del perfil (EX-03, #30). */
+    @Headers("Prefer: return=representation")
+    @PATCH("rest/v1/perfiles")
+    suspend fun actualizarEstilo(@Query("id") filtroId: String, @Body cambio: CambioEstiloDto): List<PerfilDto>
 }
 
 /** Filtro de PostgREST «columna igual a [valor]»: `igual(id)` → `eq.{id}`. */
@@ -46,6 +51,7 @@ data class PerfilDto(
     @SerialName("avatar_ruta") val avatarRuta: String? = null,
     @SerialName("color_fondo") val colorFondo: String? = null,
     val tema: String? = null,
+    val tipografia: String? = null,
     /** Fecha ISO 8601; se convierte con [instanteDelServidor]. */
     @SerialName("creado_en") val creadoEn: String,
 )
@@ -60,4 +66,11 @@ data class CambiosPerfilDto(
 @Serializable
 data class CambioAvatarDto(
     @SerialName("avatar_ruta") val avatarRuta: String?,
+)
+
+/** Claves del tema y de la tipografía (EX-03). El servidor solo acepta las tipografías conocidas. */
+@Serializable
+data class CambioEstiloDto(
+    val tema: String,
+    val tipografia: String,
 )

@@ -28,7 +28,9 @@ data class UsuarioEntity(
     val avatarUri: String? = null,
     /** Color de fondo del perfil (RF-08, E4-11). `null` usa el de la guía de estilo. */
     val colorFondo: String? = null,
-    /** Tema del perfil (RF-08, E4-11). `null` usa el de por defecto. */
+    /** Tema del perfil (RF-08, E4-11 y EX-03): clave de un `TemaPerfil`. `null` usa el clásico. */
     val tema: String? = null,
+    /** Tipografía del perfil (EX-03, #30): clave de una `TipografiaPerfil`. `null` usa la normal. */
+    val tipografia: String? = null,
     val fechaAlta: Instant,
 )

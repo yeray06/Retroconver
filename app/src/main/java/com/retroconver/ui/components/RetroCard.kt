@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.retroconver.ui.theme.RetroCardBackground
@@ -19,17 +20,20 @@ import com.retroconver.ui.theme.RetroconverTheme
 /**
  * Tarjeta blanca con borde azulado y una sombra muy ligera.
  * Base de las publicaciones, comentarios, álbumes y mensajes.
+ * [color] y [borde] cambian en los perfiles con otro tema (EX-03).
  */
 @Composable
 fun RetroCard(
     modifier: Modifier = Modifier,
+    color: Color = RetroCardBackground,
+    borde: Color = RetroCardBorder,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
-        color = RetroCardBackground,
-        border = BorderStroke(1.dp, RetroCardBorder),
+        color = color,
+        border = BorderStroke(1.dp, borde),
         shadowElevation = 1.dp,
     ) {
         Column(

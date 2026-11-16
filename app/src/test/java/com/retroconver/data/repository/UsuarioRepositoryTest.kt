@@ -146,6 +146,35 @@ class UsuarioRepositoryTest {
         assertEquals("42501", (resultado as ResultadoRed.ErrorServidor).codigo)
     }
 
+    // ---------- Aspecto del perfil (EX-03) ----------
+
+    @Test
+    fun cambiarElEstiloEnviaElTemaYLaTipografiaYGuardaLaRespuesta() = runBlocking<Unit> {
+        responder(200, "[${perfil().replace("\"creado_en\"", "\"tema\":\"noche\",\"tipografia\":\"maquina\",\"creado_en\"")}]")
+
+        val resultado = repositorio.cambiarEstilo("noche", "maquina")
+
+        assertTrue(resultado is ResultadoRed.Correcto)
+        val peticion = servidor.takeRequest()
+        assertEquals("PATCH", peticion.method)
+        assertEquals("eq.$YO", peticion.requestUrl?.queryParameter("id"))
+        val cuerpo = peticion.body.readUtf8()
+        assertTrue(cuerpo, cuerpo.contains("\"tema\":\"noche\"") && cuerpo.contains("\"tipografia\":\"maquina\""))
+        assertEquals("noche", room.perfiles.value[YO]?.tema)
+        assertEquals("maquina", room.perfiles.value[YO]?.tipografia)
+    }
+
+    @Test
+    fun siElServidorRechazaLaTipografiaNoSeCambiaNada() = runBlocking<Unit> {
+        room.guardar(UsuarioEntity(id = YO, nombre = "Yeray", fechaAlta = Instant.EPOCH))
+        responder(400, """{"code":"23514","message":"new row violates check constraint"}""")
+
+        val resultado = repositorio.cambiarEstilo("noche", "comic-sans")
+
+        assertTrue(resultado is ResultadoRed.ErrorServidor)
+        assertNull(room.perfiles.value[YO]?.tipografia)
+    }
+
     // ---------- Avatar ----------
 
     @Test

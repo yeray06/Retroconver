@@ -60,6 +60,18 @@ begin
     insert into public.albumes (titulo) values ('Álbum de prueba de A') returning id into alb;
     informe := informe || 'A puede crear un álbum'::text;
 
+    update public.perfiles set tema = 'noche', tipografia = 'maquina' where id = a;
+    get diagnostics filas = row_count;
+    if filas <> 1 then raise exception 'FALLO: A no ha podido cambiar el aspecto de su perfil'; end if;
+    informe := informe || 'A puede cambiar el tema y la tipografía de su perfil'::text;
+
+    begin
+        update public.perfiles set tipografia = 'comic-sans' where id = a;
+        raise exception 'FALLO: el servidor ha aceptado una tipografía que no existe';
+    exception when check_violation then
+        informe := informe || 'El servidor rechaza una tipografía que no existe'::text;
+    end;
+
     -- ---------- Como la cuenta B ----------
     perform set_config('request.jwt.claims', json_build_object('sub', b, 'role', 'authenticated')::text, true);
 

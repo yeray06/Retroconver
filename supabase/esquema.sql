@@ -1,6 +1,7 @@
 -- =====================================================================
 -- Retroconver · esquema del servidor Supabase
 -- E4-02.1 (#111): tablas y relaciones · E4-02.2 (#112): seguridad e imágenes
+-- EX-03 (#30): tipografía del perfil
 --
 -- Cómo usarlo: Supabase → SQL Editor → New query → pegar todo → Run.
 -- Se puede ejecutar las veces que haga falta: crea lo que falta y
@@ -22,9 +23,14 @@ create table if not exists public.perfiles (
     estado      text not null default '' check (char_length(estado) <= 80),
     avatar_ruta text,                 -- ruta dentro del bucket imagenes
     color_fondo text,                 -- RF-08, E4-11
-    tema        text,                 -- RF-08, E4-11
+    tema        text,                 -- RF-08, E4-11 y EX-03 (clave del tema)
+    tipografia  text check (tipografia in ('normal', 'clasica', 'maquina', 'manuscrita')), -- EX-03
     creado_en   timestamptz not null default now()
 );
+
+-- Columnas añadidas después de crear la tabla: así el script también pone al día un proyecto que ya existía
+alter table public.perfiles add column if not exists tipografia text
+    check (tipografia in ('normal', 'clasica', 'maquina', 'manuscrita'));
 
 create table if not exists public.publicaciones (
     id          uuid primary key default gen_random_uuid(),

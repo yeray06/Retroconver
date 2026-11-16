@@ -99,6 +99,9 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+// Las pruebas de las migraciones (MigracionesTest) leen esos esquemas
+android.sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
+
 dependencies {
     // Base de Android
     implementation(libs.androidx.core.ktx)

@@ -1,5 +1,6 @@
 package com.retroconver.ui.screens.perfil
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,13 +43,12 @@ import com.retroconver.ui.components.Avatar
 import com.retroconver.ui.components.RetroButton
 import com.retroconver.ui.components.RetroCard
 import com.retroconver.ui.components.rememberSelectorDeImagen
-import com.retroconver.ui.theme.RetroGlossyDark
-import com.retroconver.ui.theme.RetroGrayText
-import com.retroconver.ui.theme.RetroLinkBlue
-import com.retroconver.ui.theme.RetroProfileCardBg
-import com.retroconver.ui.theme.RetroProfileCardBorder
+import com.retroconver.ui.theme.EstiloDePerfil
+import com.retroconver.ui.theme.LocalColoresPerfil
 import com.retroconver.ui.theme.RetroTextDark
 import com.retroconver.ui.theme.RetroconverTheme
+import com.retroconver.ui.theme.TemaPerfil
+import com.retroconver.ui.theme.TipografiaPerfil
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -119,35 +119,40 @@ internal fun PerfilContenido(
         estado.errorCarga?.let { PerfilNoDisponible(it, alReintentar, alCerrarSesion, modifier) }
         return
     }
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        CabeceraPerfil(usuario, estado, alCambiarFoto, alEditar)
-        TarjetaEstado(usuario.estado)
-        RetroCard(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = stringResource(R.string.perfil_sobre_mi),
-                style = MaterialTheme.typography.titleMedium,
-                color = RetroGlossyDark,
-                modifier = Modifier.semantics { heading() },
-            )
-            Spacer(Modifier.height(4.dp))
-            if (usuario.biografia.isBlank()) {
-                TextoVacio(stringResource(R.string.perfil_sin_biografia))
-            } else {
-                Text(text = usuario.biografia, style = MaterialTheme.typography.bodyLarge, color = RetroTextDark)
+    // Cada perfil se ve con el tema y la tipografía que ha elegido su dueño (EX-03, #30)
+    EstiloDePerfil(TemaPerfil.deClave(usuario.tema), TipografiaPerfil.deClave(usuario.tipografia)) {
+        val colores = LocalColoresPerfil.current
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(colores.fondo)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            CabeceraPerfil(usuario, estado, alCambiarFoto, alEditar)
+            TarjetaEstado(usuario.estado)
+            RetroCard(modifier = Modifier.fillMaxWidth(), color = colores.tarjeta, borde = colores.bordeTarjeta) {
+                Text(
+                    text = stringResource(R.string.perfil_sobre_mi),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colores.titulo,
+                    modifier = Modifier.semantics { heading() },
+                )
+                Spacer(Modifier.height(4.dp))
+                if (usuario.biografia.isBlank()) {
+                    TextoVacio(stringResource(R.string.perfil_sin_biografia))
+                } else {
+                    Text(text = usuario.biografia, style = MaterialTheme.typography.bodyLarge, color = colores.texto)
+                }
             }
-        }
-        // Al final del perfil, apartado, para no pulsarlo sin querer
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            RetroButton(
-                texto = stringResource(if (estado.cerrandoSesion) R.string.perfil_cerrando_sesion else R.string.perfil_cerrar_sesion),
-                onClick = { if (!estado.cerrandoSesion) alCerrarSesion() },
-            )
+            // Al final del perfil, apartado, para no pulsarlo sin querer
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                RetroButton(
+                    texto = stringResource(if (estado.cerrandoSesion) R.string.perfil_cerrando_sesion else R.string.perfil_cerrar_sesion),
+                    onClick = { if (!estado.cerrandoSesion) alCerrarSesion() },
+                )
+            }
         }
     }
 }
@@ -185,7 +190,8 @@ private fun CabeceraPerfil(
     alCambiarFoto: () -> Unit,
     alEditar: () -> Unit,
 ) {
-    RetroCard(modifier = Modifier.fillMaxWidth()) {
+    val colores = LocalColoresPerfil.current
+    RetroCard(modifier = Modifier.fillMaxWidth(), color = colores.tarjeta, borde = colores.bordeTarjeta) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Avatar(nombre = usuario.nombre, imagenUri = usuario.avatarUri, tamano = 96.dp)
             Spacer(Modifier.width(16.dp))
@@ -193,13 +199,13 @@ private fun CabeceraPerfil(
                 Text(
                     text = usuario.nombre,
                     style = MaterialTheme.typography.titleLarge,
-                    color = RetroLinkBlue,
+                    color = colores.nombre,
                     modifier = Modifier.semantics { heading() },
                 )
                 Text(
                     text = stringResource(R.string.perfil_miembro_desde, fechaLarga(usuario.fechaAlta)),
                     style = MaterialTheme.typography.bodySmall,
-                    color = RetroGrayText,
+                    color = colores.textoSecundario,
                 )
             }
         }
@@ -216,7 +222,7 @@ private fun CabeceraPerfil(
             Text(
                 text = stringResource(estado.errorFoto),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error,
+                color = colores.error,
                 // TalkBack lo lee en cuanto aparece
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
@@ -227,24 +233,25 @@ private fun CabeceraPerfil(
 /** Frase del estado en la tarjeta azul clara del prototipo, como el mensaje personal de MSN. */
 @Composable
 private fun TarjetaEstado(texto: String) {
+    val colores = LocalColoresPerfil.current
     Surface(
-        color = RetroProfileCardBg,
+        color = colores.destacado,
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, RetroProfileCardBorder, MaterialTheme.shapes.medium),
+            .border(1.dp, colores.bordeDestacado, MaterialTheme.shapes.medium),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
                 text = stringResource(R.string.perfil_estado),
                 style = MaterialTheme.typography.labelMedium,
-                color = RetroGlossyDark,
+                color = colores.titulo,
             )
             Spacer(Modifier.height(4.dp))
             if (texto.isBlank()) {
                 TextoVacio(stringResource(R.string.perfil_sin_estado))
             } else {
-                Text(text = "«$texto»", style = MaterialTheme.typography.bodyLarge, color = RetroTextDark)
+                Text(text = "«$texto»", style = MaterialTheme.typography.bodyLarge, color = colores.texto)
             }
         }
     }
@@ -252,7 +259,12 @@ private fun TarjetaEstado(texto: String) {
 
 @Composable
 private fun TextoVacio(texto: String) {
-    Text(text = texto, style = MaterialTheme.typography.bodyMedium, color = RetroGrayText, fontStyle = FontStyle.Italic)
+    Text(
+        text = texto,
+        style = MaterialTheme.typography.bodyMedium,
+        color = LocalColoresPerfil.current.textoSecundario,
+        fontStyle = FontStyle.Italic,
+    )
 }
 
 /** Fecha en formato largo del idioma del móvil, por ejemplo «5 de noviembre de 2026». */
@@ -274,6 +286,29 @@ private fun PerfilPreview() {
                     nombre = "Yeray",
                     biografia = "Echo de menos los tablones de Tuenti y las tardes en el Messenger.",
                     estado = "Escuchando música en el MSN",
+                    fechaAlta = Instant.parse("2026-11-05T10:00:00Z"),
+                ),
+            ),
+            alCambiarFoto = {},
+            alEditar = {},
+            alCerrarSesion = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PerfilNochePreview() {
+    RetroconverTheme {
+        PerfilContenido(
+            estado = PerfilUiState(
+                usuario = UsuarioEntity(
+                    id = "yeray",
+                    nombre = "Yeray",
+                    biografia = "Fan de los perfiles con fondo negro y letras de colores.",
+                    estado = "Personalizando mi perfil",
+                    tema = TemaPerfil.NOCHE.clave,
+                    tipografia = TipografiaPerfil.MAQUINA.clave,
                     fechaAlta = Instant.parse("2026-11-05T10:00:00Z"),
                 ),
             ),

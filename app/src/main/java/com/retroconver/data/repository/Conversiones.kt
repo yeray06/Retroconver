@@ -22,6 +22,7 @@ fun PerfilDto.aEntidad(configuracion: ConfiguracionSupabase): UsuarioEntity = Us
     avatarUri = avatarRuta?.let { configuracion.urlPublica(it) },
     colorFondo = colorFondo,
     tema = tema,
+    tipografia = tipografia,
     fechaAlta = instanteDelServidor(creadoEn),
 )
 

@@ -8,12 +8,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.accessibility.enableAccessibilityChecks
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.tryPerformAccessibilityChecks
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -40,6 +43,8 @@ import com.retroconver.ui.screens.perfil.ErroresPerfil
 import com.retroconver.ui.screens.perfil.PerfilContenido
 import com.retroconver.ui.screens.perfil.PerfilUiState
 import com.retroconver.ui.theme.RetroconverTheme
+import com.retroconver.ui.theme.TemaPerfil
+import com.retroconver.ui.theme.TipografiaPerfil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -261,6 +266,75 @@ class AccesibilidadTest {
             alCancelar = {},
             errorGuardar = R.string.red_sin_conexion,
         )
+    }
+
+    /** Cada tema clásico (EX-03, #30) tiene que pasar las mismas comprobaciones que el de la guía. */
+    @Test
+    fun perfilConCadaTemaYTipografia() {
+        var tema by mutableStateOf(TemaPerfil.CLASICO)
+        regla.setContent {
+            RetroconverTheme {
+                PerfilContenido(
+                    estado = PerfilUiState(
+                        usuario = yo.copy(tema = tema.clave, tipografia = TipografiaPerfil.entries[tema.ordinal % TipografiaPerfil.entries.size].clave),
+                        errorFoto = R.string.red_sin_conexion,
+                    ),
+                    alCambiarFoto = {},
+                    alEditar = {},
+                    alCerrarSesion = {},
+                )
+            }
+        }
+        regla.enableAccessibilityChecks()
+        TemaPerfil.entries.forEach { siguiente ->
+            tema = siguiente
+            regla.waitForIdle()
+            regla.onRoot().tryPerformAccessibilityChecks()
+        }
+    }
+
+    @Test
+    fun editarElAspectoDelPerfil() = comprobar {
+        EditarPerfilContenido(
+            nombre = "Yeray",
+            biografia = "",
+            estado = "Personalizando mi perfil",
+            errores = ErroresPerfil(),
+            habilitado = true,
+            alCambiarNombre = {},
+            alCambiarBiografia = {},
+            alCambiarEstado = {},
+            alGuardar = {},
+            alCancelar = {},
+            tema = TemaPerfil.NOCHE,
+            tipografia = TipografiaPerfil.MANUSCRITA,
+        )
+    }
+
+    @Test
+    fun cadaTemaSeAnunciaComoUnaOpcionMarcadaONo() {
+        var elegido by mutableStateOf(TemaPerfil.CLASICO)
+        regla.setContent {
+            RetroconverTheme {
+                EditarPerfilContenido(
+                    nombre = "Yeray",
+                    biografia = "",
+                    estado = "",
+                    errores = ErroresPerfil(),
+                    habilitado = true,
+                    alCambiarNombre = {},
+                    alCambiarBiografia = {},
+                    alCambiarEstado = {},
+                    alGuardar = {},
+                    alCancelar = {},
+                    tema = elegido,
+                    alCambiarTema = { elegido = it },
+                )
+            }
+        }
+        regla.onNodeWithText(texto(R.string.tema_lima)).performScrollTo().performClick()
+        assertEquals(TemaPerfil.LIMA, elegido)
+        regla.onNode(hasText(texto(R.string.tema_lima)) and isSelected(), useUnmergedTree = false).assertExists()
     }
 
     // ---------- Galería ----------
