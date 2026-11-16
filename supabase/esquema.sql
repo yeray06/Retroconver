@@ -150,7 +150,9 @@ grant usage on schema public to authenticated;
 grant select, update on public.perfiles to authenticated;
 grant select, insert, update, delete on public.publicaciones, public.comentarios, public.albumes, public.fotos to authenticated;
 grant select, insert, delete on public.mensajes to authenticated;
--- Amistades: de una fila ya creada solo se puede cambiar «aceptada»
+-- Amistades: de una fila ya creada solo se puede cambiar «aceptada». Supabase da todos los
+-- permisos a las tablas nuevas, así que antes se quitan: si no, se podría cambiar quién pidió la amistad
+revoke all on public.amistades from anon, authenticated;
 grant select, insert, delete on public.amistades to authenticated;
 grant update (aceptada) on public.amistades to authenticated;
 
