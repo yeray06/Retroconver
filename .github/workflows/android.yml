@@ -46,13 +46,16 @@ jobs:
           echo "::error title=Errores de compilación o de pruebas::${errores:-Mira el registro completo del paso anterior}"
 
       # Room genera al compilar el esquema de cada versión de la base de datos (app/schemas). Hace
-      # falta subirlo para las migraciones: si hay uno nuevo sin subir, la PR falla y lo deja en una
-      # anotación (en base64) para poder copiarlo
+      # falta subirlo para las migraciones: si hay uno nuevo sin subir, la PR falla y lo deja en
+      # anotaciones (comprimido con gzip y en base64, en trozos) para poder copiarlo:
+      # se juntan los trozos en orden y se pasa por «base64 -d | gunzip»
       - name: Comprobar que los esquemas de Room están subidos
         run: |
           nuevos=$(git status --porcelain --untracked-files=all app/schemas | awk '{print $2}')
           for f in $nuevos; do
-            echo "::error title=Esquema de Room sin subir: $f::$(base64 -w0 "$f")"
+            gzip -9c "$f" | base64 -w0 | fold -w 3800 | nl -ba -w1 -s' ' | while read -r n trozo; do
+              echo "::error title=Esquema de Room sin subir: $(basename "$f") (trozo $n)::$trozo"
+            done
           done
           [ -z "$nuevos" ]
 
