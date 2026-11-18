@@ -14,6 +14,7 @@ import com.retroconver.ui.screens.galeria.FotoScreen
 import com.retroconver.ui.screens.mensajes.MensajesScreen
 import com.retroconver.ui.screens.muro.MuroScreen
 import com.retroconver.ui.screens.muro.NuevaPublicacionScreen
+import com.retroconver.ui.screens.muro.PublicacionScreen
 import com.retroconver.ui.screens.perfil.EditarPerfilScreen
 import com.retroconver.ui.screens.perfil.PerfilScreen
 
@@ -28,9 +29,15 @@ fun RetroconverNavHost(
         startDestination = Destino.inicio.ruta,
         modifier = modifier,
     ) {
-        // Muro es un grafo con dos pantallas: así la barra marca «Muro» también al publicar
+        // Muro es un grafo: así la barra marca «Muro» también al publicar o abrir una publicación (E4-07)
         navigation(startDestination = RutasMuro.VER, route = Destino.MURO.ruta) {
-            composable(RutasMuro.VER) { MuroScreen() }
+            composable(RutasMuro.VER) {
+                MuroScreen(alAbrirPublicacion = { id -> navController.navigate(RutasMuro.publicacion(id)) })
+            }
+            composable(
+                RutasMuro.PUBLICACION,
+                arguments = listOf(navArgument(RutasMuro.ARG_PUBLICACION) { type = NavType.StringType }),
+            ) { PublicacionScreen(alVolver = { navController.popBackStack() }) }
             composable(RutasMuro.NUEVA) {
                 // Publicar o cancelar vuelve al muro (y no más atrás aunque se pulse dos veces)
                 NuevaPublicacionScreen(alTerminar = { navController.popBackStack(RutasMuro.VER, inclusive = false) })

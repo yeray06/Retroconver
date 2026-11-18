@@ -117,6 +117,8 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 | Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | ✅ ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
 | Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | ✅ ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
 | Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos en segundo plano y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/subidas/` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | ✅ ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142), [#151](https://github.com/yeray06/Retroconver/pull/151)) |
+| Publicaciones compartidas: publicar con foto en el servidor y muro con las publicaciones de todas las personas, que se actualiza al abrirlo y deslizando | `data/repository/PublicacionRepository.kt`, `ui/screens/muro/` | E4-06 [#123](https://github.com/yeray06/Retroconver/issues/123) | ✅ |
+| Comentarios: detalle de la publicación con sus comentarios, escribir uno nuevo y contador en el muro | `ui/screens/muro/PublicacionScreen.kt`, `PublicacionViewModel.kt` | E4-07 [#18](https://github.com/yeray06/Retroconver/issues/18) | ✅ |
 | **Temas clásicos y tipografías del perfil:** cuatro temas (Clásico, Noche, Lima y Chicle) y cuatro tipografías, con vista previa. Quien visita el perfil lo ve así | `ui/theme/EstiloPerfil.kt`, `ui/screens/perfil/` | EX-03 [#30](https://github.com/yeray06/Retroconver/issues/30) | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
 | **Amistades:** solicitudes recibidas (aceptar o rechazar) y enviadas (cancelar), lista de amigos en el perfil y botón de amistad para el perfil de otra persona | `data/repository/AmistadesRepository.kt`, `ui/screens/perfil/Amistades.kt` | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) | 🟡 ([#155](https://github.com/yeray06/Retroconver/pull/155)): falta lo que depende de las pantallas de David (abajo) |
 | **Migraciones de Room:** al actualizar la app se conserva la copia local | `data/local/Migraciones.kt` | Entrega final | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
@@ -126,12 +128,10 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 
 ### Qué falta
 
-Son las tareas de David. Mientras no estén, las publicaciones y los comentarios se guardan solo en el móvil.
+Son las tareas de David.
 
 | Tarea | Issue |
 |---|---|
-| Publicaciones compartidas en el servidor y muro de todas las personas | E4-06 [#123](https://github.com/yeray06/Retroconver/issues/123) |
-| Comentarios | E4-07 [#18](https://github.com/yeray06/Retroconver/issues/18) |
 | Perfiles de otras personas y buscador | E4-08 [#126](https://github.com/yeray06/Retroconver/issues/126) |
 | Tablón de mensajes | E4-09 [#22](https://github.com/yeray06/Retroconver/issues/22) |
 | Color de fondo del perfil (el tema ya está, EX-03) | E4-11 [#23](https://github.com/yeray06/Retroconver/issues/23) |
@@ -146,7 +146,8 @@ Lo que ya está hecho les deja el camino preparado:
 
 ### Qué falla o tiene límites
 
-- **Publicaciones y comentarios** se guardan solo en el móvil hasta E4-06 y E4-07 (David).
+- **Comentarios:** hasta 300 caracteres. Se ven y se escriben en el detalle de la publicación; el contador del muro sale de los comentarios descargados.
+- **Muro:** se descargan las 50 publicaciones más recientes al abrirlo o al deslizar hacia abajo; no hay tiempo real ni paginación.
 - **Amistades:** hasta que esté el perfil de otra persona (E4-08.1) no se puede enviar una solicitud desde la app. Para probarlas, la solicitud se crea en el panel de Supabase (paso 6 de abajo). El muro sigue enseñando a todos hasta que se filtre (E4-06).
 - Las fotos se suben **en segundo plano** con WorkManager: siguen aunque se salga del álbum o se cierre la app ([#147](https://github.com/yeray06/Retroconver/issues/147)). Si se reinicia el móvil a mitad, puede que alguna no se pueda leer ya; la app dice cuántas no se han subido.
 - Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1. La app dice «No se ha podido usar esa foto». Desde Android 9 funcionan.

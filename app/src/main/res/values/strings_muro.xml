@@ -9,4 +9,21 @@
     <string name="fecha_hace_minutos">hace %1$dm</string>
     <string name="fecha_hace_horas">hace %1$dh</string>
     <string name="fecha_hace_dias">hace %1$dd</string>
+
+    <!-- Detalle de publicación (E4-07.1) -->
+    <string name="muro_abrir_publicacion">Abrir publicación</string>
+    <string name="muro_publicacion_titulo">Publicación</string>
+    <string name="muro_comentarios_titulo">Comentarios</string>
+    <string name="muro_sin_comentarios">Todavía no hay comentarios.</string>
+    <string name="muro_publicacion_no_existe">Esta publicación ya no existe.</string>
+
+    <!-- Comentar y contador (E4-07.2) -->
+    <plurals name="muro_num_comentarios">
+        <item quantity="one">%1$d comentario</item>
+        <item quantity="other">%1$d comentarios</item>
+    </plurals>
+    <string name="comentar_etiqueta">Escribe un comentario</string>
+    <string name="comentar_enviar">Comentar</string>
+    <string name="comentar_enviando">Enviando…</string>
+    <string name="comentar_error_vacio">Escribe algo para comentar.</string>
 </resources>

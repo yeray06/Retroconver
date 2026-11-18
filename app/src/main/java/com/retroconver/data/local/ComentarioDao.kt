@@ -18,6 +18,10 @@ interface ComentarioDao {
     @Upsert
     suspend fun guardar(comentarios: List<ComentarioEntity>)
 
+    /** Quita los comentarios de la publicación que ya no están entre los descargados (borrados desde otro móvil). */
+    @Query("DELETE FROM comentarios WHERE publicacionId = :publicacionId AND id NOT IN (:conservar)")
+    suspend fun borrarQueYaNoEstan(publicacionId: String, conservar: List<String>)
+
     /** Comentarios de una publicación, el más reciente primero. */
     @Transaction
     @Query(

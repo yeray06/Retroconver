@@ -15,7 +15,6 @@
     <string name="publicar_guardando_foto">Guardando foto…</string>
     <string name="publicar_vista_previa">Vista previa de la foto elegida</string>
     <string name="publicar_error_foto">No se ha podido usar esa foto. Prueba con otra.</string>
-    <string name="publicar_error_guardar">No se ha podido publicar. Inténtalo de nuevo.</string>
     <string name="publicar_publicar">Publicar</string>
     <string name="publicar_cancelar">Cancelar</string>
 </resources>

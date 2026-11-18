@@ -4,8 +4,14 @@ import com.retroconver.data.local.AlbumConPortada
 import com.retroconver.data.local.AlbumEntity
 import com.retroconver.data.local.AmistadDao
 import com.retroconver.data.local.AmistadEntity
+import com.retroconver.data.local.ComentarioConAutor
+import com.retroconver.data.local.ComentarioDao
+import com.retroconver.data.local.ComentarioEntity
 import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.local.GaleriaDao
+import com.retroconver.data.local.PublicacionConAutor
+import com.retroconver.data.local.PublicacionDao
+import com.retroconver.data.local.PublicacionEntity
 import com.retroconver.data.local.SolicitudConPersona
 import com.retroconver.data.local.UsuarioDao
 import com.retroconver.data.local.UsuarioEntity
@@ -13,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 
 /*
  * Sustitutos de Room para las pruebas de los repositorios, que se ejecutan sin Android.
@@ -151,4 +158,79 @@ internal class AmistadDaoEnMemoria(private val usuarios: UsuarioDaoEnMemoria) : 
     override suspend fun borrarAmistadesDeQueYaNoEstan(id: String, conservar: List<String>) {
         amistades.value = amistades.value.filterValues { !(it.aceptada && it.participa(id)) || it.id in conservar }
     }
+}
+
+internal class ComentarioDaoEnMemoria(private val perfiles: UsuarioDaoEnMemoria) : ComentarioDao {
+
+    val comentarios = MutableStateFlow<Map<String, ComentarioEntity>>(emptyMap())
+
+    override suspend fun insertar(comentario: ComentarioEntity) {
+        comentarios.value = comentarios.value + (comentario.id to comentario)
+    }
+
+    override suspend fun guardar(comentarios: List<ComentarioEntity>) = comentarios.forEach { insertar(it) }
+
+    override suspend fun borrarQueYaNoEstan(publicacionId: String, conservar: List<String>) {
+        comentarios.value = comentarios.value.filterValues { it.publicacionId != publicacionId || it.id in conservar }
+    }
+
+    override fun observarDePublicacion(publicacionId: String): Flow<List<ComentarioConAutor>> =
+        combine(comentarios, perfiles.perfiles) { todos, autores ->
+            todos.values
+                .filter { it.publicacionId == publicacionId }
+                .sortedWith(compareByDescending<ComentarioEntity> { it.timestamp }.thenByDescending { it.id })
+                .mapNotNull { comentario -> autores[comentario.usuarioId]?.let { ComentarioConAutor(comentario, it) } }
+        }
+}
+
+internal class PublicacionDaoEnMemoria(
+    private val perfiles: UsuarioDaoEnMemoria,
+    private val comentarios: ComentarioDaoEnMemoria,
+) : PublicacionDao() {
+
+    val publicaciones = MutableStateFlow<Map<String, PublicacionEntity>>(emptyMap())
+
+    override suspend fun insertar(publicacion: PublicacionEntity) = guardarUna(publicacion)
+
+    override suspend fun guardar(publicaciones: List<PublicacionEntity>) = publicaciones.forEach { guardarUna(it) }
+
+    override suspend fun guardarUna(publicacion: PublicacionEntity) {
+        publicaciones.value = publicaciones.value + (publicacion.id to publicacion)
+    }
+
+    /** Como en Room, borrar una publicación borra en cascada sus comentarios. */
+    override suspend fun eliminar(id: String) {
+        publicaciones.value = publicaciones.value - id
+        comentarios.comentarios.value = comentarios.comentarios.value.filterValues { it.publicacionId != id }
+    }
+
+    override suspend fun borrarDesdeQueYaNoEstan(desde: Instant, conservar: List<String>) {
+        publicaciones.value.values
+            .filter { it.timestamp >= desde && it.id !in conservar }
+            .forEach { eliminar(it.id) }
+    }
+
+    override suspend fun borrarQueYaNoEstan(conservar: List<String>) {
+        publicaciones.value.keys.filter { it !in conservar }.forEach { eliminar(it) }
+    }
+
+    private fun conAutor(
+        todas: Collection<PublicacionEntity>,
+        autores: Map<String, com.retroconver.data.local.UsuarioEntity>,
+        comentarios: Map<String, ComentarioEntity>,
+    ): List<PublicacionConAutor> = todas
+        .sortedWith(compareByDescending<PublicacionEntity> { it.timestamp }.thenByDescending { it.id })
+        .mapNotNull { publicacion ->
+            autores[publicacion.usuarioId]?.let { autor ->
+                PublicacionConAutor(publicacion, autor, comentarios.values.count { it.publicacionId == publicacion.id })
+            }
+        }
+
+    override fun observarTodas(): Flow<List<PublicacionConAutor>> =
+        combine(publicaciones, perfiles.perfiles, comentarios.comentarios) { todas, autores, coments ->
+            conAutor(todas.values, autores, coments)
+        }
+
+    override fun observarPorId(id: String): Flow<PublicacionConAutor?> =
+        observarTodas().map { lista -> lista.firstOrNull { it.publicacion.id == id } }
 }

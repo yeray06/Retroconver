@@ -4,12 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.retroconver.data.repository.PublicacionRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
@@ -18,19 +16,21 @@ import java.time.Instant
 
 /**
  * Pruebas con una base de datos en memoria: orden por fecha, comentarios, borrado en cascada
- * y lo que llega del servidor (ids UUID y `@Upsert`, E4-05.1, #121).
+ * y lo que llega del servidor (ids UUID, `@Upsert` y sincronización del muro, E4-05.1 y E4-06, #121 y #123).
  */
 @RunWith(AndroidJUnit4::class)
 class PublicacionDaoTest {
 
     private lateinit var baseDeDatos: AppDatabase
-    private lateinit var repositorio: PublicacionRepository
+    private lateinit var publicaciones: PublicacionDao
+    private lateinit var comentarios: ComentarioDao
 
     @Before
     fun crearBaseDeDatos() {
         val contexto = ApplicationProvider.getApplicationContext<Context>()
         baseDeDatos = Room.inMemoryDatabaseBuilder(contexto, AppDatabase::class.java).build()
-        repositorio = PublicacionRepository(baseDeDatos.publicacionDao(), baseDeDatos.comentarioDao())
+        publicaciones = baseDeDatos.publicacionDao()
+        comentarios = baseDeDatos.comentarioDao()
         runBlocking {
             baseDeDatos.usuarioDao().guardar(UsuarioEntity(id = ANA, nombre = "Ana", fechaAlta = Instant.EPOCH))
         }
@@ -39,24 +39,32 @@ class PublicacionDaoTest {
     @After
     fun cerrarBaseDeDatos() = baseDeDatos.close()
 
+    private fun publicacion(id: String, texto: String = id, ms: Long = 1_000) =
+        PublicacionEntity(id = id, usuarioId = ANA, texto = texto, timestamp = Instant.ofEpochMilli(ms))
+
+    private fun comentario(id: String, publicacionId: String, ms: Long = 1_000, texto: String = id) =
+        ComentarioEntity(id = id, publicacionId = publicacionId, usuarioId = ANA, texto = texto, timestamp = Instant.ofEpochMilli(ms))
+
+    private suspend fun ids() = publicaciones.observarTodas().first().map { it.publicacion.id }
+
     @Test
     fun lasPublicacionesSalenDeMasRecienteAMasAntigua() = runBlocking {
-        repositorio.publicar(ANA, "primera", ahora = Instant.ofEpochMilli(1_000))
-        repositorio.publicar(ANA, "tercera", ahora = Instant.ofEpochMilli(3_000))
-        repositorio.publicar(ANA, "segunda", ahora = Instant.ofEpochMilli(2_000))
+        publicaciones.insertar(publicacion("a", "primera", ms = 1_000))
+        publicaciones.insertar(publicacion("b", "tercera", ms = 3_000))
+        publicaciones.insertar(publicacion("c", "segunda", ms = 2_000))
 
-        val textos = repositorio.publicaciones().first().map { it.publicacion.texto }
+        val textos = publicaciones.observarTodas().first().map { it.publicacion.texto }
 
         assertEquals(listOf("tercera", "segunda", "primera"), textos)
     }
 
     @Test
     fun laPublicacionTraeSuAutorYSuNumeroDeComentarios() = runBlocking {
-        val id = repositorio.publicar(ANA, "hola")
-        repositorio.comentar(id, ANA, "uno")
-        repositorio.comentar(id, ANA, "dos")
+        publicaciones.insertar(publicacion("p1"))
+        comentarios.insertar(comentario("c1", "p1"))
+        comentarios.insertar(comentario("c2", "p1"))
 
-        val publicacion = repositorio.publicacion(id).first()!!
+        val publicacion = publicaciones.observarPorId("p1").first()!!
 
         assertEquals("Ana", publicacion.autor.nombre)
         assertEquals(2, publicacion.numComentarios)
@@ -64,54 +72,44 @@ class PublicacionDaoTest {
 
     @Test
     fun losComentariosSalenDelMasRecienteAlMasAntiguo() = runBlocking {
-        val id = repositorio.publicar(ANA, "hola")
-        repositorio.comentar(id, ANA, "antiguo", ahora = Instant.ofEpochMilli(1_000))
-        repositorio.comentar(id, ANA, "nuevo", ahora = Instant.ofEpochMilli(2_000))
+        publicaciones.insertar(publicacion("p1"))
+        comentarios.insertar(comentario("c1", "p1", ms = 1_000, texto = "antiguo"))
+        comentarios.insertar(comentario("c2", "p1", ms = 2_000, texto = "nuevo"))
 
-        val textos = repositorio.comentarios(id).first().map { it.comentario.texto }
+        val textos = comentarios.observarDePublicacion("p1").first().map { it.comentario.texto }
 
         assertEquals(listOf("nuevo", "antiguo"), textos)
     }
 
     @Test
     fun alBorrarUnaPublicacionSeBorranSusComentarios() = runBlocking {
-        val id = repositorio.publicar(ANA, "hola")
-        repositorio.comentar(id, ANA, "adiós")
+        publicaciones.insertar(publicacion("p1"))
+        comentarios.insertar(comentario("c1", "p1"))
 
-        repositorio.eliminar(id)
+        publicaciones.eliminar("p1")
 
-        assertNull(repositorio.publicacion(id).first())
-        assertEquals(emptyList<ComentarioConAutor>(), repositorio.comentarios(id).first())
+        assertNull(publicaciones.observarPorId("p1").first())
+        assertEquals(emptyList<ComentarioConAutor>(), comentarios.observarDePublicacion("p1").first())
     }
 
     @Test
     fun alBorrarUnUsuarioSeBorranSusPublicaciones() = runBlocking {
-        repositorio.publicar(ANA, "hola")
+        publicaciones.insertar(publicacion("p1"))
 
         baseDeDatos.openHelper.writableDatabase.execSQL("DELETE FROM usuarios WHERE id = '$ANA'")
 
-        assertEquals(emptyList<PublicacionConAutor>(), repositorio.publicaciones().first())
-    }
-
-    @Test
-    fun cadaPublicacionTieneUnUuidDistinto() = runBlocking {
-        val primera = repositorio.publicar(ANA, "una")
-        val segunda = repositorio.publicar(ANA, "otra")
-
-        assertNotEquals(primera, segunda)
-        assertEquals(36, primera.length)
+        assertEquals(emptyList<PublicacionConAutor>(), publicaciones.observarTodas().first())
     }
 
     @Test
     fun loQueLlegaDelServidorSeGuardaSinDuplicarNiBorrarComentarios() = runBlocking {
-        val publicaciones = baseDeDatos.publicacionDao()
         publicaciones.guardar(listOf(publicacionDelServidor("primer texto")))
-        repositorio.comentar(DEL_SERVIDOR, ANA, "comentario")
+        comentarios.insertar(comentario("c1", DEL_SERVIDOR))
 
         // Al refrescar el muro llega otra vez la misma publicación, editada
         publicaciones.guardar(listOf(publicacionDelServidor("texto editado")))
 
-        val muro = repositorio.publicaciones().first()
+        val muro = publicaciones.observarTodas().first()
         assertEquals(1, muro.size)
         assertEquals("texto editado", muro.single().publicacion.texto)
         assertEquals(1, muro.single().numComentarios)
@@ -119,18 +117,53 @@ class PublicacionDaoTest {
 
     @Test
     fun losComentariosDelServidorTambienSeActualizan() = runBlocking {
-        baseDeDatos.publicacionDao().guardar(listOf(publicacionDelServidor("hola")))
-        val comentario = ComentarioEntity(
-            id = "c1",
-            publicacionId = DEL_SERVIDOR,
-            usuarioId = ANA,
-            texto = "antes",
-            timestamp = Instant.EPOCH,
-        )
-        baseDeDatos.comentarioDao().guardar(listOf(comentario))
-        baseDeDatos.comentarioDao().guardar(listOf(comentario.copy(texto = "después")))
+        publicaciones.guardar(listOf(publicacionDelServidor("hola")))
+        val original = comentario("c1", DEL_SERVIDOR, texto = "antes")
+        comentarios.guardar(listOf(original))
+        comentarios.guardar(listOf(original.copy(texto = "después")))
 
-        assertEquals(listOf("después"), repositorio.comentarios(DEL_SERVIDOR).first().map { it.comentario.texto })
+        assertEquals(listOf("después"), comentarios.observarDePublicacion(DEL_SERVIDOR).first().map { it.comentario.texto })
+    }
+
+    @Test
+    fun sincronizarQuitaLasPublicacionesBorradasEnElServidor() = runBlocking {
+        publicaciones.insertar(publicacion("borrada", ms = 2_000))
+        publicaciones.insertar(publicacion("sigue", ms = 3_000))
+
+        publicaciones.sincronizar(listOf(publicacion("sigue", ms = 3_000), publicacion("nueva", ms = 4_000)), hayMasAntiguas = false)
+
+        assertEquals(listOf("nueva", "sigue"), ids())
+    }
+
+    @Test
+    fun sincronizarConMasAntiguasSoloQuitaDesdeLaMasAntiguaDescargada() = runBlocking {
+        publicaciones.insertar(publicacion("muy-antigua", ms = 1_000)) // no se ha pedido: no se puede dar por borrada
+        publicaciones.insertar(publicacion("borrada", ms = 5_000)) // dentro del tramo descargado y ya no está
+        publicaciones.insertar(publicacion("sigue", ms = 3_000))
+
+        publicaciones.sincronizar(listOf(publicacion("sigue", ms = 3_000), publicacion("nueva", ms = 6_000)), hayMasAntiguas = true)
+
+        assertEquals(listOf("nueva", "sigue", "muy-antigua"), ids())
+    }
+
+    @Test
+    fun sincronizarConElMuroVacioDelServidorVaciaRoom() = runBlocking {
+        publicaciones.insertar(publicacion("p1"))
+
+        publicaciones.sincronizar(emptyList(), hayMasAntiguas = false)
+
+        assertEquals(emptyList<String>(), ids())
+    }
+
+    @Test
+    fun losComentariosBorradosEnElServidorSeQuitan() = runBlocking {
+        publicaciones.insertar(publicacion("p1"))
+        comentarios.insertar(comentario("sigue", "p1"))
+        comentarios.insertar(comentario("borrado", "p1"))
+
+        comentarios.borrarQueYaNoEstan("p1", listOf("sigue"))
+
+        assertEquals(listOf("sigue"), comentarios.observarDePublicacion("p1").first().map { it.comentario.id })
     }
 
     private fun publicacionDelServidor(texto: String) = PublicacionEntity(
