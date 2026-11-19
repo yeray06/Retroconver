@@ -36,7 +36,8 @@ import com.retroconver.data.local.PublicacionConAutor
 import com.retroconver.ui.theme.RetroconverTheme
 
 /**
- * Muro con las publicaciones de todas las personas, de la más reciente a la más antigua (RF-09).
+ * Muro con las publicaciones de la cuenta y sus amigos (RF-09 y RF-31), de la más reciente a la
+ * más antigua.
  * Al abrirse descarga las nuevas; deslizando hacia abajo se vuelve a actualizar.
  */
 @Composable

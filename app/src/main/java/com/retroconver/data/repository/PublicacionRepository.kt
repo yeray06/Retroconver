@@ -20,6 +20,7 @@ import com.retroconver.data.remote.igual
 import com.retroconver.data.remote.llamarAlServidor
 import com.retroconver.data.sesion.SesionRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.util.UUID
@@ -44,6 +45,13 @@ class PublicacionRepository(
     private val configuracion: ConfiguracionSupabase,
 ) {
 
+    /**
+     * Las publicaciones de [autores] (la cuenta de la sesión y sus amigos, EX-04), la más reciente
+     * primero. Es lo que enseña el muro de amigos.
+     */
+    fun publicacionesDe(autores: Set<String>): Flow<List<PublicacionConAutor>> =
+        publicaciones().map { lista -> lista.filter { it.publicacion.usuarioId in autores } }
+
     /** Todas las publicaciones con su autor y su número de comentarios, la más reciente primero. */
     fun publicaciones(): Flow<List<PublicacionConAutor>> = publicacionDao.observarTodas()
 
@@ -57,13 +65,17 @@ class PublicacionRepository(
     // ---------- Descargar ----------
 
     /**
-     * Descarga las [LIMITE_MURO] publicaciones más recientes de todas las personas, con sus autores
-     * y sus comentarios, y deja el muro de Room igual que el del servidor, también si se ha
-     * borrado algo desde otro móvil (E4-06.2, #125). Sin conexión no cambia nada y el muro sigue
-     * mostrando la última copia.
+     * Descarga las [LIMITE_MURO] publicaciones más recientes, con sus autores y sus comentarios, y
+     * deja el muro de Room igual que el del servidor, también si se ha borrado algo desde otro móvil
+     * (E4-06.2, #125). Sin conexión no cambia nada y el muro sigue mostrando la última copia.
+     *
+     * Con [autores] solo se descargan las de esas personas (el muro de amigos, EX-04, #129); sin
+     * ellos, las de todas.
      */
-    suspend fun refrescar(): ResultadoRed<Unit> {
-        val resultado = llamarAlServidor { servicio.ultimas(LIMITE_MURO) }
+    suspend fun refrescar(autores: Set<String>? = null): ResultadoRed<Unit> {
+        // Con [autores] (muro de amigos, EX-04) solo se piden las suyas: así no se pierden entre las de los demás
+        val filtro = autores?.takeIf { it.isNotEmpty() }?.let { ids -> "in.(${ids.sorted().joinToString(",")})" }
+        val resultado = llamarAlServidor { servicio.ultimas(LIMITE_MURO, filtro) }
         if (resultado is ResultadoRed.Fallo) return resultado
         val filas = (resultado as ResultadoRed.Correcto).datos
         guardarPerfiles(filas)

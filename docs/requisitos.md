@@ -6,7 +6,7 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 
 > **Cambio de alcance en la entrega 4** (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)). Hasta la entrega 3 todo se guardaba en el móvil y había un único usuario local. Así no era una red social: nadie más podía comentar ni escribir en tu tablón. Desde la entrega 4 hay cuentas de verdad y los datos se comparten en un servidor **Supabase** (plan gratuito). El móvil guarda una copia en Room para funcionar sin conexión. Los requisitos afectados están marcados con *(E4)*.
 >
-> **Entrega final.** Se han hecho dos extras: los temas clásicos y las tipografías del perfil (RF-32, EX-03) y las amistades (RF-31, EX-04). De amistades falta lo que depende de las pantallas de David: el botón en el perfil de otra persona (E4-08.1) y el muro solo con amigos (E4-06). Los marcados con *(EF)* son nuevos o cambian en la entrega final.
+> **Entrega final.** Se han hecho dos extras: los temas clásicos y las tipografías del perfil (RF-32, EX-03) y las amistades (RF-31, EX-04). De amistades solo falta lo que depende de una pantalla de David: el botón en el perfil de otra persona (E4-08.1). Los marcados con *(EF)* son nuevos o cambian en la entrega final.
 
 ## Requisitos funcionales
 
@@ -30,14 +30,14 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 | RF-08 | *(E4)* Puede elegir el color de fondo y el tema de su perfil. Quien visita el perfil lo ve así. | Imprescindible | E4-11.1 [#75](https://github.com/yeray06/Retroconver/issues/75), E4-11.2 [#76](https://github.com/yeray06/Retroconver/issues/76) |
 | RF-26 | *(E4)* Puede ver el perfil de otra persona (datos, tablón y álbumes) tocando su avatar o su nombre. | Imprescindible | E4-08.1 [#127](https://github.com/yeray06/Retroconver/issues/127) |
 | RF-27 | *(E4)* Puede ver la lista de personas de la red y buscarlas por nombre. | Imprescindible | E4-08.2 [#128](https://github.com/yeray06/Retroconver/issues/128) |
-| RF-31 | *(E4)* Puede enviar y aceptar solicitudes de amistad, y el muro muestra solo a sus amigos. *(EF)* Hecho: las solicitudes recibidas y enviadas, la lista de amigos en el perfil y el botón para el perfil de otra persona. Falta poner el botón en ese perfil (E4-08.1) y filtrar el muro (E4-06). | Extra | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) |
+| RF-31 | *(E4)* Puede enviar y aceptar solicitudes de amistad, y el muro muestra solo a sus amigos. *(EF)* Hecho: las solicitudes recibidas y enviadas, la lista de amigos en el perfil, el botón para el perfil de otra persona y el muro solo con amigos. Falta poner el botón en ese perfil (E4-08.1). | Extra | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) |
 | RF-32 | *(EF)* Puede elegir uno de los temas clásicos (Clásico, Noche, Lima y Chicle) y la tipografía de su perfil, con vista previa. Quien visita el perfil lo ve así. | Extra | EX-03 [#30](https://github.com/yeray06/Retroconver/issues/30) |
 
 ### Muro
 
 | ID | Requisito | Prioridad | Issue |
 |---|---|---|---|
-| RF-09 | El muro muestra las publicaciones de la más reciente a la más antigua, con avatar, nombre, fecha, texto e imagen. *(E4)* Son las publicaciones de todas las personas de la red. | Imprescindible | E3-03.1 [#58](https://github.com/yeray06/Retroconver/issues/58), E3-03.2 [#59](https://github.com/yeray06/Retroconver/issues/59), E4-06.2 [#125](https://github.com/yeray06/Retroconver/issues/125) |
+| RF-09 | El muro muestra las publicaciones de la más reciente a la más antigua, con avatar, nombre, fecha, texto e imagen. *(E4)* Son las publicaciones de todas las personas de la red. *(EF)* Con las amistades (RF-31), solo las propias y las de los amigos. | Imprescindible | E3-03.1 [#58](https://github.com/yeray06/Retroconver/issues/58), E3-03.2 [#59](https://github.com/yeray06/Retroconver/issues/59), E4-06.2 [#125](https://github.com/yeray06/Retroconver/issues/125) |
 | RF-10 | Si no hay publicaciones, el muro muestra un mensaje que invita a publicar. | Imprescindible | E3-03.2 [#59](https://github.com/yeray06/Retroconver/issues/59) |
 | RF-28 | *(E4)* Puede actualizar el muro deslizando hacia abajo. | Imprescindible | E4-06.2 [#125](https://github.com/yeray06/Retroconver/issues/125) |
 | RF-11 | La persona usuaria puede publicar un texto. No se permite publicar un texto vacío. | Imprescindible | E3-07.1 [#60](https://github.com/yeray06/Retroconver/issues/60), E4-06.1 [#124](https://github.com/yeray06/Retroconver/issues/124) |

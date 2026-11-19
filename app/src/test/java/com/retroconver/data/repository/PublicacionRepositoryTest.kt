@@ -149,6 +149,37 @@ class PublicacionRepositoryTest {
     }
 
     @Test
+    fun sinAutoresSePidenLasDeTodasLasPersonas() = runBlocking<Unit> {
+        responder(200, "[]")
+
+        repositorio.refrescar()
+
+        assertEquals(null, servidor.takeRequest().requestUrl?.queryParameter("autor_id"))
+    }
+
+    // ---------- Muro de amigos (EX-04, #129) ----------
+
+    @Test
+    fun elMuroDeAmigosSoloPideLasDeEsasPersonas() = runBlocking<Unit> {
+        responder(200, "[${publicacionJson("p1", YO, "Yeray", minuto = 1)}]")
+
+        repositorio.refrescar(autores = setOf(YO, ANA))
+
+        val esperado = "in.(${setOf(YO, ANA).sorted().joinToString(",")})"
+        assertEquals(esperado, servidor.takeRequest().requestUrl?.queryParameter("autor_id"))
+    }
+
+    @Test
+    fun elMuroDeAmigosSoloEnsenaLasDeEsasPersonas() = runBlocking<Unit> {
+        responder(200, "[${publicacionJson("p2", ANA, "Ana", minuto = 2)},${publicacionJson("p1", YO, "Yeray", minuto = 1)}]")
+        repositorio.refrescar()
+
+        assertEquals(listOf("p1"), repositorio.publicacionesDe(setOf(YO)).first().map { it.publicacion.id })
+        assertEquals(listOf("p2", "p1"), repositorio.publicacionesDe(setOf(YO, ANA)).first().map { it.publicacion.id })
+        assertEquals(emptyList<String>(), repositorio.publicacionesDe(emptySet()).first().map { it.publicacion.id })
+    }
+
+    @Test
     fun laImagenDeLaPublicacionSeConvierteEnSuUrlPublica() = runBlocking<Unit> {
         responder(200, "[${publicacionJson("p1", imagen = "$ANA/foto.jpg")}]")
 
