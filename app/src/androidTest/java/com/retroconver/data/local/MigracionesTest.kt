@@ -77,6 +77,24 @@ class MigracionesTest {
         }
     }
 
+    @Test
+    fun de7a8SeCreaLaTablaDelTablon() {
+        ayudante.createDatabase(NOMBRE, 7).use { db -> insertarPerfil(db) }
+
+        ayudante.runMigrationsAndValidate(NOMBRE, 8, true, MIGRACION_7_8).use { db ->
+            db.query("SELECT nombre FROM usuarios WHERE id = 'yo'").use { fila ->
+                assertTrue(fila.moveToFirst())
+                assertEquals("Yeray", fila.getString(0))
+            }
+            db.execSQL("INSERT INTO usuarios (id, nombre, fechaAlta) VALUES ('ana', 'Ana', 0)")
+            db.execSQL("INSERT INTO mensajes (id, perfilId, autorId, texto, fechaCreacion) VALUES ('1', 'yo', 'ana', 'Hola', 0)")
+            db.query("SELECT COUNT(*) FROM mensajes").use { fila ->
+                fila.moveToFirst()
+                assertEquals(1, fila.getInt(0))
+            }
+        }
+    }
+
     /** Lo que hace la app al abrirse después de actualizarla: Room con todas las migraciones. */
     @Test
     fun laAppAbreUnaCopiaDeLaVersion5SinBorrarla() = runBlocking {

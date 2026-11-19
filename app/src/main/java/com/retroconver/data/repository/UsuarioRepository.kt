@@ -59,6 +59,9 @@ class UsuarioRepository(
         if (id == null) flowOf(null) else usuarioDao.observar(id)
     }
 
+    /** Id de la cuenta con la sesión abierta, cada vez que cambia (`null` sin sesión). */
+    fun idCuenta(): Flow<String?> = sesion.idCuenta
+
     /** Perfil de cualquier persona de la red (para ver perfiles ajenos, E4-08). */
     fun usuario(id: String): Flow<UsuarioEntity?> = usuarioDao.observar(id)
 
@@ -88,13 +91,34 @@ class UsuarioRepository(
         val consulta = texto.trim()
         if (consulta.isEmpty()) return ResultadoRed.Correcto(emptyList())
         val yo = idActual() ?: return ResultadoRed.SesionCaducada
-        return llamarAlServidor { perfilService.buscar(contiene(consulta), distinto(yo), LIMITE_BUSQUEDA) }
-            .map { filas ->
-                val perfiles = filas.map { it.aEntidad(configuracion) }
-                usuarioDao.guardarTodos(perfiles)
-                perfiles
-            }
+        return guardarYDevolver(llamarAlServidor { perfilService.buscar(contiene(consulta), distinto(yo), LIMITE_BUSQUEDA) })
     }
+
+    /**
+     * Personas de la red para la pantalla «Personas» (E4-08.2, #128): las [LIMITE_PERSONAS]
+     * primeras por orden alfabético, solo las que contienen [texto] en el nombre si no está vacío.
+     * Sin la cuenta de la sesión. Se guardan en Room como el resto de perfiles.
+     */
+    suspend fun personas(texto: String): ResultadoRed<List<UsuarioEntity>> {
+        val consulta = texto.trim()
+        val yo = idActual() ?: return ResultadoRed.SesionCaducada
+        return guardarYDevolver(
+            llamarAlServidor {
+                if (consulta.isEmpty()) {
+                    perfilService.todos(distinto(yo), LIMITE_PERSONAS)
+                } else {
+                    perfilService.buscar(contiene(consulta), distinto(yo), LIMITE_PERSONAS)
+                }
+            },
+        )
+    }
+
+    private suspend fun guardarYDevolver(resultado: ResultadoRed<List<PerfilDto>>): ResultadoRed<List<UsuarioEntity>> =
+        resultado.map { filas ->
+            val perfiles = filas.map { it.aEntidad(configuracion) }
+            usuarioDao.guardarTodos(perfiles)
+            perfiles
+        }
 
     /**
      * Guarda los perfiles que llegan dentro de otras respuestas, por ejemplo los autores del muro
@@ -119,13 +143,14 @@ class UsuarioRepository(
     }
 
     /**
-     * Guarda el tema y la tipografía del perfil (EX-03, #30), con las claves de `TemaPerfil` y
-     * `TipografiaPerfil`. Igual que [actualizarPerfil]: primero el servidor y después Room.
+     * Guarda el tema y la tipografía del perfil (EX-03, #30) y el color de fondo (E4-11, #75), con
+     * las claves de `TemaPerfil`, `TipografiaPerfil` y `FondoPerfil` (sin [colorFondo], el del tema).
+     * Igual que [actualizarPerfil]: primero el servidor y después Room.
      */
-    suspend fun cambiarEstilo(tema: String, tipografia: String): ResultadoRed<Unit> {
+    suspend fun cambiarEstilo(tema: String, tipografia: String, colorFondo: String? = null): ResultadoRed<Unit> {
         val id = idActual() ?: return ResultadoRed.SesionCaducada
         return guardarFilaDevuelta(
-            llamarAlServidor { perfilService.actualizarEstilo(igual(id), CambioEstiloDto(tema, tipografia)) },
+            llamarAlServidor { perfilService.actualizarEstilo(igual(id), CambioEstiloDto(tema, tipografia, colorFondo)) },
         )
     }
 
@@ -203,5 +228,8 @@ class UsuarioRepository(
 
         /** Cuántas personas devuelve como mucho el buscador de amigos. */
         const val LIMITE_BUSQUEDA = 20
+
+        /** Cuántas personas enseña como mucho la pantalla «Personas». */
+        const val LIMITE_PERSONAS = 50
     }
 }

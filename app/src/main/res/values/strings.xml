@@ -7,9 +7,6 @@
     <string name="seccion_galeria">Galería</string>
     <string name="seccion_mensajes">Mensajes</string>
 
-    <!-- Pantallas provisionales -->
-    <string name="pantalla_en_construccion">Sección en construcción</string>
-
     <!-- Componentes base -->
     <string name="logo_cabecera" translatable="false">retroconver</string>
     <string name="avatar_de">Avatar de %1$s</string>

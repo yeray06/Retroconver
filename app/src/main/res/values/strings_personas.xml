@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
+    <!-- Perfiles de otras personas y lista de personas (E4-08, #126) -->
+    <string name="personas_titulo">Personas</string>
+    <string name="personas_explicacion">Todas las personas de Retroconver. Toca una para ver su perfil.</string>
+    <string name="personas_buscar_nombre">Nombre</string>
+    <string name="personas_buscar">Buscar</string>
+    <string name="personas_buscando">Buscando…</string>
+    <string name="personas_nadie">No hay nadie con ese nombre.</string>
+    <string name="personas_perfil">Perfil</string>
+    <string name="personas_sin_amigos">Todavía no tiene amigos en Retroconver.</string>
+    <string name="personas_ver_albumes">Ver sus álbumes</string>
+    <string name="personas_abrir">Buscar personas</string>
+    <string name="personas_boton" translatable="false">👥</string>
+    <string name="personas_ver_perfil_de">Ver el perfil de %1$s</string>
+</resources>

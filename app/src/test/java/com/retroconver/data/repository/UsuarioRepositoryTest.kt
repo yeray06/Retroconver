@@ -166,6 +166,23 @@ class UsuarioRepositoryTest {
     }
 
     @Test
+    fun elColorDeFondoSeEnviaYSinElegirloVaVacio() = runBlocking<Unit> {
+        responder(200, "[${perfil().replace("\"creado_en\"", "\"color_fondo\":\"menta\",\"creado_en\"")}]")
+        responder(200, "[${perfil()}]")
+
+        repositorio.cambiarEstilo("clasico", "normal", "menta")
+        val conFondo = servidor.takeRequest().body.readUtf8()
+        assertEquals("menta", room.perfiles.value[YO]?.colorFondo)
+        repositorio.cambiarEstilo("clasico", "normal")
+        val sinFondo = servidor.takeRequest().body.readUtf8()
+
+        assertTrue(conFondo, conFondo.contains("\"color_fondo\":\"menta\""))
+        // Sin elegir ninguno se manda null: así se vuelve al fondo del tema
+        assertTrue(sinFondo, sinFondo.contains("\"color_fondo\":null"))
+        assertNull(room.perfiles.value[YO]?.colorFondo)
+    }
+
+    @Test
     fun siElServidorRechazaLaTipografiaNoSeCambiaNada() = runBlocking<Unit> {
         room.guardar(UsuarioEntity(id = YO, nombre = "Yeray", fechaAlta = Instant.EPOCH))
         responder(400, """{"code":"23514","message":"new row violates check constraint"}""")
@@ -269,6 +286,30 @@ class UsuarioRepositoryTest {
 
         assertEquals(ResultadoRed.Correcto(emptyList<UsuarioEntity>()), resultado)
         assertEquals(antes, servidor.requestCount)
+    }
+
+    @Test
+    fun laListaDePersonasSinTextoLasPideTodasPorOrdenAlfabetico() = runBlocking<Unit> {
+        responder(200, """[{"id":"$ANA","nombre":"Ana","creado_en":"2026-11-02T09:00:00+00:00"}]""")
+
+        val resultado = repositorio.personas("  ")
+
+        val peticion = servidor.takeRequest()
+        assertNull(peticion.requestUrl?.queryParameter("nombre"))
+        assertEquals("neq.$YO", peticion.requestUrl?.queryParameter("id"))
+        assertEquals("nombre.asc", peticion.requestUrl?.queryParameter("order"))
+        assertEquals("50", peticion.requestUrl?.queryParameter("limit"))
+        assertEquals(listOf("Ana"), (resultado as ResultadoRed.Correcto).datos.map { it.nombre })
+    }
+
+    @Test
+    fun laListaDePersonasConTextoSoloPideLasQueLoTienen() = runBlocking<Unit> {
+        responder(200, "[]")
+
+        val resultado = repositorio.personas("bea")
+
+        assertEquals("ilike.*bea*", servidor.takeRequest().requestUrl?.queryParameter("nombre"))
+        assertEquals(ResultadoRed.Correcto(emptyList<UsuarioEntity>()), resultado)
     }
 
     @Test

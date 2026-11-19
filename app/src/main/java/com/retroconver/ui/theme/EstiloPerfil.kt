@@ -142,20 +142,43 @@ enum class TipografiaPerfil(val clave: String, @StringRes val nombre: Int, val f
     }
 }
 
+/**
+ * Colores de fondo del perfil (E4-11, #23): el que se ve detrás de las tarjetas. Sin elegir
+ * ninguno, el perfil usa el fondo de su tema. Se guardan por su [clave] en `perfiles.color_fondo`.
+ * Todos los textos van sobre las tarjetas, así que el fondo no cambia su contraste.
+ */
+enum class FondoPerfil(val clave: String, @StringRes val nombre: Int, val color: Color) {
+    CIELO("cielo", R.string.fondo_cielo, Color(0xFFBFD9F2)),
+    MENTA("menta", R.string.fondo_menta, Color(0xFFC9EBD7)),
+    LAVANDA("lavanda", R.string.fondo_lavanda, Color(0xFFDCD3F2)),
+    MELOCOTON("melocoton", R.string.fondo_melocoton, Color(0xFFF8D9C4)),
+    LIMON("limon", R.string.fondo_limon, Color(0xFFF4EDB2)),
+    PIZARRA("pizarra", R.string.fondo_pizarra, Color(0xFF3B4252)),
+    ;
+
+    companion object {
+        /** El fondo guardado con esa clave, o `null` (el de su tema) si no hay ninguno o no se conoce. */
+        fun deClave(clave: String?): FondoPerfil? = entries.firstOrNull { it.clave == clave }
+    }
+}
+
 /** Colores del perfil que se está dibujando. Fuera de [EstiloDePerfil] son los del tema clásico. */
 val LocalColoresPerfil = staticCompositionLocalOf { TemaPerfil.CLASICO.colores }
 
 /**
- * Dibuja [content] con el tema y la tipografía de un perfil: los colores se leen con
- * `LocalColoresPerfil.current` y los textos de MaterialTheme salen con la tipografía elegida.
+ * Dibuja [content] con el tema, la tipografía y el color de fondo de un perfil: los colores se
+ * leen con `LocalColoresPerfil.current` y los textos de MaterialTheme salen con la tipografía
+ * elegida. Sin [fondo], el de su tema.
  */
 @Composable
 fun EstiloDePerfil(
     tema: TemaPerfil,
     tipografia: TipografiaPerfil,
+    fondo: FondoPerfil? = null,
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(LocalColoresPerfil provides tema.colores) {
+    val colores = if (fondo == null) tema.colores else tema.colores.copy(fondo = fondo.color)
+    CompositionLocalProvider(LocalColoresPerfil provides colores) {
         MaterialTheme(
             colorScheme = MaterialTheme.colorScheme,
             typography = MaterialTheme.typography.conFamilia(tipografia.familia),

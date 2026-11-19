@@ -44,6 +44,7 @@ import com.retroconver.ui.theme.RetroconverTheme
 fun MuroScreen(
     alAbrirPublicacion: (String) -> Unit = {},
     viewModel: MuroViewModel = viewModel(factory = MuroViewModel.Factory),
+    alAbrirPerfil: ((String) -> Unit)? = null,
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     MuroContenido(
@@ -52,6 +53,7 @@ fun MuroScreen(
         error = estado.error,
         alActualizar = viewModel::actualizar,
         alAbrirPublicacion = alAbrirPublicacion,
+        alAbrirPerfil = alAbrirPerfil,
     )
 }
 
@@ -68,6 +70,7 @@ internal fun MuroContenido(
     error: Int? = null,
     alActualizar: () -> Unit = {},
     alAbrirPublicacion: (String) -> Unit = {},
+    alAbrirPerfil: ((String) -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         // Sin conexión ya avisa la franja amarilla; si hay copia, no hace falta repetirlo
@@ -95,7 +98,7 @@ internal fun MuroContenido(
                 publicaciones.isEmpty() -> LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item { MuroVacio(Modifier.fillParentMaxSize()) }
                 }
-                else -> ListaMuro(publicaciones, alAbrirPublicacion)
+                else -> ListaMuro(publicaciones, alAbrirPublicacion, alAbrirPerfil)
             }
         }
     }
@@ -109,6 +112,7 @@ internal fun MuroContenido(
 private fun ListaMuro(
     publicaciones: List<PublicacionConAutor>,
     alAbrirPublicacion: (String) -> Unit,
+    alAbrirPerfil: ((String) -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     val etiquetaAbrir = stringResource(R.string.muro_abrir_publicacion)
@@ -130,6 +134,7 @@ private fun ListaMuro(
         items(publicaciones, key = { it.publicacion.id }) { publicacion ->
             PublicacionCard(
                 item = publicacion,
+                alAbrirAutor = alAbrirPerfil,
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
                     .clickable(role = Role.Button, onClickLabel = etiquetaAbrir) {

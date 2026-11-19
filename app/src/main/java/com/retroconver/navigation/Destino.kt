@@ -42,6 +42,19 @@ object RutasMuro {
     fun publicacion(publicacionId: String) = "muro/publicacion/$publicacionId"
 }
 
+/**
+ * Perfiles de otras personas y lista de personas (E4-08, #126). No son de ninguna sección de la
+ * barra: se abren desde el muro, el detalle de una publicación, la lista de amigos o «Personas».
+ */
+object RutasPersonas {
+    const val ARG_PERSONA = "personaId"
+
+    const val LISTA = "personas"
+    const val PERFIL = "perfil/persona/{$ARG_PERSONA}"
+
+    fun perfil(personaId: String) = "perfil/persona/$personaId"
+}
+
 /** Pantallas de acceso, que se ven cuando no hay sesión (E4-04.2). Empieza en [INICIO]. */
 object RutasAcceso {
     const val INICIO = "acceso/inicio"

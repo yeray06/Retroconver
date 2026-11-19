@@ -8,7 +8,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickLabel
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.accessibility.enableAccessibilityChecks
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -24,7 +28,13 @@ import androidx.test.filters.SdkSuppress
 import com.retroconver.R
 import com.retroconver.data.local.AlbumConPortada
 import com.retroconver.data.local.AlbumEntity
+import com.retroconver.data.local.ComentarioConAutor
+import com.retroconver.data.local.ComentarioEntity
 import com.retroconver.data.local.FotoEntity
+import com.retroconver.data.local.MensajeConAutor
+import com.retroconver.data.local.MensajeEntity
+import com.retroconver.data.local.PublicacionConAutor
+import com.retroconver.data.local.PublicacionEntity
 import com.retroconver.data.local.SolicitudConPersona
 import com.retroconver.data.local.UsuarioEntity
 import com.retroconver.data.repository.RelacionAmistad
@@ -39,6 +49,13 @@ import com.retroconver.ui.screens.galeria.AlbumesUiState
 import com.retroconver.ui.screens.galeria.FalloSubida
 import com.retroconver.ui.screens.galeria.FotoContenido
 import com.retroconver.ui.screens.galeria.FotoUiState
+import com.retroconver.ui.screens.mensajes.MensajesContenido
+import com.retroconver.ui.screens.mensajes.TablonContenido
+import com.retroconver.ui.screens.mensajes.TablonUiState
+import com.retroconver.ui.screens.muro.BorradoUi
+import com.retroconver.ui.screens.muro.MuroContenido
+import com.retroconver.ui.screens.muro.PublicacionContenido
+import com.retroconver.ui.screens.muro.PublicacionUiState
 import com.retroconver.ui.screens.perfil.AmistadesDelPerfil
 import com.retroconver.ui.screens.perfil.BotonAmistadContenido
 import com.retroconver.ui.screens.perfil.BotonAmistadUiState
@@ -50,6 +67,11 @@ import com.retroconver.ui.screens.perfil.ErroresPerfil
 import com.retroconver.ui.screens.perfil.PerfilContenido
 import com.retroconver.ui.screens.perfil.PerfilUiState
 import com.retroconver.ui.screens.perfil.PersonaEncontrada
+import com.retroconver.ui.screens.personas.PerfilDePersonaContenido
+import com.retroconver.ui.screens.personas.PersonasContenido
+import com.retroconver.ui.screens.personas.PersonasUiState
+import com.retroconver.ui.theme.EstiloDePerfil
+import com.retroconver.ui.theme.FondoPerfil
 import com.retroconver.ui.theme.RetroconverTheme
 import com.retroconver.ui.theme.TemaPerfil
 import com.retroconver.ui.theme.TipografiaPerfil
@@ -583,5 +605,207 @@ class AccesibilidadTest {
             alVolver = {},
             alBorrar = {},
         )
+    }
+
+    // ---------- Muro, perfiles de otras personas, tablón y color de fondo (E4-08, E4-09, E4-11, E4-13) ----------
+
+    private fun publicacion(id: String, autor: UsuarioEntity, comentarios: Int = 0) = PublicacionConAutor(
+        PublicacionEntity(id, autor.id, "Esta noche quedada en el MSN, que nadie falte.", timestamp = Instant.parse("2026-11-18T10:00:00Z")),
+        autor = autor,
+        numComentarios = comentarios,
+    )
+
+    private fun mensaje(id: String, de: UsuarioEntity, texto: String) = MensajeConAutor(
+        MensajeEntity(id, "yo", de.id, texto, Instant.parse("2026-11-18T10:00:00Z")),
+        de,
+    )
+
+    @Test
+    fun muroConPublicacionesYAutoresQueAbrenSuPerfil() = comprobar {
+        MuroContenido(publicaciones = listOf(publicacion("p1", ana, comentarios = 2), publicacion("p2", bea)), alAbrirPerfil = {})
+    }
+
+    @Test
+    fun muroVacioConError() = comprobar {
+        MuroContenido(publicaciones = emptyList(), error = R.string.red_sin_permiso)
+    }
+
+    @Test
+    fun tocarElAutorDeUnaPublicacionAbreSuPerfil() {
+        var abierto: String? = null
+        regla.setContent {
+            RetroconverTheme {
+                MuroContenido(publicaciones = listOf(publicacion("p1", ana), publicacion("p2", bea)), alAbrirPerfil = { abierto = it })
+            }
+        }
+        regla.onNode(hasClickLabel(texto(R.string.personas_ver_perfil_de, "Bea"))).performClick()
+        assertEquals("bea", abierto)
+    }
+
+    @Test
+    fun detalleDeUnaPublicacionConComentarios() = comprobar {
+        PublicacionContenido(
+            estado = PublicacionUiState(
+                publicacion = publicacion("p1", yo, comentarios = 1),
+                comentarios = listOf(
+                    ComentarioConAutor(ComentarioEntity("c1", "p1", "ana", "¡Allí estaré!", Instant.parse("2026-11-18T11:00:00Z")), ana),
+                ),
+                actualizando = false,
+                borrado = BorradoUi(miId = "yo"),
+            ),
+            alVolver = {},
+            alActualizar = {},
+            alAbrirPerfil = {},
+        )
+    }
+
+    @Test
+    fun tablonPropioConMensajesQueSePuedenBorrar() = comprobar {
+        TablonContenido(
+            estado = TablonUiState(
+                mensajes = listOf(mensaje("m1", ana, "¡Feliz cumple!"), mensaje("m2", yo, "Gracias a todos")),
+                miId = "yo",
+                esMiTablon = true,
+                borrando = "m1",
+                error = R.string.red_sin_permiso,
+            ),
+            texto = "Hola",
+            alCambiarTexto = {},
+            alPublicar = {},
+            alBorrar = {},
+        )
+    }
+
+    @Test
+    fun tablonVacioEnElTemaNoche() = comprobar {
+        EstiloDePerfil(TemaPerfil.NOCHE, TipografiaPerfil.NORMAL) {
+            TablonContenido(estado = TablonUiState(miId = "yo"), texto = "", alCambiarTexto = {}, alPublicar = {}, alBorrar = {})
+        }
+    }
+
+    @Test
+    fun cadaBorrarDelTablonDiceDeQuienEsElMensajeYPideConfirmacion() {
+        var borrado: String? = null
+        regla.setContent {
+            RetroconverTheme {
+                TablonContenido(
+                    estado = TablonUiState(mensajes = listOf(mensaje("m1", ana, "Hola"), mensaje("m2", bea, "Adiós")), miId = "yo", esMiTablon = true),
+                    texto = "",
+                    alCambiarTexto = {},
+                    alPublicar = {},
+                    alBorrar = { borrado = it },
+                )
+            }
+        }
+        regla.onNodeWithContentDescription(texto(R.string.tablon_borrar_de, "Bea")).performClick()
+        regla.onNodeWithText(texto(R.string.tablon_borrar_pregunta)).assertExists()
+        regla.onNode(hasText(texto(R.string.tablon_borrar)) and hasAnyAncestor(isDialog())).performClick()
+        assertEquals("m2", borrado)
+    }
+
+    @Test
+    fun seccionMensajesConElTablonPropio() = comprobar {
+        MensajesContenido(
+            miId = "yo",
+            tablon = {
+                TablonContenido(
+                    estado = TablonUiState(mensajes = listOf(mensaje("m1", ana, "¡Hola Yeray!")), miId = "yo", esMiTablon = true),
+                    texto = "",
+                    alCambiarTexto = {},
+                    alPublicar = {},
+                    alBorrar = {},
+                )
+            },
+        )
+    }
+
+    @Test
+    fun listaDePersonasConBuscador() = comprobar {
+        PersonasContenido(
+            texto = "a",
+            estado = PersonasUiState(personas = listOf(ana, bea, dani)),
+            alCambiarTexto = {},
+            alBuscar = {},
+            alAbrirPerfil = {},
+            alVolver = {},
+        )
+    }
+
+    @Test
+    fun tocarUnaPersonaAbreSuPerfil() {
+        var abierto: String? = null
+        regla.setContent {
+            RetroconverTheme {
+                PersonasContenido(
+                    texto = "",
+                    estado = PersonasUiState(personas = listOf(ana, bea)),
+                    alCambiarTexto = {},
+                    alBuscar = {},
+                    alAbrirPerfil = { abierto = it },
+                    alVolver = {},
+                )
+            }
+        }
+        regla.onNodeWithText("Bea").performClick()
+        assertEquals("bea", abierto)
+    }
+
+    @Test
+    fun perfilDeOtraPersonaSinBotonesDeEditar() {
+        regla.setContent {
+            RetroconverTheme {
+                PerfilDePersonaContenido(
+                    estado = PerfilUiState(
+                        usuario = ana.copy(biografia = "Fan de los tablones", tema = "lima", colorFondo = "lavanda"),
+                        amistades = AmistadesDelPerfil(amigos = listOf(bea)),
+                    ),
+                    alVolver = {},
+                    alReintentar = {},
+                    alAbrirPerfil = {},
+                    acciones = {
+                        BotonAmistadContenido(
+                            estado = BotonAmistadUiState(relacion = RelacionAmistad.Ninguna),
+                            alPedir = {},
+                            alAceptar = {},
+                            alBorrar = {},
+                        )
+                    },
+                    tablon = {
+                        TablonContenido(estado = TablonUiState(miId = "yo"), texto = "", alCambiarTexto = {}, alPublicar = {}, alBorrar = {})
+                    },
+                )
+            }
+        }
+        regla.enableAccessibilityChecks()
+        regla.onRoot().tryPerformAccessibilityChecks()
+        regla.onNodeWithText(texto(R.string.perfil_editar)).assertDoesNotExist()
+        regla.onNodeWithText(texto(R.string.perfil_cerrar_sesion)).assertDoesNotExist()
+        regla.onNodeWithText(texto(R.string.amistades_anadir)).assertExists()
+    }
+
+    @Test
+    fun cadaColorDeFondoSeAnunciaConSuNombreYSeElige() {
+        var elegido by mutableStateOf<FondoPerfil?>(null)
+        regla.setContent {
+            RetroconverTheme {
+                EditarPerfilContenido(
+                    nombre = "Yeray",
+                    biografia = "",
+                    estado = "",
+                    errores = ErroresPerfil(),
+                    habilitado = true,
+                    alCambiarNombre = {},
+                    alCambiarBiografia = {},
+                    alCambiarEstado = {},
+                    alGuardar = {},
+                    alCancelar = {},
+                    fondo = elegido,
+                    alCambiarFondo = { elegido = it },
+                )
+            }
+        }
+        regla.onNodeWithContentDescription(texto(R.string.fondo_menta)).performScrollTo().performClick()
+        assertEquals(FondoPerfil.MENTA, elegido)
+        regla.onNode(hasContentDescription(texto(R.string.fondo_menta)) and isSelected()).assertExists()
     }
 }
