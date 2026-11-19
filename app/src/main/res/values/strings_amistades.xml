@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <!-- Amistades (EX-04, #129) -->
     <string name="amistades_amigos">Amigos (%1$d)</string>
-    <string name="amistades_sin_amigos">Todavía no tienes amigos en Retroconver.</string>
+    <string name="amistades_sin_amigos">Todavía no tienes amigos en Retroconver. Búscalos por su nombre.</string>
     <string name="amistades_recibidas">Solicitudes de amistad</string>
     <string name="amistades_enviadas">Solicitudes enviadas</string>
     <string name="amistades_te_ha_pedido">Te ha pedido amistad</string>
@@ -15,6 +15,17 @@
     <string name="amistades_cancelar_a">Cancelar la solicitud a %1$s</string>
     <string name="amistades_ver_perfil">ver su perfil</string>
     <string name="amistades_un_momento">Un momento…</string>
+
+    <!-- Buscador de amigos del perfil propio -->
+    <string name="amistades_buscar_amigos">Buscar amigos</string>
+    <string name="amistades_buscar_ayuda">Escribe el nombre de alguien y pídele amistad. Cuando acepte, verás en el muro lo que publica.</string>
+    <string name="amistades_buscar_nombre">Nombre</string>
+    <string name="amistades_buscar">Buscar</string>
+    <string name="amistades_buscando">Buscando…</string>
+    <string name="amistades_cerrar">Cerrar</string>
+    <string name="amistades_nadie">No hay nadie con ese nombre.</string>
+    <string name="amistades_anadir_corto">Añadir</string>
+    <string name="amistades_anadir_a">Pedir amistad a %1$s</string>
 
     <!-- Botón del perfil de otra persona -->
     <string name="amistades_anadir">Añadir a amigos</string>

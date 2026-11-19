@@ -42,11 +42,14 @@ import com.retroconver.ui.screens.galeria.FotoUiState
 import com.retroconver.ui.screens.perfil.AmistadesDelPerfil
 import com.retroconver.ui.screens.perfil.BotonAmistadContenido
 import com.retroconver.ui.screens.perfil.BotonAmistadUiState
+import com.retroconver.ui.screens.perfil.BuscarAmigosContenido
+import com.retroconver.ui.screens.perfil.BuscarAmigosUiState
 import com.retroconver.ui.screens.perfil.EditarPerfilContenido
 import com.retroconver.ui.screens.perfil.ErrorCampo
 import com.retroconver.ui.screens.perfil.ErroresPerfil
 import com.retroconver.ui.screens.perfil.PerfilContenido
 import com.retroconver.ui.screens.perfil.PerfilUiState
+import com.retroconver.ui.screens.perfil.PersonaEncontrada
 import com.retroconver.ui.theme.RetroconverTheme
 import com.retroconver.ui.theme.TemaPerfil
 import com.retroconver.ui.theme.TipografiaPerfil
@@ -347,6 +350,7 @@ class AccesibilidadTest {
     private val ana = UsuarioEntity(id = "ana", nombre = "Ana", fechaAlta = Instant.EPOCH)
     private val bea = UsuarioEntity(id = "bea", nombre = "Bea", fechaAlta = Instant.EPOCH)
     private val cris = UsuarioEntity(id = "cris", nombre = "Cris", fechaAlta = Instant.EPOCH)
+    private val dani = UsuarioEntity(id = "dani", nombre = "Dani", fechaAlta = Instant.EPOCH)
 
     @Test
     fun perfilConAmigosYSolicitudes() = comprobar {
@@ -413,6 +417,84 @@ class AccesibilidadTest {
             regla.waitForIdle()
             regla.onRoot().tryPerformAccessibilityChecks()
         }
+    }
+
+    @Test
+    fun elPerfilPropioAbreElBuscadorDeAmigos() {
+        var abierto = false
+        regla.setContent {
+            RetroconverTheme {
+                PerfilContenido(
+                    estado = PerfilUiState(usuario = yo),
+                    alCambiarFoto = {},
+                    alEditar = {},
+                    alCerrarSesion = {},
+                    alBuscarAmigos = { abierto = true },
+                )
+            }
+        }
+        regla.onNodeWithText(texto(R.string.amistades_buscar_amigos)).performScrollTo().performClick()
+        assertTrue(abierto)
+    }
+
+    @Test
+    fun buscadorDeAmigosConCadaRelacion() = comprobar {
+        BuscarAmigosContenido(
+            texto = "a",
+            estado = BuscarAmigosUiState(
+                resultados = listOf(
+                    PersonaEncontrada(ana, RelacionAmistad.Ninguna),
+                    PersonaEncontrada(bea, RelacionAmistad.SolicitudRecibida("s1")),
+                    PersonaEncontrada(cris, RelacionAmistad.SolicitudEnviada("s2")),
+                    PersonaEncontrada(dani, RelacionAmistad.Amigos("s3")),
+                ),
+                enCurso = "bea",
+                error = R.string.red_sin_conexion,
+            ),
+            alCambiarTexto = {},
+            alBuscar = {},
+            alPedir = {},
+            alAceptar = {},
+            alCerrar = {},
+        )
+    }
+
+    @Test
+    fun buscadorDeAmigosSinResultados() = comprobar {
+        BuscarAmigosContenido(
+            texto = "Zoe",
+            estado = BuscarAmigosUiState(resultados = emptyList()),
+            alCambiarTexto = {},
+            alBuscar = {},
+            alPedir = {},
+            alAceptar = {},
+            alCerrar = {},
+        )
+    }
+
+    @Test
+    fun cadaBotonDelBuscadorDiceAQuienSePideAmistad() {
+        var pedida: String? = null
+        regla.setContent {
+            RetroconverTheme {
+                BuscarAmigosContenido(
+                    texto = "a",
+                    estado = BuscarAmigosUiState(
+                        resultados = listOf(
+                            PersonaEncontrada(ana, RelacionAmistad.Ninguna),
+                            PersonaEncontrada(cris, RelacionAmistad.Ninguna),
+                        ),
+                    ),
+                    alCambiarTexto = {},
+                    alBuscar = {},
+                    alPedir = { pedida = it },
+                    alAceptar = {},
+                    alCerrar = {},
+                )
+            }
+        }
+        regla.onNodeWithContentDescription(texto(R.string.amistades_anadir_a, "Cris")).performClick()
+        assertEquals("cris", pedida)
     }
 
     // ---------- Galería ----------

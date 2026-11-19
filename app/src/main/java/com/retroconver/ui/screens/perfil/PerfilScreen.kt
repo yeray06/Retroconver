@@ -67,6 +67,7 @@ fun PerfilScreen(
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val elegirFoto = rememberSelectorDeImagen { uri -> viewModel.cambiarAvatar(uri) }
     var preguntarCerrarSesion by rememberSaveable { mutableStateOf(false) }
+    var buscarAmigos by rememberSaveable { mutableStateOf(false) }
     PerfilContenido(
         estado = estado,
         alCambiarFoto = {
@@ -79,7 +80,11 @@ fun PerfilScreen(
         alAceptarAmistad = viewModel::aceptarAmistad,
         alBorrarSolicitud = viewModel::borrarSolicitud,
         alAbrirPerfil = alAbrirPerfil,
+        alBuscarAmigos = { buscarAmigos = true },
     )
+    if (buscarAmigos) {
+        BuscarAmigosDialog(alCerrar = { buscarAmigos = false })
+    }
     if (preguntarCerrarSesion) {
         ConfirmarCerrarSesion(
             alConfirmar = {
@@ -119,6 +124,7 @@ internal fun PerfilContenido(
     alAceptarAmistad: (String) -> Unit = {},
     alBorrarSolicitud: (String) -> Unit = {},
     alAbrirPerfil: ((String) -> Unit)? = null,
+    alBuscarAmigos: (() -> Unit)? = null,
 ) {
     val usuario = estado.usuario
     if (usuario == null) {
@@ -166,6 +172,7 @@ internal fun PerfilContenido(
                 amigos = estado.amistades.amigos,
                 vacio = stringResource(R.string.amistades_sin_amigos),
                 alAbrirPerfil = alAbrirPerfil,
+                alBuscar = alBuscarAmigos,
             )
             // Al final del perfil, apartado, para no pulsarlo sin querer
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {

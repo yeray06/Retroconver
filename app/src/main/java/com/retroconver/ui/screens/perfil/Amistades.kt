@@ -65,6 +65,7 @@ import kotlinx.coroutines.launch
 /**
  * Lista de amigos de un perfil. Con [alAbrirPerfil], cada amigo se puede pulsar para ir a su
  * perfil (cuando exista la pantalla de perfiles ajenos, E4-08.1). [vacio] es el texto sin amigos.
+ * Con [alBuscar] (solo en el perfil propio) sale el botón «Buscar amigos».
  */
 @Composable
 fun TarjetaAmigos(
@@ -72,6 +73,7 @@ fun TarjetaAmigos(
     vacio: String,
     modifier: Modifier = Modifier,
     alAbrirPerfil: ((String) -> Unit)? = null,
+    alBuscar: (() -> Unit)? = null,
 ) {
     val colores = LocalColoresPerfil.current
     RetroCard(modifier = modifier.fillMaxWidth(), color = colores.tarjeta, borde = colores.bordeTarjeta) {
@@ -98,6 +100,13 @@ fun TarjetaAmigos(
                 Modifier
             }
             FilaPersona(persona = amigo, modifier = pulsable)
+        }
+        if (alBuscar != null) {
+            RetroButton(
+                texto = stringResource(R.string.amistades_buscar_amigos),
+                onClick = alBuscar,
+                modifier = Modifier.padding(top = 8.dp),
+            )
         }
     }
 }
@@ -194,7 +203,7 @@ private fun TituloSolicitudes(texto: String) {
 
 /** Avatar y nombre de una persona, con una línea de [detalle] opcional. */
 @Composable
-private fun FilaPersona(persona: UsuarioEntity, modifier: Modifier = Modifier, detalle: String? = null) {
+internal fun FilaPersona(persona: UsuarioEntity, modifier: Modifier = Modifier, detalle: String? = null) {
     val colores = LocalColoresPerfil.current
     Row(
         modifier = modifier
