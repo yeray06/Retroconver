@@ -11,7 +11,7 @@ Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**
 
 ## 2. Pruebas automáticas
 
-**229 pruebas: 159 unitarias y 70 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 9 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
+**229 pruebas: 159 unitarias y 70 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 10 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
 
 Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yeray06/Retroconver/pull/156)).
 
