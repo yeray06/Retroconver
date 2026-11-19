@@ -113,10 +113,11 @@ app/src/main/java/com/retroconver/
     ├── components/            RetroCard, RetroButton, RetroHeader, Avatar…
     └── screens/
         ├── acceso/            Inicio de sesión y registro (Yeray)
-        ├── perfil/            Yeray, con aspecto y amistades (perfiles ajenos: David)
+        ├── perfil/            Yeray, con aspecto y amistades; color de fondo (David)
+        ├── personas/          Perfil de otra persona y lista de personas (David)
         ├── galeria/           Yeray
         ├── muro/              David
-        └── mensajes/          David
+        └── mensajes/          Tablón y sección Mensajes (David)
 supabase/
 ├── esquema.sql                Tablas, seguridad y almacenamiento del servidor
 └── pruebas_seguridad.sql      Prueba de las políticas con dos cuentas temporales

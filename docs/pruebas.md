@@ -11,7 +11,7 @@ Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**
 
 ## 2. Pruebas automáticas
 
-**229 pruebas: 159 unitarias y 70 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 10 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
+**259 pruebas: 172 unitarias y 87 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 10 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
 
 Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yeray06/Retroconver/pull/156)).
 
@@ -25,9 +25,9 @@ Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yer
 | `ResultadoRedTest` | Formatos de error de Auth, tablas y Storage; mensaje en español de cada caso; fechas del servidor; configuración | 14 | #115 |
 | `SesionRepositoryTest` | Sesión con DataStore real: entrar guarda los tokens y **no la contraseña**, credenciales incorrectas, registro, renovar antes de caducar, 401 → renovar y repetir, renovación rechazada → sesión cerrada, sin red se mantiene, cerrar sesión con y sin red | 11 | #117, #119 |
 | `ValidacionAccesoTest` | Formularios de acceso: emails válidos y no válidos, obligatorios, contraseña de 6 o más, límite del nombre | 10 | #118 |
-| `UsuarioRepositoryTest` | Perfil en el servidor: usuario de la sesión, editar (PATCH y copia en Room), sin conexión, sin permiso, avatar (subir → apuntar → borrar el anterior), marcha atrás si falla, guardar el tema y la tipografía y que el servidor rechace una que no existe. *(EF)* Buscar personas por nombre sin la propia, sin texto no se pregunta y los comodines se buscan como texto | 13 | #121, #122, #30, #129 |
+| `UsuarioRepositoryTest` | Perfil en el servidor: usuario de la sesión, editar (PATCH y copia en Room), sin conexión, sin permiso, avatar (subir → apuntar → borrar el anterior), marcha atrás si falla, guardar el tema y la tipografía y que el servidor rechace una que no existe. *(EF)* Buscar personas por nombre sin la propia, sin texto no se pregunta y los comodines se buscan como texto; lista de personas con y sin texto; color de fondo enviado o vacío | 16 | #121, #122, #30, #129, #128, #75 |
 | `ConversionesTest` | Perfil del servidor → Room (URL pública del avatar, tema, tipografía, fechas) | 2 | #121 |
-| `EstiloPerfilTest` | Temas clásicos y tipografías: al menos 3 temas, claves únicas, valores por defecto con claves desconocidas, el clásico es el de la guía y **contraste de 4,5:1 o más** de todos los textos en cada tema (WCAG) | 5 | #30 |
+| `EstiloPerfilTest` | Temas clásicos y tipografías: al menos 3 temas, claves únicas, valores por defecto con claves desconocidas, el clásico es el de la guía y **contraste de 4,5:1 o más** de todos los textos en cada tema (WCAG). *(EF)* Colores de fondo: al menos 5, claves únicas y uno desconocido es el del tema | 6 | #30, #75 |
 | `AmistadesRepositoryTest` | Amistades contra el servidor falso: descargar amigos y solicitudes con sus perfiles, quitar las borradas, amigos de otra persona (solo aceptadas), pedir, aceptar, borrar, solicitud repetida (23505) y sin permiso; relación con otra persona en cada caso | 9 | #129 |
 | `GaleriaRepositoryTest` | Álbumes y fotos en el servidor: refrescar, quitar lo borrado, crear álbum, subir foto y marcha atrás, borrar foto propia y no ajena, sin conexión | 9 | #68, #71 |
 | `SubidasFotosTest` | Subida en segundo plano: una tanda sigue si una foto no se lee o el servidor la rechaza, se para si caduca la sesión, limpia todas las copias; lo que ve la pantalla (progreso, en cola, último fallo de los últimos 10 minutos) | 11 | #147 |
@@ -36,6 +36,8 @@ Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yer
 | `FechaRelativaTest` | Fecha relativa de las publicaciones del muro (David) | 6 | #59 |
 | `ValidacionPublicacionTest` | Texto de una publicación (David) | 6 | #60 |
 | `ValidacionComentarioTest` | Texto de un comentario: vacío, normal y límite del servidor (David) | 3 | #66 |
+| `MensajesRepositoryTest` | Tablón contra el servidor falso: descargar el de un perfil con sus autores, quitar lo borrado sin tocar otros tablones, escribir sin espacios de los bordes, sin permiso, borrar y sin conexión (David) | 6 | #72, #74 |
+| `ValidacionMensajeTest` | Texto de un mensaje del tablón: vacío, normal y límite del servidor (David) | 3 | #74 |
 | `PublicacionRepositoryTest` | Muro contra el servidor falso (David): descargar con autores, URL pública de la imagen, contador de comentarios, quitar lo borrado, sin conexión, publicar con y sin imagen y marcha atrás, comentar, borrar lo propio y no lo ajeno. *(EF)* Muro de amigos: con autores solo se piden y se enseñan los suyos | 22 | #123, #66, #67, #129 |
 
 ### En el emulador
@@ -47,8 +49,9 @@ Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yer
 | `GaleriaDaoTest` | Álbumes con número de fotos y portada, orden, cascada, sincronizar quitando lo borrado sin tocar lo ajeno | 8 | #68 |
 | `AlmacenImagenesTest` | Fotos reales de 12 MP a 720p, no agrandar, girar según EXIF, nombres distintos, borrar solo lo propio, medidas y borrar todo al cerrar sesión | 8 | #63, #119 |
 | `AmistadDaoTest` | Amigos por los dos lados y por orden alfabético, solicitudes recibidas y enviadas con la otra persona, relación entre dos personas, sincronizar sin tocar lo ajeno, cascada al borrar un perfil | 6 | #129 |
-| `MigracionesTest` | Migraciones de Room: de 5 a 6 y de 6 a 7 conservando los datos, la app abriendo una copia de la versión 5 y una de la 4 (sin servidor) que se crea de nuevo | 4 | Entrega final |
-| `AccesibilidadTest` | Revisión de accesibilidad automática (apartado 4), también de cada tema del perfil, el selector de aspecto, las solicitudes de amistad, el botón de amistad y el buscador de amigos en cada estado | 24 | #78, #30, #129 |
+| `MensajeDaoTest` | Tablón con sus autores del más reciente al más antiguo, `@Upsert` sin duplicar, sincronizar sin tocar otros tablones y cascada al borrar un perfil (David) | 4 | #72 |
+| `MigracionesTest` | Migraciones de Room: de 5 a 6, de 6 a 7 y de 7 a 8 (tablón) conservando los datos, la app abriendo una copia de la versión 5 y una de la 4 (sin servidor) que se crea de nuevo | 5 | Entrega final, #72 |
+| `AccesibilidadTest` | Revisión de accesibilidad automática (apartado 4), también de cada tema del perfil, el selector de aspecto, las solicitudes de amistad, el botón de amistad y el buscador de amigos en cada estado. *(EF)* Muro y detalle de una publicación, tablón (propio, ajeno y en el tema Noche), Mensajes, Personas, perfil de otra persona y color de fondo; tocar el autor o una persona abre su perfil y cada «Borrar» del tablón dice de quién es el mensaje (David) | 36 | #78, #30, #129, #80 |
 
 ## 3. Servidor
 
@@ -103,6 +106,13 @@ Si encuentra un error, la prueba falla y dice qué elemento es.
 | Galería | Lista con y sin portada y con error; galería vacía de otra persona |
 | Álbum | Propio con fotos y una subida fallida |
 | Foto | Propia, con el botón Borrar y un error |
+| *(EF)* Muro | Con publicaciones de dos personas y el autor que se puede tocar; vacío y con error |
+| *(EF)* Detalle de una publicación | Propia, con un comentario y el formulario para comentar |
+| *(EF)* Tablón | Propio con mensajes, uno borrándose y un error; vacío dentro de un perfil con el tema Noche |
+| *(EF)* Mensajes | El tablón propio con un mensaje |
+| *(EF)* Personas | Lista con el buscador |
+| *(EF)* Perfil de otra persona | Con tema Lima, fondo Lavanda, amigos, botón de amistad y tablón; sin «Editar perfil» ni «Cerrar sesión» |
+| *(EF)* Editar perfil | Con los colores de fondo: cada uno se anuncia con su nombre y como opción marcada o no |
 
 La comprobación de zonas táctiles del framework revisa que **todos** los elementos pulsables de cada pantalla midan al menos 48 dp. Estas comprobaciones necesitan Android 14 (API 34) o superior: la CI usa un emulador con API 34, y en uno más antiguo se saltan.
 
@@ -143,6 +153,10 @@ Calculado con la fórmula de WCAG 2.1. El mínimo es 4,5:1 para texto normal y 3
 | Botón de ver la contraseña | «Mostrar la contraseña» / «Ocultar la contraseña» |
 | «← Volver» | «Volver atrás» |
 | Botón «+» de la cabecera | «Nueva publicación» |
+| *(EF)* Botón «👥» de la cabecera | «Buscar personas» |
+| *(EF)* Autor de una publicación | «Ana», con la acción «Ver el perfil de Ana» |
+| *(EF)* «Borrar» de un mensaje del tablón | «Borrar el mensaje de Ana» |
+| *(EF)* Cada color de fondo | Su nombre («Verde menta») y si está marcado |
 | Portadas de álbum, emojis de la barra y de las pantallas vacías | Nada: son decorativos y el texto de al lado ya lo dice |
 | Errores, franja sin conexión y «Revisa tu correo» | Se leen solos al aparecer (`liveRegion`) |
 
@@ -193,11 +207,15 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 | *(EF)* Cada botón de una solicitud dice a TalkBack de quién es («Aceptar la solicitud de Bea») | Con varias solicitudes, «Aceptar» repetido no dice cuál |
 | *(EF)* «Buscar amigos» en el perfil propio: se busca por nombre y se pide amistad desde la lista, sin entrar en cada perfil; cada «Añadir» dice a quién («Pedir amistad a Ana») | El muro solo enseña a los amigos, así que hacerlos tiene que ser fácil |
 | *(EF)* «Dejar de ser amigos» pide confirmación; cancelar una solicitud no | Lo primero no se deshace con un toque; lo segundo sí (se vuelve a pedir) |
+| *(EF)* Tocar el avatar o el nombre de quien publica abre su perfil; tocar el resto de la tarjeta abre la publicación | Es lo que se espera de una red social, y TalkBack los anuncia como dos botones distintos |
+| *(EF)* El perfil de otra persona es el mismo diseño que el propio, con su tema y su fondo, pero sin «Editar perfil» ni «Cerrar sesión» | No se ofrece lo que no se puede hacer; si es el propio, se abre el propio con sus botones |
+| *(EF)* Borrar un mensaje del tablón pide confirmación, y solo sale en los mensajes que se pueden borrar | No se deshace, y no se ofrece en mensajes ajenos |
+| *(EF)* El campo del tablón usa los colores del tema del perfil y tiene contador de caracteres | En el tema Noche el texto se ve sobre la tarjeta oscura, y se sabe cuánto queda |
+| *(EF)* Los colores de fondo son cuadrados de 48 dp con el nombre para TalkBack | Se eligen viendo el color, y se pueden pulsar y oír igual que el resto de opciones |
 | *(EF)* «No se ha podido subir la foto» con una sola foto, en vez de «1 de 1 fotos» | Texto natural en los dos casos (plural de Android) |
 
 ### Pendiente
 - Probarlo con dos o tres compañeros que no conozcan la app y apuntar dónde dudan.
-- La revisión de Muro y Mensajes es de David (E4-13, [#25](https://github.com/yeray06/Retroconver/issues/25)).
 
 ## 6. Errores encontrados
 
