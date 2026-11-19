@@ -107,6 +107,8 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 | <img src="docs/capturas/01-inicio-sesion.png" width="200" alt="Inicio de sesión"> | <img src="docs/capturas/03-muro.png" width="200" alt="Muro"> | <img src="docs/capturas/04-perfil.png" width="200" alt="Perfil con amigos y una solicitud"> | <img src="docs/capturas/05-perfil-tema-noche.png" width="200" alt="Perfil con el tema Noche"> |
 | **Aspecto del perfil** | **Galería** | **Álbum** | **Foto** |
 | <img src="docs/capturas/06-aspecto-del-perfil.png" width="200" alt="Elegir tema y tipografía"> | <img src="docs/capturas/07-galeria.png" width="200" alt="Álbumes"> | <img src="docs/capturas/08-album.png" width="200" alt="Álbum subiendo fotos"> | <img src="docs/capturas/09-foto.png" width="200" alt="Foto a pantalla completa"> |
+| **Buscar amigos** | | | |
+| <img src="docs/capturas/10-buscar-amigos.png" width="200" alt="Buscar amigos y pedirles amistad"> | | | |
 
 ### Qué funciona
 
