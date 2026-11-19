@@ -45,6 +45,11 @@ interface PublicacionService {
     @GET("rest/v1/comentarios?select=*,autor:perfiles(*)&order=creado_en.desc")
     suspend fun comentariosDe(@Query("publicacion_id") filtroPublicacion: String): List<ComentarioDto>
 
+    /** Borra un comentario propio. Devuelve la fila borrada, o lista vacía si no era tuyo. */
+    @Headers("Prefer: return=representation")
+    @DELETE("rest/v1/comentarios")
+    suspend fun borrarComentario(@Query("id") filtroId: String): List<ComentarioDto>
+
     /** Añade un comentario de la cuenta de la sesión y lo devuelve con su autor. */
     @Headers("Prefer: return=representation")
     @POST("rest/v1/comentarios?select=*,autor:perfiles(*)")

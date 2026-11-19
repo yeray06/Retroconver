@@ -365,6 +365,34 @@ class PublicacionRepositoryTest {
         assertFalse(repositorio.publicaciones().first().isEmpty())
     }
 
+    @Test
+    fun borrarUnComentarioPropioLoBorraDelServidorYDeRoom() = runBlocking<Unit> {
+        publicacionEnRoom("p1")
+        comentariosRoom.insertar(ComentarioEntity("c1", "p1", YO, "mío", Instant.EPOCH))
+        responder(200, "[${comentarioJson("c1", "p1", YO, "Yeray")}]")
+
+        val resultado = repositorio.eliminarComentario("c1")
+
+        assertTrue(resultado is ResultadoRed.Correcto)
+        val peticion = servidor.takeRequest()
+        assertEquals("DELETE", peticion.method)
+        assertEquals("/rest/v1/comentarios", peticion.ruta())
+        assertEquals("eq.c1", peticion.requestUrl?.queryParameter("id"))
+        assertEquals(0, repositorio.publicacion("p1").first()!!.numComentarios)
+    }
+
+    @Test
+    fun noSePuedeBorrarUnComentarioAjeno() = runBlocking<Unit> {
+        publicacionEnRoom("p1")
+        comentariosRoom.insertar(ComentarioEntity("c1", "p1", ANA, "de Ana", Instant.EPOCH))
+        responder(200, "[]") // la política de seguridad no deja borrarlo: no devuelve ninguna fila
+
+        val resultado = repositorio.eliminarComentario("c1")
+
+        assertEquals("42501", (resultado as ResultadoRed.ErrorServidor).codigo)
+        assertEquals(1, repositorio.publicacion("p1").first()!!.numComentarios)
+    }
+
     private companion object {
         const val YO = "6f1c2a1e-0000-4000-8000-000000000001"
         const val ANA = "6f1c2a1e-0000-4000-8000-00000000000a"

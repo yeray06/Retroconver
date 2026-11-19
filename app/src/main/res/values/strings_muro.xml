@@ -20,10 +20,21 @@
     <!-- Comentar y contador (E4-07.2) -->
     <plurals name="muro_num_comentarios">
         <item quantity="one">%1$d comentario</item>
+        <item quantity="many">%1$d comentarios</item>
         <item quantity="other">%1$d comentarios</item>
     </plurals>
     <string name="comentar_etiqueta">Escribe un comentario</string>
     <string name="comentar_enviar">Comentar</string>
     <string name="comentar_enviando">Enviando…</string>
     <string name="comentar_error_vacio">Escribe algo para comentar.</string>
+
+    <!-- Borrar lo propio (RF-29 y #67) -->
+    <string name="muro_borrar_publicacion">Borrar publicación</string>
+    <string name="muro_borrar_publicacion_pregunta">¿Borrar esta publicación?</string>
+    <string name="muro_borrar_publicacion_explicacion">Se borrarán también sus comentarios y su imagen. No se puede deshacer.</string>
+    <string name="muro_borrar_comentario">Borrar comentario</string>
+    <string name="muro_borrar_comentario_pregunta">¿Borrar este comentario?</string>
+    <string name="muro_borrar_comentario_explicacion">No se puede deshacer.</string>
+    <string name="muro_borrar_confirmar">Borrar</string>
+    <string name="muro_borrar_cancelar">Cancelar</string>
 </resources>

@@ -170,6 +170,10 @@ internal class ComentarioDaoEnMemoria(private val perfiles: UsuarioDaoEnMemoria)
 
     override suspend fun guardar(comentarios: List<ComentarioEntity>) = comentarios.forEach { insertar(it) }
 
+    override suspend fun eliminar(id: String) {
+        comentarios.value = comentarios.value - id
+    }
+
     override suspend fun borrarQueYaNoEstan(publicacionId: String, conservar: List<String>) {
         comentarios.value = comentarios.value.filterValues { it.publicacionId != publicacionId || it.id in conservar }
     }

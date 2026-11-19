@@ -164,6 +164,21 @@ class PublicacionRepository(
         return ResultadoRed.Correcto(Unit)
     }
 
+    /**
+     * Borra un comentario propio (#67): primero en el servidor y, si lo ha borrado, de Room, y el
+     * contador del muro baja solo. Si no era suyo (la política de seguridad no lo deja), el servidor
+     * no devuelve ninguna fila y no se toca nada.
+     */
+    suspend fun eliminarComentario(comentarioId: String): ResultadoRed<Unit> {
+        val resultado = llamarAlServidor { servicio.borrarComentario(igual(comentarioId)) }
+        if (resultado is ResultadoRed.Fallo) return resultado
+        if ((resultado as ResultadoRed.Correcto).datos.isEmpty()) {
+            return ResultadoRed.ErrorServidor(403, CODIGO_SIN_PERMISO)
+        }
+        comentarioDao.eliminar(comentarioId)
+        return ResultadoRed.Correcto(Unit)
+    }
+
     /** Id de la cuenta con sesión: la autora de lo que se publica. */
     suspend fun idActual(): String? = sesion.sesionActual()?.idCuenta
 

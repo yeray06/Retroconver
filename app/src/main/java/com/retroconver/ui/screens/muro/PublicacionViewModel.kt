@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /** Campo para escribir un comentario (E4-07.2, #67). */
@@ -28,6 +29,18 @@ data class FormularioComentario(
     val enviando: Boolean = false,
     /** No se ha podido enviar: id del mensaje (sin conexión, sin permiso…), o `null`. */
     val errorEnvio: Int? = null,
+)
+
+/** Borrado de lo propio en el detalle (RF-29 y #67). */
+data class BorradoUi(
+    /** Id de la cuenta con sesión, para saber qué es mío; `null` mientras se lee. */
+    val miId: String? = null,
+    /** Se está borrando algo: no se puede lanzar otro borrado. */
+    val borrando: Boolean = false,
+    /** No se ha podido borrar: id del mensaje (sin conexión, sin permiso…), o `null`. */
+    val error: Int? = null,
+    /** La publicación se ha borrado: la pantalla vuelve atrás. */
+    val publicacionBorrada: Boolean = false,
 )
 
 /** Lo que muestra el detalle de una publicación. */
@@ -41,6 +54,7 @@ data class PublicacionUiState(
     /** No se ha podido actualizar: id del mensaje, o `null`. Se sigue viendo la copia de Room. */
     val error: Int? = null,
     val formulario: FormularioComentario = FormularioComentario(),
+    val borrado: BorradoUi = BorradoUi(),
 )
 
 /**
@@ -57,19 +71,23 @@ class PublicacionViewModel(
     private val actualizando = MutableStateFlow(true)
     private val error = MutableStateFlow<Int?>(null)
     private val formulario = MutableStateFlow(FormularioComentario())
+    private val borrado = MutableStateFlow(BorradoUi())
     private var enCurso = false
 
     val estado: StateFlow<PublicacionUiState> = combine(
-        repositorio.publicacion(publicacionId),
-        repositorio.comentarios(publicacionId),
-        actualizando,
-        error,
+        combine(repositorio.publicacion(publicacionId), repositorio.comentarios(publicacionId)) { p, c -> p to c },
+        combine(actualizando, error) { a, e -> a to e },
         formulario,
-    ) { publicacion, comentarios, cargando, fallo, campo ->
-        PublicacionUiState(publicacion, comentarios, cargando, fallo, campo)
+        borrado,
+    ) { (publicacion, comentarios), (cargando, fallo), campo, borrar ->
+        PublicacionUiState(publicacion, comentarios, cargando, fallo, campo, borrar)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PublicacionUiState())
 
     init {
+        viewModelScope.launch {
+            val miId = repositorio.idActual()
+            borrado.update { it.copy(miId = miId) }
+        }
         actualizar()
     }
 
@@ -86,6 +104,30 @@ class PublicacionViewModel(
             if (resultado is ResultadoRed.Fallo && !borrada) error.value = resultado.mensaje()
             actualizando.value = false
             enCurso = false
+        }
+    }
+
+    /** Borra esta publicación, que tiene que ser mía (RF-29): su fila, su imagen y sus comentarios. */
+    fun borrarPublicacion() {
+        val publicacion = estado.value.publicacion?.publicacion ?: return
+        borrar(esPublicacion = true) { repositorio.eliminar(publicacion) }
+    }
+
+    /** Borra un comentario mío (#67). El contador del muro baja solo. */
+    fun borrarComentario(comentarioId: String) = borrar(esPublicacion = false) { repositorio.eliminarComentario(comentarioId) }
+
+    private fun borrar(esPublicacion: Boolean, accion: suspend () -> ResultadoRed<Unit>) {
+        if (borrado.value.borrando) return
+        borrado.update { it.copy(borrando = true, error = null) }
+        viewModelScope.launch {
+            val resultado = accion()
+            borrado.update {
+                it.copy(
+                    borrando = false,
+                    error = (resultado as? ResultadoRed.Fallo)?.mensaje(),
+                    publicacionBorrada = esPublicacion && resultado is ResultadoRed.Correcto,
+                )
+            }
         }
     }
 

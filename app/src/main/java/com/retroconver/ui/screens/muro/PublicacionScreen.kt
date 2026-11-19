@@ -15,11 +15,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +60,15 @@ fun PublicacionScreen(
     viewModel: PublicacionViewModel = viewModel(factory = PublicacionViewModel.Factory),
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
-    PublicacionContenido(estado, alVolver, viewModel::actualizar, viewModel::cambiarTexto, viewModel::comentar)
+    PublicacionContenido(
+        estado = estado,
+        alVolver = alVolver,
+        alActualizar = viewModel::actualizar,
+        alCambiarTexto = viewModel::cambiarTexto,
+        alComentar = viewModel::comentar,
+        alBorrarPublicacion = viewModel::borrarPublicacion,
+        alBorrarComentario = viewModel::borrarComentario,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,10 +77,18 @@ internal fun PublicacionContenido(
     estado: PublicacionUiState,
     alVolver: () -> Unit,
     alActualizar: () -> Unit,
+    modifier: Modifier = Modifier,
     alCambiarTexto: (String) -> Unit = {},
     alComentar: () -> Unit = {},
-    modifier: Modifier = Modifier,
+    alBorrarPublicacion: () -> Unit = {},
+    alBorrarComentario: (String) -> Unit = {},
 ) {
+    var preguntarPublicacion by rememberSaveable { mutableStateOf(false) }
+    var comentarioABorrar by rememberSaveable { mutableStateOf<String?>(null) }
+    // Al borrar la publicación ya no hay nada que ver aquí: se vuelve al muro
+    LaunchedEffect(estado.borrado.publicacionBorrada) {
+        if (estado.borrado.publicacionBorrada) alVolver()
+    }
     Column(modifier = modifier.fillMaxSize()) {
         CabeceraGaleria(titulo = stringResource(R.string.muro_publicacion_titulo), alVolver = alVolver)
         // Sin conexión ya avisa la franja amarilla; si hay copia, no hace falta repetirlo
@@ -74,6 +96,16 @@ internal fun PublicacionContenido(
         if (error != null) {
             Text(
                 text = stringResource(error),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .semantics { liveRegion = LiveRegionMode.Polite },
+            )
+        }
+        estado.borrado.error?.let { mensaje ->
+            Text(
+                text = stringResource(mensaje),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier
@@ -97,6 +129,15 @@ internal fun PublicacionContenido(
                 when {
                     publicacion != null -> {
                         item { PublicacionCard(publicacion) }
+                        // Solo se borra lo propio (RF-29); el servidor lo comprueba también
+                        if (publicacion.autor.id == estado.borrado.miId) {
+                            item {
+                                RetroButton(
+                                    texto = stringResource(R.string.muro_borrar_publicacion),
+                                    onClick = { if (!estado.borrado.borrando) preguntarPublicacion = true },
+                                )
+                            }
+                        }
                         item {
                             Text(
                                 text = stringResource(R.string.muro_comentarios_titulo),
@@ -114,7 +155,13 @@ internal fun PublicacionContenido(
                                 )
                             }
                         } else {
-                            items(estado.comentarios, key = { it.comentario.id }) { ComentarioFila(it) }
+                            items(estado.comentarios, key = { it.comentario.id }) { comentario ->
+                                ComentarioFila(
+                                    item = comentario,
+                                    puedeBorrar = comentario.autor.id == estado.borrado.miId,
+                                    alBorrar = { if (!estado.borrado.borrando) comentarioABorrar = comentario.comentario.id },
+                                )
+                            }
                         }
                     }
                     // Descargado y sigue sin estar: se ha borrado
@@ -133,6 +180,40 @@ internal fun PublicacionContenido(
             CampoComentario(estado.formulario, alCambiarTexto, alComentar)
         }
     }
+    if (preguntarPublicacion) {
+        ConfirmarBorrado(
+            titulo = stringResource(R.string.muro_borrar_publicacion_pregunta),
+            explicacion = stringResource(R.string.muro_borrar_publicacion_explicacion),
+            alConfirmar = {
+                preguntarPublicacion = false
+                alBorrarPublicacion()
+            },
+            alCancelar = { preguntarPublicacion = false },
+        )
+    }
+    comentarioABorrar?.let { id ->
+        ConfirmarBorrado(
+            titulo = stringResource(R.string.muro_borrar_comentario_pregunta),
+            explicacion = stringResource(R.string.muro_borrar_comentario_explicacion),
+            alConfirmar = {
+                comentarioABorrar = null
+                alBorrarComentario(id)
+            },
+            alCancelar = { comentarioABorrar = null },
+        )
+    }
+}
+
+/** Pide confirmación antes de borrar algo propio, porque no se puede deshacer. */
+@Composable
+private fun ConfirmarBorrado(titulo: String, explicacion: String, alConfirmar: () -> Unit, alCancelar: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = alCancelar,
+        title = { Text(titulo) },
+        text = { Text(explicacion) },
+        confirmButton = { TextButton(onClick = alConfirmar) { Text(stringResource(R.string.muro_borrar_confirmar)) } },
+        dismissButton = { TextButton(onClick = alCancelar) { Text(stringResource(R.string.muro_borrar_cancelar)) } },
+    )
 }
 
 /** Campo para escribir un comentario, con contador y el botón de enviar. */
@@ -183,8 +264,14 @@ private fun CampoComentario(
 
 /** Un comentario: avatar, nombre, fecha y texto. */
 @Composable
-private fun ComentarioFila(item: ComentarioConAutor, modifier: Modifier = Modifier) {
-    RetroCard(modifier = modifier.semantics(mergeDescendants = true) {}) {
+private fun ComentarioFila(
+    item: ComentarioConAutor,
+    puedeBorrar: Boolean,
+    alBorrar: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    // Con el botón de borrar no se junta todo en un elemento, para que TalkBack lo enseñe aparte
+    RetroCard(modifier = modifier.semantics(mergeDescendants = !puedeBorrar) {}) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Avatar(nombre = item.autor.nombre, tamano = 28.dp, imagenUri = item.autor.avatarUri)
             Spacer(Modifier.width(8.dp))
@@ -209,5 +296,10 @@ private fun ComentarioFila(item: ComentarioConAutor, modifier: Modifier = Modifi
             style = MaterialTheme.typography.bodyMedium,
             color = RetroTextDark,
         )
+        if (puedeBorrar) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                RetroButton(texto = stringResource(R.string.muro_borrar_comentario), onClick = alBorrar)
+            }
+        }
     }
 }

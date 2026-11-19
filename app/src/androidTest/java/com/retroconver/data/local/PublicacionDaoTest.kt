@@ -166,6 +166,17 @@ class PublicacionDaoTest {
         assertEquals(listOf("sigue"), comentarios.observarDePublicacion("p1").first().map { it.comentario.id })
     }
 
+    @Test
+    fun borrarUnComentarioQuitaSoloEse() = runBlocking {
+        publicaciones.insertar(publicacion("p1"))
+        comentarios.insertar(comentario("sigue", "p1"))
+        comentarios.insertar(comentario("borrado", "p1"))
+
+        comentarios.eliminar("borrado")
+
+        assertEquals(listOf("sigue"), comentarios.observarDePublicacion("p1").first().map { it.comentario.id })
+    }
+
     private fun publicacionDelServidor(texto: String) = PublicacionEntity(
         id = DEL_SERVIDOR,
         usuarioId = ANA,

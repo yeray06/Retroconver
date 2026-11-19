@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
@@ -115,7 +116,7 @@ class NuevaPublicacionViewModel(
         viewModelScope.launch {
             val imagen = imagenUri?.let { uri ->
                 val medidas = imagenes.medidas(uri)
-                runCatching { ImagenParaSubir(Uri.parse(uri).toFile(), medidas?.first, medidas?.second) }.getOrNull()
+                runCatching { ImagenParaSubir(uri.toUri().toFile(), medidas?.first, medidas?.second) }.getOrNull()
             }
             when (val respuesta = publicaciones.publicar(texto.trim(), imagen)) {
                 is ResultadoRed.Correcto -> publicado = true
