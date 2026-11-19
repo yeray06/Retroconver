@@ -33,8 +33,13 @@ object RutasPerfil {
 
 /** Pantallas dentro de la sección Muro. La ruta de la sección ([Destino.MURO]) abre [VER]. */
 object RutasMuro {
+    const val ARG_PUBLICACION = "publicacionId"
+
     const val VER = "muro/ver"
     const val NUEVA = "muro/nueva"
+    const val PUBLICACION = "muro/publicacion/{$ARG_PUBLICACION}"
+
+    fun publicacion(publicacionId: String) = "muro/publicacion/$publicacionId"
 }
 
 /** Pantallas de acceso, que se ven cuando no hay sesión (E4-04.2). Empieza en [INICIO]. */

@@ -18,3 +18,15 @@ fun validarPublicacion(texto: String): ErrorPublicacion? = when {
     texto.trim().length > LimitesPublicacion.TEXTO_MAX -> ErrorPublicacion.DEMASIADO_LARGO
     else -> null
 }
+
+/** Límite de longitud del texto de un comentario (el mismo que fija el servidor en `comentarios`). */
+object LimitesComentario {
+    const val TEXTO_MAX = 300
+}
+
+/** Igual que [validarPublicacion] pero con el límite de los comentarios (E4-07.2, #67). */
+fun validarComentario(texto: String): ErrorPublicacion? = when {
+    texto.isBlank() -> ErrorPublicacion.VACIO
+    texto.trim().length > LimitesComentario.TEXTO_MAX -> ErrorPublicacion.DEMASIADO_LARGO
+    else -> null
+}

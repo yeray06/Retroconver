@@ -19,6 +19,7 @@ import com.retroconver.data.remote.GaleriaService
 import com.retroconver.data.remote.MonitorConexion
 import com.retroconver.data.remote.PerfilService
 import com.retroconver.data.repository.AmistadesRepository
+import com.retroconver.data.remote.PublicacionService
 import com.retroconver.data.repository.GaleriaRepository
 import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
@@ -83,9 +84,17 @@ class AppContainer(context: Context) {
         )
     }
 
-    /** Publicaciones del muro y sus comentarios. */
+    /** Publicaciones del muro de todas las personas y sus comentarios (E4-06 y E4-07), con su copia en Room. */
     val publicacionRepository: PublicacionRepository by lazy {
-        PublicacionRepository(baseDeDatos.publicacionDao(), baseDeDatos.comentarioDao())
+        PublicacionRepository(
+            baseDeDatos.publicacionDao(),
+            baseDeDatos.comentarioDao(),
+            baseDeDatos.usuarioDao(),
+            publicacionService,
+            almacenamientoService,
+            sesionRepository,
+            configuracionSupabase,
+        )
     }
 
     /** Copias de las imágenes a 720p en el almacenamiento interno (avatar, publicaciones y galería). */
@@ -131,6 +140,9 @@ class AppContainer(context: Context) {
 
     /** Imágenes del bucket `imagenes`. */
     val almacenamientoService: AlmacenamientoService by lazy { retrofit.create(AlmacenamientoService::class.java) }
+
+    /** Tablas `publicaciones` y `comentarios`. */
+    private val publicacionService: PublicacionService by lazy { retrofit.create(PublicacionService::class.java) }
 
     /** Tablas `albumes` y `fotos`. */
     private val galeriaService: GaleriaService by lazy { retrofit.create(GaleriaService::class.java) }

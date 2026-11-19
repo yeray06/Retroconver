@@ -2,13 +2,17 @@ package com.retroconver.data.repository
 
 import com.retroconver.data.local.AlbumEntity
 import com.retroconver.data.local.AmistadEntity
+import com.retroconver.data.local.ComentarioEntity
 import com.retroconver.data.local.FotoEntity
+import com.retroconver.data.local.PublicacionEntity
 import com.retroconver.data.local.UsuarioEntity
 import com.retroconver.data.remote.AlbumDto
 import com.retroconver.data.remote.AmistadDto
+import com.retroconver.data.remote.ComentarioDto
 import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.FotoDto
 import com.retroconver.data.remote.PerfilDto
+import com.retroconver.data.remote.PublicacionDto
 import com.retroconver.data.remote.instanteDelServidor
 
 /**
@@ -56,4 +60,26 @@ fun AmistadDto.aEntidad(): AmistadEntity = AmistadEntity(
     destinatarioId = destinatarioId,
     aceptada = aceptada,
     fechaCreacion = instanteDelServidor(creadaEn),
+)
+
+/**
+ * Pasa una fila de `publicaciones` a Room (E4-06, #123). Su autor y sus comentarios se convierten
+ * aparte. La ruta de la imagen se convierte en su URL pública para que Coil la cargue sin token.
+ */
+fun PublicacionDto.aEntidad(configuracion: ConfiguracionSupabase): PublicacionEntity = PublicacionEntity(
+    id = id,
+    usuarioId = autorId,
+    texto = texto,
+    imagenRuta = imagenRuta,
+    imagenUri = imagenRuta?.let { configuracion.urlPublica(it) },
+    timestamp = instanteDelServidor(creadaEn),
+)
+
+/** Pasa una fila de `comentarios` a Room (E4-07, #18). */
+fun ComentarioDto.aEntidad(): ComentarioEntity = ComentarioEntity(
+    id = id,
+    publicacionId = publicacionId,
+    usuarioId = autorId,
+    texto = texto,
+    timestamp = instanteDelServidor(creadoEn),
 )

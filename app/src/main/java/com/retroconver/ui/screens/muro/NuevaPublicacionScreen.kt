@@ -24,7 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,8 +44,8 @@ import com.retroconver.ui.theme.RetroconverTheme
 
 /**
  * Formulario de nueva publicación (E3-07, #60 y #61): texto obligatorio con contador y foto
- * opcional que se ve antes de publicar y se puede quitar. Al publicar, o al cancelar,
- * [alTerminar] vuelve al muro, que ya muestra la publicación arriba porque la lee de Room.
+ * opcional que se ve antes de publicar y se puede quitar. Al publicar (se guarda en el servidor), o al
+ * cancelar, [alTerminar] vuelve al muro, que ya muestra la publicación arriba porque la lee de Room.
  */
 @Composable
 fun NuevaPublicacionScreen(
@@ -77,7 +79,7 @@ internal fun NuevaPublicacionContenido(
     imagenUri: String?,
     guardandoImagen: Boolean,
     errorImagen: Boolean,
-    errorPublicar: Boolean,
+    errorPublicar: Int?,
     publicando: Boolean,
     alCambiarTexto: (String) -> Unit,
     alElegirImagen: () -> Unit,
@@ -163,12 +165,15 @@ internal fun NuevaPublicacionContenido(
                     modifier = Modifier.padding(top = 8.dp),
                 )
             }
-            if (errorPublicar) {
+            if (errorPublicar != null) {
+                // Mensaje concreto del servidor: «No hay conexión…», «No tienes permiso…», etc.
                 Text(
-                    text = stringResource(R.string.publicar_error_guardar),
+                    text = stringResource(errorPublicar),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .semantics { liveRegion = LiveRegionMode.Polite },
                 )
             }
 
@@ -198,7 +203,7 @@ private fun NuevaPublicacionVaciaPreview() {
             imagenUri = null,
             guardandoImagen = false,
             errorImagen = false,
-            errorPublicar = false,
+            errorPublicar = null,
             publicando = false,
             alCambiarTexto = {},
             alElegirImagen = {},
@@ -219,7 +224,7 @@ private fun NuevaPublicacionConFotoPreview() {
             imagenUri = "file:///no-existe.jpg", // en la vista previa no se carga, solo se ve el hueco
             guardandoImagen = false,
             errorImagen = false,
-            errorPublicar = false,
+            errorPublicar = null,
             publicando = false,
             alCambiarTexto = {},
             alElegirImagen = {},

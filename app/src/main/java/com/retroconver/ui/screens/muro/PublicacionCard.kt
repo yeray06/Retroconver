@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,7 +38,7 @@ import java.time.Instant
 /**
  * Tarjeta de una publicación del muro: avatar, nombre, fecha, texto y, si la tiene, imagen.
  * Medidas del prototipo final (docs/diseño/diseñofinalvisual): avatar de 36 dp, imagen de 160 dp de alto.
- * El contador de comentarios se añade en E4-07.2 (#67) y el de «Me gusta» en el extra EX-05 (#130).
+ * Al pie, el número de comentarios (E4-07.2, #67); el de «Me gusta» llegará con el extra EX-05 (#130).
  */
 @Composable
 fun PublicacionCard(
@@ -90,6 +91,12 @@ fun PublicacionCard(
                     .border(1.dp, RetroCardBorder, MaterialTheme.shapes.extraSmall),
             )
         }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = pluralStringResource(R.plurals.muro_num_comentarios, item.numComentarios, item.numComentarios),
+            style = MaterialTheme.typography.bodySmall,
+            color = RetroGrayText,
+        )
     }
 }
 
