@@ -121,6 +121,9 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 | Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos en segundo plano y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/subidas/` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | ✅ ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142), [#151](https://github.com/yeray06/Retroconver/pull/151)) |
 | Publicaciones compartidas: publicar con foto en el servidor y muro con lo tuyo y lo de tus amigos, que se actualiza al abrirlo y deslizando | `data/repository/PublicacionRepository.kt`, `ui/screens/muro/` | E4-06 [#123](https://github.com/yeray06/Retroconver/issues/123) | ✅ |
 | Comentarios: detalle de la publicación con sus comentarios, escribir uno nuevo y contador en el muro | `ui/screens/muro/PublicacionScreen.kt`, `PublicacionViewModel.kt` | E4-07 [#18](https://github.com/yeray06/Retroconver/issues/18) | ✅ |
+| **Perfiles de otras personas:** se abren tocando el avatar o el nombre en el muro, en una publicación o en una lista de amigos, con su tema, su fondo, sus amigos, sus álbumes, su tablón y el botón de amistad. **Personas:** todas las cuentas por orden alfabético, con buscador (👥 en la cabecera del muro) | `ui/screens/personas/` | E4-08 [#126](https://github.com/yeray06/Retroconver/issues/126) | ✅ |
+| **Tablón de mensajes** en cada perfil: cualquiera escribe en el de cualquiera, y borra el autor o el dueño del tablón, con confirmación. La sección **Mensajes** enseña el tablón propio | `data/repository/MensajesRepository.kt`, `ui/screens/mensajes/` | E4-09 [#22](https://github.com/yeray06/Retroconver/issues/22) | ✅ |
+| **Color de fondo del perfil:** seis colores o el del tema, con vista previa | `ui/theme/EstiloPerfil.kt`, `ui/screens/perfil/EditarPerfilScreen.kt` | E4-11 [#23](https://github.com/yeray06/Retroconver/issues/23) | ✅ |
 | **Temas clásicos y tipografías del perfil:** cuatro temas (Clásico, Noche, Lima y Chicle) y cuatro tipografías, con vista previa. Quien visita el perfil lo ve así | `ui/theme/EstiloPerfil.kt`, `ui/screens/perfil/` | EX-03 [#30](https://github.com/yeray06/Retroconver/issues/30) | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
 | **Amistades:** buscar amigos por nombre y pedirles amistad, solicitudes recibidas (aceptar o rechazar) y enviadas (cancelar), lista de amigos en el perfil, muro solo con lo tuyo y lo de tus amigos, y botón de amistad listo para el perfil de otra persona | `data/repository/AmistadesRepository.kt`, `ui/screens/perfil/Amistades.kt`, `ui/screens/perfil/BuscarAmigos.kt` | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) | ✅ ([#155](https://github.com/yeray06/Retroconver/pull/155), [#160](https://github.com/yeray06/Retroconver/pull/160)) |
 | **Migraciones de Room:** al actualizar la app se conserva la copia local | `data/local/Migraciones.kt` | Entrega final | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
@@ -130,28 +133,20 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 
 ### Qué falta
 
-Son las tareas de David.
+Todo lo imprescindible está hecho. Quedan sin hacer tres extras, que se descartan al cerrar la entrega final:
 
-| Tarea | Issue |
+| Extra | Issue |
 |---|---|
-| Perfiles de otras personas y buscador | E4-08 [#126](https://github.com/yeray06/Retroconver/issues/126) |
-| Tablón de mensajes | E4-09 [#22](https://github.com/yeray06/Retroconver/issues/22) |
-| Color de fondo del perfil (el tema ya está, EX-03) | E4-11 [#23](https://github.com/yeray06/Retroconver/issues/23) |
-| Pruebas y accesibilidad de Muro y Mensajes | E4-13 [#25](https://github.com/yeray06/Retroconver/issues/25) |
-| Presentación y memoria final | EF-02 [#27](https://github.com/yeray06/Retroconver/issues/27), EF-03 [#85](https://github.com/yeray06/Retroconver/issues/85) |
-
-Lo que ya está hecho les deja el camino preparado:
-- El patrón para pasar un módulo al servidor está en [docs/arquitectura.md](docs/arquitectura.md), apartado 2.
-- `UsuarioRepository.guardarDelServidor()` guarda los autores del muro.
-- Los álbumes de otra persona se abren con `RutasGaleria.albumesDe(id)`.
-- En el perfil de otra persona (E4-08.1) basta con reutilizar `PerfilContenido`, que ya sale con su tema y su tipografía, y añadir `BotonAmistad(idPersona = id)` y `TarjetaAmigos(...)`.
-- Para el buscador de personas (E4-08.2) ya está `UsuarioRepository.buscar(texto)`, que usa el buscador de amigos.
+| Mensajes directos con zumbido, como en MSN | EX-01 [#28](https://github.com/yeray06/Retroconver/issues/28) |
+| Respuestas a un comentario | EX-02 [#29](https://github.com/yeray06/Retroconver/issues/29) |
+| «Me gusta» en publicaciones | EX-05 [#130](https://github.com/yeray06/Retroconver/issues/130) |
 
 ### Qué falla o tiene límites
 
 - **Comentarios:** hasta 300 caracteres. Se ven y se escriben en el detalle de la publicación; el contador del muro sale de los comentarios descargados.
 - **Muro:** se descargan las 50 publicaciones más recientes al abrirlo o al deslizar hacia abajo; no hay tiempo real ni paginación.
-- **Amistades:** el muro enseña solo lo tuyo y lo de tus amigos (EX-04). Sin amigos, solo se ven tus publicaciones: el muro vacío dice cómo buscarlos. El buscador devuelve las 20 primeras personas por orden alfabético.
+- **Amistades:** el muro enseña solo lo tuyo y lo de tus amigos (EX-04). Sin amigos, solo se ven tus publicaciones: el muro vacío dice cómo buscarlos. El buscador de amigos devuelve las 20 primeras personas por orden alfabético, y la lista de **Personas**, las 50 primeras.
+- **Tablón:** se descargan los 50 mensajes más recientes de cada perfil, de hasta 300 caracteres. Los mensajes no se editan: se borran y se vuelven a escribir.
 - Las fotos se suben **en segundo plano** con WorkManager: siguen aunque se salga del álbum o se cierre la app ([#147](https://github.com/yeray06/Retroconver/issues/147)). Si se reinicia el móvil a mitad, puede que alguna no se pueda leer ya; la app dice cuántas no se han subido.
 - Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1. La app dice «No se ha podido usar esa foto». Desde Android 9 funcionan.
 - Si se borra una imagen del servidor sin conexión, puede quedar el archivo en *Storage* sin usar. No se ve en ningún sitio y no afecta a la app.
@@ -206,6 +201,23 @@ Hace falta una segunda cuenta (en otro móvil o emulador, o cerrando sesión y e
 2. Con la cuenta A: **Perfil → Buscar amigos**, escribe parte del nombre de B y **Buscar**. Pulsa **Añadir**: pasa a «Solicitud enviada» y sale en **Solicitudes enviadas** del perfil. En el panel, *Table Editor → amistades* tiene la fila con `aceptada = false`.
 3. Con la cuenta B: **Perfil** → en **Solicitudes de amistad** sale A. **Aceptar** la pasa a **Amigos (1)** (**Rechazar** la borraría).
 4. Con la cuenta A, en el **Muro** (desliza hacia abajo) ya sale la publicación de B.
+
+### 7. Perfil de otra persona y Personas (E4-08)
+
+1. En el **Muro**, toca el avatar o el nombre de quien ha publicado: se abre su perfil con su tema y su fondo, sin «Editar perfil» ni «Cerrar sesión».
+2. Debajo de su nombre están el botón de amistad y **Ver sus álbumes**, que abre su galería en solo lectura.
+3. En la cabecera del muro, **👥** abre **Personas**: todas las cuentas por orden alfabético. Escribe parte de un nombre y **Buscar**. Toca una persona para abrir su perfil. Si es la tuya, se abre tu perfil con sus botones.
+
+### 8. Tablón de mensajes (E4-09)
+
+1. En el perfil de otra persona, baja hasta **Tablón**, escribe un mensaje y **Publicar en el tablón**. Sale arriba del tablón. Un mensaje vacío no se puede publicar y el contador avisa a partir de 300 caracteres.
+2. Con la otra cuenta, abre **Mensajes** (barra inferior): sale el mensaje. Como dueña del tablón puede **Borrar** cualquiera, después de confirmarlo. En el panel, *Table Editor → mensajes* tiene la fila y desaparece al borrarla.
+3. En el tablón de otra persona, solo sale **Borrar** en los mensajes propios.
+
+### 9. Color de fondo (E4-11)
+
+1. **Perfil → Editar perfil → Aspecto del perfil → Color de fondo**: elige **Verde menta**. La vista previa cambia al momento.
+2. **Guardar**: el fondo del perfil es verde menta, también al verlo desde otra cuenta. En *Table Editor → perfiles* sale `color_fondo = menta`. **El del tema** lo vuelve a dejar como estaba (`color_fondo` vacío).
 
 ### Cuentas de prueba
 
