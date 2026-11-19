@@ -8,8 +8,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasClickLabel
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
@@ -615,6 +617,11 @@ class AccesibilidadTest {
         numComentarios = comentarios,
     )
 
+    /** Elemento pulsable cuya acción TalkBack lee como [etiqueta] («Ver el perfil de Bea»). */
+    private fun conAccionDeClic(etiqueta: String) = SemanticsMatcher("acción «$etiqueta»") {
+        it.config.getOrNull(SemanticsActions.OnClick)?.label == etiqueta
+    }
+
     private fun mensaje(id: String, de: UsuarioEntity, texto: String) = MensajeConAutor(
         MensajeEntity(id, "yo", de.id, texto, Instant.parse("2026-11-18T10:00:00Z")),
         de,
@@ -638,7 +645,7 @@ class AccesibilidadTest {
                 MuroContenido(publicaciones = listOf(publicacion("p1", ana), publicacion("p2", bea)), alAbrirPerfil = { abierto = it })
             }
         }
-        regla.onNode(hasClickLabel(texto(R.string.personas_ver_perfil_de, "Bea"))).performClick()
+        regla.onNode(conAccionDeClic(texto(R.string.personas_ver_perfil_de, "Bea"))).performClick()
         assertEquals("bea", abierto)
     }
 
