@@ -395,6 +395,7 @@ class CapturasTest {
                     estado = "De vuelta en Retroconver",
                     tema = "lima",
                     colorFondo = "menta",
+                    fechaAlta = Instant.parse("2026-11-03T10:00:00Z"),
                 ),
                 amistades = AmistadesDelPerfil(amigos = listOf(ana, yo)),
             ),
