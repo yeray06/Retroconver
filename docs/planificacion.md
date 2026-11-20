@@ -11,7 +11,7 @@ El trabajo está dividido en **105 issues**: 46 tareas principales y 59 subtarea
 
 > **Replanificación de la entrega 4.** Al pasar a red social con servidor (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)) se añadieron 20 tareas de servidor, sesión, copia local y perfiles ajenos, y las tareas de la entrega 4 que ya existían se renumeraron y se adaptaron al servidor. También se añadieron dos extras (EX-04 y EX-05).
 >
-> **Entrega final.** Además de lo planificado, se han adelantado la subida de fotos en segundo plano (#147) y las migraciones de Room, y se han hecho los extras EX-03 y EX-04. Para que las amistades no dependan del perfil de otra persona (E4-08), se piden desde un buscador en el perfil propio. Qué está hecho y qué falta: README, «Estado actual».
+> **Entrega final.** Además de lo planificado, se han adelantado la subida de fotos en segundo plano (#147) y las migraciones de Room, y se han hecho los extras EX-03 y EX-04. Para que las amistades no dependan del perfil de otra persona (E4-08), se piden también desde un buscador en el perfil propio. Se han terminado las tareas pendientes de la entrega 4 (E4-08, E4-09, E4-11 y E4-13). Los extras EX-01, EX-02 y EX-05 se descartan. Qué está hecho y qué falta: README, «Estado actual».
 
 ### Código de orden
 

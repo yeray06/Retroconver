@@ -1,11 +1,13 @@
 package com.retroconver.ui.screens.muro
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,16 +42,27 @@ import java.time.Instant
  * Tarjeta de una publicación del muro: avatar, nombre, fecha, texto y, si la tiene, imagen.
  * Medidas del prototipo final (docs/diseño/diseñofinalvisual): avatar de 36 dp, imagen de 160 dp de alto.
  * Al pie, el número de comentarios (E4-07.2, #67); el de «Me gusta» llegará con el extra EX-05 (#130).
+ * Con [alAbrirAutor], el avatar y el nombre abren el perfil de quien la publica (E4-08.1, #127).
  */
 @Composable
 fun PublicacionCard(
     item: PublicacionConAutor,
     modifier: Modifier = Modifier,
+    alAbrirAutor: ((String) -> Unit)? = null,
 ) {
     val publicacion = item.publicacion
     val autor = item.autor
+    val etiquetaPerfil = stringResource(R.string.personas_ver_perfil_de, autor.nombre)
+    // La fila del autor se pulsa aparte de la tarjeta: TalkBack la anuncia como un botón propio
+    val filaAutor = if (alAbrirAutor != null) {
+        Modifier
+            .heightIn(min = 48.dp)
+            .clickable(role = Role.Button, onClickLabel = etiquetaPerfil) { alAbrirAutor(autor.id) }
+    } else {
+        Modifier
+    }
     RetroCard(modifier = modifier.semantics(mergeDescendants = true) {}) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = filaAutor) {
             Avatar(nombre = autor.nombre, tamano = 36.dp, imagenUri = autor.avatarUri)
             Spacer(Modifier.width(8.dp))
             Row(

@@ -30,9 +30,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -45,6 +47,7 @@ import com.retroconver.R
 import com.retroconver.ui.components.RetroButton
 import com.retroconver.ui.components.RetroCard
 import com.retroconver.ui.theme.EstiloDePerfil
+import com.retroconver.ui.theme.FondoPerfil
 import com.retroconver.ui.theme.LocalColoresPerfil
 import com.retroconver.ui.theme.RetroCardBorder
 import com.retroconver.ui.theme.RetroGlossyDark
@@ -82,6 +85,8 @@ fun EditarPerfilScreen(
         tipografia = viewModel.tipografia,
         alCambiarTema = viewModel::cambiarTema,
         alCambiarTipografia = viewModel::cambiarTipografia,
+        fondo = viewModel.fondo,
+        alCambiarFondo = viewModel::cambiarFondo,
     )
 }
 
@@ -103,6 +108,8 @@ internal fun EditarPerfilContenido(
     tipografia: TipografiaPerfil = TipografiaPerfil.NORMAL,
     alCambiarTema: (TemaPerfil) -> Unit = {},
     alCambiarTipografia: (TipografiaPerfil) -> Unit = {},
+    fondo: FondoPerfil? = null,
+    alCambiarFondo: (FondoPerfil?) -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -152,6 +159,8 @@ internal fun EditarPerfilContenido(
                 habilitado = habilitado,
                 alCambiarTema = alCambiarTema,
                 alCambiarTipografia = alCambiarTipografia,
+                fondo = fondo,
+                alCambiarFondo = alCambiarFondo,
             )
             if (errorGuardar != null) {
                 Text(
@@ -181,8 +190,9 @@ internal fun EditarPerfilContenido(
 }
 
 /**
- * Tema y tipografía del perfil (EX-03, #30), con una vista previa de cómo lo verán los demás.
- * Cada grupo es una lista de opciones de las que se elige una: TalkBack dice cuál está marcada.
+ * Tema y tipografía del perfil (EX-03, #30) y color de fondo (E4-11, #76), con una vista previa
+ * de cómo lo verán los demás. Cada grupo es una lista de opciones de las que se elige una:
+ * TalkBack dice cuál está marcada.
  */
 @Composable
 private fun AspectoDelPerfil(
@@ -193,6 +203,8 @@ private fun AspectoDelPerfil(
     habilitado: Boolean,
     alCambiarTema: (TemaPerfil) -> Unit,
     alCambiarTipografia: (TipografiaPerfil) -> Unit,
+    fondo: FondoPerfil?,
+    alCambiarFondo: (FondoPerfil?) -> Unit,
 ) {
     HorizontalDivider(modifier = Modifier.padding(top = 20.dp, bottom = 12.dp), color = RetroCardBorder)
     Text(
@@ -240,8 +252,50 @@ private fun AspectoDelPerfil(
             }
         }
     }
+    TituloGrupo(stringResource(R.string.estilo_fondo))
+    // Siete muestras de 48 dp: en dos filas para que quepan en cualquier móvil
+    val opcionesFondo: List<FondoPerfil?> = listOf(null) + FondoPerfil.entries
+    Column(modifier = Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        opcionesFondo.chunked(4).forEach { fila ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                fila.forEach { opcion ->
+                    MuestraDeFondo(
+                        color = opcion?.color ?: tema.colores.fondo,
+                        nombre = stringResource(opcion?.nombre ?: R.string.fondo_del_tema),
+                        seleccionada = opcion == fondo,
+                        habilitada = habilitado,
+                        alElegir = { alCambiarFondo(opcion) },
+                    )
+                }
+            }
+        }
+    }
     TituloGrupo(stringResource(R.string.estilo_vista_previa))
-    VistaPrevia(nombre = nombre, estado = estado, tema = tema, tipografia = tipografia)
+    VistaPrevia(nombre = nombre, estado = estado, tema = tema, tipografia = tipografia, fondo = fondo)
+}
+
+/** Un color de fondo: un cuadrado de 48 dp con el borde grueso si está elegido. TalkBack lee su nombre. */
+@Composable
+private fun MuestraDeFondo(
+    color: Color,
+    nombre: String,
+    seleccionada: Boolean,
+    habilitada: Boolean,
+    alElegir: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(MaterialTheme.shapes.small)
+            .background(color)
+            .border(
+                width = if (seleccionada) 3.dp else 1.dp,
+                color = if (seleccionada) RetroGlossyDark else RetroCardBorder,
+                shape = MaterialTheme.shapes.small,
+            )
+            .selectable(selected = seleccionada, enabled = habilitada, role = Role.RadioButton, onClick = alElegir)
+            .semantics { contentDescription = nombre },
+    )
 }
 
 @Composable
@@ -301,8 +355,8 @@ private fun MuestraDeTema(tema: TemaPerfil) {
 
 /** Una tarjeta pequeña con el nombre y el estado tal como se verán en el perfil. */
 @Composable
-private fun VistaPrevia(nombre: String, estado: String, tema: TemaPerfil, tipografia: TipografiaPerfil) {
-    EstiloDePerfil(tema, tipografia) {
+private fun VistaPrevia(nombre: String, estado: String, tema: TemaPerfil, tipografia: TipografiaPerfil, fondo: FondoPerfil?) {
+    EstiloDePerfil(tema, tipografia, fondo) {
         val colores = LocalColoresPerfil.current
         Box(
             modifier = Modifier

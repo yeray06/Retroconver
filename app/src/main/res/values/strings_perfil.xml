@@ -36,6 +36,14 @@
     <string name="estilo_tema">Tema</string>
     <string name="estilo_tipografia">Tipografía</string>
     <string name="estilo_vista_previa">Vista previa</string>
+    <string name="estilo_fondo">Color de fondo</string>
+    <string name="fondo_del_tema">El del tema</string>
+    <string name="fondo_cielo">Azul cielo</string>
+    <string name="fondo_menta">Verde menta</string>
+    <string name="fondo_lavanda">Lavanda</string>
+    <string name="fondo_melocoton">Melocotón</string>
+    <string name="fondo_limon">Amarillo limón</string>
+    <string name="fondo_pizarra">Gris pizarra</string>
     <string name="estilo_vista_previa_estado">«¡Bienvenidos a mi perfil!»</string>
     <string name="tema_clasico">Clásico</string>
     <string name="tema_noche">Noche</string>

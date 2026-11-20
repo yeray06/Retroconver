@@ -6,7 +6,7 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 
 > **Cambio de alcance en la entrega 4** (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)). Hasta la entrega 3 todo se guardaba en el móvil y había un único usuario local. Así no era una red social: nadie más podía comentar ni escribir en tu tablón. Desde la entrega 4 hay cuentas de verdad y los datos se comparten en un servidor **Supabase** (plan gratuito). El móvil guarda una copia en Room para funcionar sin conexión. Los requisitos afectados están marcados con *(E4)*.
 >
-> **Entrega final.** Se han hecho dos extras: los temas clásicos y las tipografías del perfil (RF-32, EX-03) y las amistades (RF-31, EX-04). Las amistades funcionan enteras desde el perfil propio; el botón de amistad para el perfil de otra persona está hecho y se pondrá en esa pantalla (E4-08.1, David). Los marcados con *(EF)* son nuevos o cambian en la entrega final.
+> **Entrega final.** Se han hecho dos extras: los temas clásicos y las tipografías del perfil (RF-32, EX-03) y las amistades (RF-31, EX-04). Las amistades se piden desde el buscador del perfil propio o desde el perfil de otra persona. También están hechos todos los imprescindibles que faltaban en la entrega 4: perfiles de otras personas y lista de personas (RF-26 y RF-27), tablón (RF-21 a RF-23) y color de fondo (RF-08). Quedan sin hacer tres extras: RF-15, RF-24 y RF-30. Los marcados con *(EF)* son nuevos o cambian en la entrega final.
 
 ## Requisitos funcionales
 
@@ -27,10 +27,10 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 | RF-05 | La persona usuaria ve su perfil con avatar, nombre, biografía y estado. | Imprescindible | E3-06.1 [#53](https://github.com/yeray06/Retroconver/issues/53) |
 | RF-06 | Puede editar nombre, biografía y estado. El nombre es obligatorio y los campos tienen un límite de caracteres. *(E4)* Los cambios se guardan en el servidor. | Imprescindible | E3-06.2 [#54](https://github.com/yeray06/Retroconver/issues/54), E4-05.2 [#122](https://github.com/yeray06/Retroconver/issues/122) |
 | RF-07 | Puede cambiar el avatar eligiendo una foto del dispositivo. *(E4)* El avatar se sube al servidor y lo ven los demás. | Imprescindible | E3-06.3 [#55](https://github.com/yeray06/Retroconver/issues/55), E4-05.2 [#122](https://github.com/yeray06/Retroconver/issues/122) |
-| RF-08 | *(E4)* Puede elegir el color de fondo y el tema de su perfil. Quien visita el perfil lo ve así. | Imprescindible | E4-11.1 [#75](https://github.com/yeray06/Retroconver/issues/75), E4-11.2 [#76](https://github.com/yeray06/Retroconver/issues/76) |
-| RF-26 | *(E4)* Puede ver el perfil de otra persona (datos, tablón y álbumes) tocando su avatar o su nombre. | Imprescindible | E4-08.1 [#127](https://github.com/yeray06/Retroconver/issues/127) |
+| RF-08 | *(E4)* Puede elegir el color de fondo y el tema de su perfil. Quien visita el perfil lo ve así. *(EF)* Seis colores de fondo o el del tema, con vista previa; los temas son los de RF-32. | Imprescindible | E4-11.1 [#75](https://github.com/yeray06/Retroconver/issues/75), E4-11.2 [#76](https://github.com/yeray06/Retroconver/issues/76) |
+| RF-26 | *(E4)* Puede ver el perfil de otra persona (datos, tablón y álbumes) tocando su avatar o su nombre. *(EF)* También desde su lista de amigos y desde Personas; incluye el botón de amistad (RF-31). | Imprescindible | E4-08.1 [#127](https://github.com/yeray06/Retroconver/issues/127) |
 | RF-27 | *(E4)* Puede ver la lista de personas de la red y buscarlas por nombre. | Imprescindible | E4-08.2 [#128](https://github.com/yeray06/Retroconver/issues/128) |
-| RF-31 | *(E4)* Puede enviar y aceptar solicitudes de amistad, y el muro muestra solo a sus amigos. *(EF)* Hecho: buscar amigos por nombre y pedirles amistad desde el perfil propio, las solicitudes recibidas y enviadas, la lista de amigos, el muro solo con amigos y el botón para el perfil de otra persona (se pone en esa pantalla, E4-08.1). | Extra | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) |
+| RF-31 | *(E4)* Puede enviar y aceptar solicitudes de amistad, y el muro muestra solo a sus amigos. *(EF)* Hecho: buscar amigos por nombre y pedirles amistad desde el perfil propio, las solicitudes recibidas y enviadas, la lista de amigos, el muro solo con amigos y el botón de amistad en el perfil de otra persona. | Extra | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) |
 | RF-32 | *(EF)* Puede elegir uno de los temas clásicos (Clásico, Noche, Lima y Chicle) y la tipografía de su perfil, con vista previa. Quien visita el perfil lo ve así. | Extra | EX-03 [#30](https://github.com/yeray06/Retroconver/issues/30) |
 
 ### Muro
@@ -62,7 +62,7 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 
 | ID | Requisito | Prioridad | Issue |
 |---|---|---|---|
-| RF-21 | Cada perfil tiene un tablón con los mensajes recibidos, del más reciente al más antiguo. | Imprescindible | E4-09.2 [#73](https://github.com/yeray06/Retroconver/issues/73) |
+| RF-21 | Cada perfil tiene un tablón con los mensajes recibidos, del más reciente al más antiguo. *(EF)* El propio también se ve en la sección Mensajes. | Imprescindible | E4-09.2 [#73](https://github.com/yeray06/Retroconver/issues/73) |
 | RF-22 | *(E4)* La persona usuaria puede escribir en el tablón de cualquier persona, también en el suyo. No se permite un mensaje vacío. | Imprescindible | E4-09.3 [#74](https://github.com/yeray06/Retroconver/issues/74) |
 | RF-23 | *(E4)* Puede borrar, tras confirmarlo, los mensajes que ha escrito y cualquier mensaje de su propio tablón. | Imprescindible | E4-09.3 [#74](https://github.com/yeray06/Retroconver/issues/74) |
 | RF-24 | Puede mantener conversaciones privadas con otras personas de la red, con zumbido como en MSN. | Extra | EX-01 [#28](https://github.com/yeray06/Retroconver/issues/28) |

@@ -32,6 +32,13 @@ interface PerfilService {
         @Query("limit") limite: Int,
     ): List<PerfilDto>
 
+    /** Todos los perfiles por orden alfabético, sin el de [filtroId] (el propio). Es la lista de personas (E4-08.2). */
+    @GET("rest/v1/perfiles?select=*&order=nombre.asc")
+    suspend fun todos(
+        @Query("id") filtroId: String,
+        @Query("limit") limite: Int,
+    ): List<PerfilDto>
+
     /** Cambia nombre, biografía y estado. Devuelve la fila ya cambiada (o vacía si no es tuya). */
     @Headers("Prefer: return=representation")
     @PATCH("rest/v1/perfiles")
@@ -42,7 +49,7 @@ interface PerfilService {
     @PATCH("rest/v1/perfiles")
     suspend fun actualizarAvatar(@Query("id") filtroId: String, @Body cambio: CambioAvatarDto): List<PerfilDto>
 
-    /** Cambia el tema y la tipografía del perfil (EX-03, #30). */
+    /** Cambia el tema, la tipografía (EX-03, #30) y el color de fondo (E4-11, #75) del perfil. */
     @Headers("Prefer: return=representation")
     @PATCH("rest/v1/perfiles")
     suspend fun actualizarEstilo(@Query("id") filtroId: String, @Body cambio: CambioEstiloDto): List<PerfilDto>
@@ -97,4 +104,6 @@ data class CambioAvatarDto(
 data class CambioEstiloDto(
     val tema: String,
     val tipografia: String,
+    /** Clave del color de fondo (E4-11), o `null` para usar el del tema. */
+    @SerialName("color_fondo") val colorFondo: String? = null,
 )

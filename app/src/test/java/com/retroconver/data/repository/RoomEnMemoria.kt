@@ -9,6 +9,9 @@ import com.retroconver.data.local.ComentarioDao
 import com.retroconver.data.local.ComentarioEntity
 import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.local.GaleriaDao
+import com.retroconver.data.local.MensajeConAutor
+import com.retroconver.data.local.MensajeDao
+import com.retroconver.data.local.MensajeEntity
 import com.retroconver.data.local.PublicacionConAutor
 import com.retroconver.data.local.PublicacionDao
 import com.retroconver.data.local.PublicacionEntity
@@ -237,4 +240,31 @@ internal class PublicacionDaoEnMemoria(
 
     override fun observarPorId(id: String): Flow<PublicacionConAutor?> =
         observarTodas().map { lista -> lista.firstOrNull { it.publicacion.id == id } }
+}
+
+internal class MensajeDaoEnMemoria(private val perfiles: UsuarioDaoEnMemoria) : MensajeDao() {
+
+    val mensajes = MutableStateFlow<Map<String, MensajeEntity>>(emptyMap())
+
+    override fun observarTablon(perfilId: String): Flow<List<MensajeConAutor>> =
+        combine(mensajes, perfiles.perfiles) { todos, autores ->
+            todos.values
+                .filter { it.perfilId == perfilId }
+                .sortedWith(compareByDescending<MensajeEntity> { it.fechaCreacion }.thenByDescending { it.id })
+                .mapNotNull { mensaje -> autores[mensaje.autorId]?.let { MensajeConAutor(mensaje, it) } }
+        }
+
+    override suspend fun guardar(mensaje: MensajeEntity) {
+        mensajes.value = mensajes.value + (mensaje.id to mensaje)
+    }
+
+    override suspend fun guardarTodos(mensajes: List<MensajeEntity>) = mensajes.forEach { guardar(it) }
+
+    override suspend fun borrar(id: String) {
+        mensajes.value = mensajes.value - id
+    }
+
+    override suspend fun borrarLosQueYaNoEstan(perfilId: String, conservar: List<String>) {
+        mensajes.value = mensajes.value.filterValues { it.perfilId != perfilId || it.id in conservar }
+    }
 }

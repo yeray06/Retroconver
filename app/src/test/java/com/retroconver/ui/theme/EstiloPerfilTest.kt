@@ -2,6 +2,7 @@ package com.retroconver.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.math.pow
@@ -51,6 +52,15 @@ class EstiloPerfilTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun losFondosTienenClavesDistintasYUnoDesconocidoEsElDelTema() {
+        assertTrue(FondoPerfil.entries.size >= 5)
+        assertEquals(FondoPerfil.entries.size, FondoPerfil.entries.map { it.clave }.toSet().size)
+        FondoPerfil.entries.forEach { assertEquals(it, FondoPerfil.deClave(it.clave)) }
+        assertNull(FondoPerfil.deClave(null))
+        assertNull(FondoPerfil.deClave("arcoiris"))
     }
 
     private fun contraste(a: Color, b: Color): Double {

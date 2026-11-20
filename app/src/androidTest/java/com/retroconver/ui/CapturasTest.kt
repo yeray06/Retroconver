@@ -33,6 +33,8 @@ import com.retroconver.R
 import com.retroconver.data.local.AlbumConPortada
 import com.retroconver.data.local.AlbumEntity
 import com.retroconver.data.local.FotoEntity
+import com.retroconver.data.local.MensajeConAutor
+import com.retroconver.data.local.MensajeEntity
 import com.retroconver.data.local.PublicacionConAutor
 import com.retroconver.data.local.PublicacionEntity
 import com.retroconver.data.local.SolicitudConPersona
@@ -51,8 +53,13 @@ import com.retroconver.ui.screens.galeria.AlbumesUiState
 import com.retroconver.ui.screens.galeria.FotoContenido
 import com.retroconver.ui.screens.galeria.FotoUiState
 import com.retroconver.ui.screens.galeria.ProgresoSubida
+import com.retroconver.ui.screens.mensajes.MensajesContenido
+import com.retroconver.ui.screens.mensajes.TablonContenido
+import com.retroconver.ui.screens.mensajes.TablonUiState
 import com.retroconver.ui.screens.muro.MuroContenido
 import com.retroconver.ui.screens.perfil.AmistadesDelPerfil
+import com.retroconver.ui.screens.perfil.BotonAmistadContenido
+import com.retroconver.ui.screens.perfil.BotonAmistadUiState
 import com.retroconver.ui.screens.perfil.BuscarAmigosContenido
 import com.retroconver.ui.screens.perfil.BuscarAmigosUiState
 import com.retroconver.ui.screens.perfil.EditarPerfilContenido
@@ -60,6 +67,9 @@ import com.retroconver.ui.screens.perfil.ErroresPerfil
 import com.retroconver.ui.screens.perfil.PerfilContenido
 import com.retroconver.ui.screens.perfil.PerfilUiState
 import com.retroconver.ui.screens.perfil.PersonaEncontrada
+import com.retroconver.ui.screens.personas.PerfilDePersonaContenido
+import com.retroconver.ui.screens.personas.PersonasContenido
+import com.retroconver.ui.screens.personas.PersonasUiState
 import com.retroconver.ui.theme.RetroconverTheme
 import com.retroconver.ui.theme.TemaPerfil
 import com.retroconver.ui.theme.TipografiaPerfil
@@ -366,6 +376,87 @@ class CapturasTest {
             alAceptar = {},
             alCerrar = {},
             modifier = Modifier.padding(16.dp),
+        )
+    }
+
+    // ---------- Perfiles de otras personas, Personas y tablón (E4-08 y E4-09) ----------
+
+    private fun mensaje(id: String, en: String, de: UsuarioEntity, texto: String, horas: Long) = MensajeConAutor(
+        MensajeEntity(id, en, de.id, texto, ahora.minus(Duration.ofHours(horas))),
+        de,
+    )
+
+    @Test
+    fun perfilDeOtraPersona() = capturar("11-perfil-de-otra-persona") {
+        PerfilDePersonaContenido(
+            estado = PerfilUiState(
+                usuario = dani.copy(
+                    biografia = "Fan de los fotologs y de las quedadas en el MSN.",
+                    estado = "De vuelta en Retroconver",
+                    tema = "lima",
+                    colorFondo = "menta",
+                    fechaAlta = Instant.parse("2026-11-03T10:00:00Z"),
+                ),
+                amistades = AmistadesDelPerfil(amigos = listOf(ana, yo)),
+            ),
+            alVolver = {},
+            alReintentar = {},
+            alAbrirPerfil = {},
+            acciones = {
+                BotonAmistadContenido(
+                    estado = BotonAmistadUiState(relacion = RelacionAmistad.Amigos("a1")),
+                    alPedir = {},
+                    alAceptar = {},
+                    alBorrar = {},
+                )
+            },
+            tablon = {
+                TablonContenido(
+                    estado = TablonUiState(
+                        mensajes = listOf(mensaje("m1", "dani", yo, "¡Bienvenido de vuelta! Mañana subo las fotos del viaje.", 1)),
+                        miId = "yo",
+                    ),
+                    texto = "",
+                    alCambiarTexto = {},
+                    alPublicar = {},
+                    alBorrar = {},
+                )
+            },
+        )
+    }
+
+    @Test
+    fun personas() = capturar("12-personas") {
+        PersonasContenido(
+            texto = "",
+            estado = PersonasUiState(personas = listOf(ana, bea, dani, marta)),
+            alCambiarTexto = {},
+            alBuscar = {},
+            alAbrirPerfil = {},
+            alVolver = {},
+        )
+    }
+
+    @Test
+    fun tablon() = capturar("13-tablon", Destino.MENSAJES) {
+        MensajesContenido(
+            miId = "yo",
+            tablon = {
+                TablonContenido(
+                    estado = TablonUiState(
+                        mensajes = listOf(
+                            mensaje("m2", "yo", ana, "¡Qué bien quedó la galería! ¿Quedamos el sábado?", 2),
+                            mensaje("m1", "yo", dani, "Esta noche en el MSN, que nadie falte.", 5),
+                        ),
+                        miId = "yo",
+                        esMiTablon = true,
+                    ),
+                    texto = "",
+                    alCambiarTexto = {},
+                    alPublicar = {},
+                    alBorrar = {},
+                )
+            },
         )
     }
 }

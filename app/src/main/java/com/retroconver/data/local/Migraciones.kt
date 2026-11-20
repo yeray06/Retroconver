@@ -40,8 +40,23 @@ val MIGRACION_6_7 = object : Migration(6, 7) {
     }
 }
 
+/** 7 → 8 (E4-09, #72): mensajes del tablón. */
+val MIGRACION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `mensajes` (`id` TEXT NOT NULL, `perfilId` TEXT NOT NULL, " +
+                "`autorId` TEXT NOT NULL, `texto` TEXT NOT NULL, `fechaCreacion` INTEGER NOT NULL, " +
+                "PRIMARY KEY(`id`), " +
+                "FOREIGN KEY(`perfilId`) REFERENCES `usuarios`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE, " +
+                "FOREIGN KEY(`autorId`) REFERENCES `usuarios`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_mensajes_perfilId` ON `mensajes` (`perfilId`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_mensajes_autorId` ON `mensajes` (`autorId`)")
+    }
+}
+
 /** Todas las migraciones, en orden. Se registran en AppContainer. */
-val MIGRACIONES: Array<Migration> = arrayOf(MIGRACION_5_6, MIGRACION_6_7)
+val MIGRACIONES: Array<Migration> = arrayOf(MIGRACION_5_6, MIGRACION_6_7, MIGRACION_7_8)
 
 /** Versiones sin servidor: desde ellas se borra la copia y se crea de nuevo. */
 val VERSIONES_SIN_MIGRACION: IntArray = intArrayOf(1, 2, 3, 4)

@@ -84,7 +84,7 @@ erDiagram
 ## 2. Definición de Claves y Relaciones
 
 ### 2.1 Claves Primarias (`PrimaryKey`)
-> **Desde la entrega 4** (E4-05.1, [#121](https://github.com/yeray06/Retroconver/issues/121)) las claves son `String` con el **UUID que pone el servidor**, no `Long` autoincrementales: así la copia de Room usa los mismos ids que Supabase y lo descargado se guarda con `@Upsert` sin duplicar. Ya están `USUARIOS`, `PUBLICACIONES` y `COMENTARIOS` (versión 4) y `ALBUMES` y `FOTOS` (versión 5, E4-10.1, [#68](https://github.com/yeray06/Retroconver/issues/68)); `MENSAJES` nace así en E4-09. El pie de foto del boceto no se ha hecho: no está en los requisitos. Ver el apartado 5.4.
+> **Desde la entrega 4** (E4-05.1, [#121](https://github.com/yeray06/Retroconver/issues/121)) las claves son `String` con el **UUID que pone el servidor**, no `Long` autoincrementales: así la copia de Room usa los mismos ids que Supabase y lo descargado se guarda con `@Upsert` sin duplicar. Ya están `USUARIOS`, `PUBLICACIONES` y `COMENTARIOS` (versión 4) y `ALBUMES` y `FOTOS` (versión 5, E4-10.1, [#68](https://github.com/yeray06/Retroconver/issues/68)); `MENSAJES` nació así en E4-09 (versión 8, [#72](https://github.com/yeray06/Retroconver/issues/72)), con `perfilId` (dueño del tablón) y `autorId`. El pie de foto del boceto no se ha hecho: no está en los requisitos. Ver el apartado 5.4.
 
 En la primera versión, todas las entidades usaban una clave primaria de tipo `Long` autoincremental (`autoGenerate = true`):
 * `USUARIOS.id`
