@@ -117,7 +117,7 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 
 | Qué | Dónde | Issue | Estado |
 |---|---|---|---|
-| Servidor Supabase (plan gratuito): tablas, políticas de seguridad (29 comprobaciones en `pruebas_seguridad.sql`) e imágenes | `supabase/` | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ |
+| Servidor Supabase (plan gratuito): tablas, políticas de seguridad (29/29 comprobaciones) e imágenes | `supabase/` | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ |
 | Cliente de red con Retrofit: errores traducidos al español y franja de «Sin conexión» | `data/remote/` | E4-03 [#113](https://github.com/yeray06/Retroconver/issues/113) | ✅ ([#137](https://github.com/yeray06/Retroconver/pull/137)) |
 | Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | ✅ ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
 | Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | ✅ ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |

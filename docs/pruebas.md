@@ -59,7 +59,7 @@ Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yer
 
 | Prueba | Cómo | Resultado |
 |---|---|---|
-| Políticas de seguridad (RLS) | `supabase/pruebas_seguridad.sql` en el SQL Editor del proyecto: crea dos cuentas temporales, hace 29 comprobaciones y las borra | ✅ 22/22 el 16/11/2026, sin restos (en la entrega 4 eran 12/12, [#136](https://github.com/yeray06/Retroconver/pull/136)). Las 7 de los extras se pasan al aplicar `esquema.sql` con ellos |
+| Políticas de seguridad (RLS) | `supabase/pruebas_seguridad.sql` en el SQL Editor del proyecto: crea dos cuentas temporales, hace 29 comprobaciones y las borra | ✅ 29/29 el 20/11/2026 con los extras, sin restos (22/22 el 16/11; en la entrega 4 eran 12/12, [#136](https://github.com/yeray06/Retroconver/pull/136)) |
 
 Las comprobaciones de la entrega 4:
 1. Al registrarse se crea el perfil.
