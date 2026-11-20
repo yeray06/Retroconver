@@ -11,7 +11,7 @@ Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**
 
 ## 2. Pruebas automáticas
 
-**193 pruebas: 131 unitarias y 62 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 9 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
+**229 pruebas: 159 unitarias y 70 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 10 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
 
 Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yeray06/Retroconver/pull/156)).
 
@@ -25,7 +25,7 @@ Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yer
 | `ResultadoRedTest` | Formatos de error de Auth, tablas y Storage; mensaje en español de cada caso; fechas del servidor; configuración | 14 | #115 |
 | `SesionRepositoryTest` | Sesión con DataStore real: entrar guarda los tokens y **no la contraseña**, credenciales incorrectas, registro, renovar antes de caducar, 401 → renovar y repetir, renovación rechazada → sesión cerrada, sin red se mantiene, cerrar sesión con y sin red | 11 | #117, #119 |
 | `ValidacionAccesoTest` | Formularios de acceso: emails válidos y no válidos, obligatorios, contraseña de 6 o más, límite del nombre | 10 | #118 |
-| `UsuarioRepositoryTest` | Perfil en el servidor: usuario de la sesión, editar (PATCH y copia en Room), sin conexión, sin permiso, avatar (subir → apuntar → borrar el anterior), marcha atrás si falla, guardar el tema y la tipografía y que el servidor rechace una que no existe | 10 | #121, #122, #30 |
+| `UsuarioRepositoryTest` | Perfil en el servidor: usuario de la sesión, editar (PATCH y copia en Room), sin conexión, sin permiso, avatar (subir → apuntar → borrar el anterior), marcha atrás si falla, guardar el tema y la tipografía y que el servidor rechace una que no existe. *(EF)* Buscar personas por nombre sin la propia, sin texto no se pregunta y los comodines se buscan como texto | 13 | #121, #122, #30, #129 |
 | `ConversionesTest` | Perfil del servidor → Room (URL pública del avatar, tema, tipografía, fechas) | 2 | #121 |
 | `EstiloPerfilTest` | Temas clásicos y tipografías: al menos 3 temas, claves únicas, valores por defecto con claves desconocidas, el clásico es el de la guía y **contraste de 4,5:1 o más** de todos los textos en cada tema (WCAG) | 5 | #30 |
 | `AmistadesRepositoryTest` | Amistades contra el servidor falso: descargar amigos y solicitudes con sus perfiles, quitar las borradas, amigos de otra persona (solo aceptadas), pedir, aceptar, borrar, solicitud repetida (23505) y sin permiso; relación con otra persona en cada caso | 9 | #129 |
@@ -35,18 +35,20 @@ Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yer
 | `ValidacionPerfilTest` | Formulario del perfil (E3) | 6 | #54 |
 | `FechaRelativaTest` | Fecha relativa de las publicaciones del muro (David) | 6 | #59 |
 | `ValidacionPublicacionTest` | Texto de una publicación (David) | 6 | #60 |
+| `ValidacionComentarioTest` | Texto de un comentario: vacío, normal y límite del servidor (David) | 3 | #66 |
+| `PublicacionRepositoryTest` | Muro contra el servidor falso (David): descargar con autores, URL pública de la imagen, contador de comentarios, quitar lo borrado, sin conexión, publicar con y sin imagen y marcha atrás, comentar, borrar lo propio y no lo ajeno. *(EF)* Muro de amigos: con autores solo se piden y se enseñan los suyos | 22 | #123, #66, #67, #129 |
 
 ### En el emulador
 
 | Clase | Qué comprueba | Pruebas | Issue |
 |---|---|---|---|
 | `UsuarioDaoTest` | Perfiles con UUID: guardar, `@Upsert` sin duplicar ni borrar sus publicaciones, editar sin tocar el avatar y al revés | 8 | #121 |
-| `PublicacionDaoTest` | Orden, comentarios, cascadas, UUID y `@Upsert` de lo que llega del servidor | 8 | #58, #121 |
+| `PublicacionDaoTest` | Orden, comentarios, cascadas, UUID y `@Upsert` de lo que llega del servidor; sincronizar quitando lo borrado, también los comentarios (David) | 12 | #58, #121, #123 |
 | `GaleriaDaoTest` | Álbumes con número de fotos y portada, orden, cascada, sincronizar quitando lo borrado sin tocar lo ajeno | 8 | #68 |
 | `AlmacenImagenesTest` | Fotos reales de 12 MP a 720p, no agrandar, girar según EXIF, nombres distintos, borrar solo lo propio, medidas y borrar todo al cerrar sesión | 8 | #63, #119 |
 | `AmistadDaoTest` | Amigos por los dos lados y por orden alfabético, solicitudes recibidas y enviadas con la otra persona, relación entre dos personas, sincronizar sin tocar lo ajeno, cascada al borrar un perfil | 6 | #129 |
 | `MigracionesTest` | Migraciones de Room: de 5 a 6 y de 6 a 7 conservando los datos, la app abriendo una copia de la versión 5 y una de la 4 (sin servidor) que se crea de nuevo | 4 | Entrega final |
-| `AccesibilidadTest` | Revisión de accesibilidad automática (apartado 4), también de cada tema del perfil, el selector de aspecto, las solicitudes de amistad y el botón de amistad en cada estado | 20 | #78, #30, #129 |
+| `AccesibilidadTest` | Revisión de accesibilidad automática (apartado 4), también de cada tema del perfil, el selector de aspecto, las solicitudes de amistad, el botón de amistad y el buscador de amigos en cada estado | 24 | #78, #30, #129 |
 
 ## 3. Servidor
 
@@ -189,6 +191,7 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 | *(EF)* El aspecto del perfil tiene vista previa antes de guardar, y cada tipografía se ve escrita con su letra | Se elige viendo el resultado, sin guardar y volver atrás para probar |
 | *(EF)* Las solicitudes de amistad van arriba del perfil, antes de la lista de amigos | Es lo único que hay que contestar |
 | *(EF)* Cada botón de una solicitud dice a TalkBack de quién es («Aceptar la solicitud de Bea») | Con varias solicitudes, «Aceptar» repetido no dice cuál |
+| *(EF)* «Buscar amigos» en el perfil propio: se busca por nombre y se pide amistad desde la lista, sin entrar en cada perfil; cada «Añadir» dice a quién («Pedir amistad a Ana») | El muro solo enseña a los amigos, así que hacerlos tiene que ser fácil |
 | *(EF)* «Dejar de ser amigos» pide confirmación; cancelar una solicitud no | Lo primero no se deshace con un toque; lo segundo sí (se vuelve a pedir) |
 | *(EF)* «No se ha podido subir la foto» con una sola foto, en vez de «1 de 1 fotos» | Texto natural en los dos casos (plural de Android) |
 

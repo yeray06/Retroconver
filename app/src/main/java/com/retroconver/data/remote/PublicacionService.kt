@@ -25,7 +25,11 @@ interface PublicacionService {
      * No hay algoritmo: orden cronológico inverso y nada más.
      */
     @GET("rest/v1/publicaciones?select=*,autor:perfiles(*),comentarios(*,autor:perfiles(*))&order=creada_en.desc")
-    suspend fun ultimas(@Query("limit") limite: Int): List<PublicacionDto>
+    suspend fun ultimas(
+        @Query("limit") limite: Int,
+        /** Solo las de estas personas (`in.(id1,id2)`, EX-04), o todas si es `null`. */
+        @Query("autor_id") filtroAutores: String? = null,
+    ): List<PublicacionDto>
 
     /** Una publicación con su autor y sus comentarios. Lista vacía si se ha borrado. */
     @GET("rest/v1/publicaciones?select=*,autor:perfiles(*),comentarios(*,autor:perfiles(*))")

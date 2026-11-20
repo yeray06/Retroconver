@@ -65,7 +65,7 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 ### Si hay tiempo
 
 - Mensajes directos con zumbido, como en MSN (EX-01, [#28](https://github.com/yeray06/Retroconver/issues/28))
-- Amistades: solicitudes y muro solo con amigos (EX-04, [#129](https://github.com/yeray06/Retroconver/issues/129)). **Hecho en la entrega final**, salvo lo que depende de E4-06 y E4-08
+- Amistades: solicitudes y muro solo con amigos (EX-04, [#129](https://github.com/yeray06/Retroconver/issues/129)). **Hecho en la entrega final**: buscar amigos, solicitudes, lista de amigos y muro solo con amigos
 - «Me gusta» en publicaciones (EX-05, [#130](https://github.com/yeray06/Retroconver/issues/130))
 - Comentarios anidados o respuestas (EX-02, [#29](https://github.com/yeray06/Retroconver/issues/29))
 - Temas clásicos y tipografías seleccionables por perfil (EX-03, [#30](https://github.com/yeray06/Retroconver/issues/30)). **Hecho en la entrega final**
@@ -107,6 +107,8 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 | <img src="docs/capturas/01-inicio-sesion.png" width="200" alt="Inicio de sesión"> | <img src="docs/capturas/03-muro.png" width="200" alt="Muro"> | <img src="docs/capturas/04-perfil.png" width="200" alt="Perfil con amigos y una solicitud"> | <img src="docs/capturas/05-perfil-tema-noche.png" width="200" alt="Perfil con el tema Noche"> |
 | **Aspecto del perfil** | **Galería** | **Álbum** | **Foto** |
 | <img src="docs/capturas/06-aspecto-del-perfil.png" width="200" alt="Elegir tema y tipografía"> | <img src="docs/capturas/07-galeria.png" width="200" alt="Álbumes"> | <img src="docs/capturas/08-album.png" width="200" alt="Álbum subiendo fotos"> | <img src="docs/capturas/09-foto.png" width="200" alt="Foto a pantalla completa"> |
+| **Buscar amigos** | | | |
+| <img src="docs/capturas/10-buscar-amigos.png" width="200" alt="Buscar amigos y pedirles amistad"> | | | |
 
 ### Qué funciona
 
@@ -117,13 +119,13 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 | Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | ✅ ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
 | Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | ✅ ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
 | Galería: álbumes con portada, cuadrícula, foto a pantalla completa, subir varias fotos en segundo plano y borrarlas; álbumes de otras personas en solo lectura | `ui/screens/galeria/`, `data/subidas/` | E4-10 [#21](https://github.com/yeray06/Retroconver/issues/21) | ✅ ([#141](https://github.com/yeray06/Retroconver/pull/141), [#142](https://github.com/yeray06/Retroconver/pull/142), [#151](https://github.com/yeray06/Retroconver/pull/151)) |
-| Publicaciones compartidas: publicar con foto en el servidor y muro con las publicaciones de todas las personas, que se actualiza al abrirlo y deslizando | `data/repository/PublicacionRepository.kt`, `ui/screens/muro/` | E4-06 [#123](https://github.com/yeray06/Retroconver/issues/123) | ✅ |
+| Publicaciones compartidas: publicar con foto en el servidor y muro con lo tuyo y lo de tus amigos, que se actualiza al abrirlo y deslizando | `data/repository/PublicacionRepository.kt`, `ui/screens/muro/` | E4-06 [#123](https://github.com/yeray06/Retroconver/issues/123) | ✅ |
 | Comentarios: detalle de la publicación con sus comentarios, escribir uno nuevo y contador en el muro | `ui/screens/muro/PublicacionScreen.kt`, `PublicacionViewModel.kt` | E4-07 [#18](https://github.com/yeray06/Retroconver/issues/18) | ✅ |
 | **Temas clásicos y tipografías del perfil:** cuatro temas (Clásico, Noche, Lima y Chicle) y cuatro tipografías, con vista previa. Quien visita el perfil lo ve así | `ui/theme/EstiloPerfil.kt`, `ui/screens/perfil/` | EX-03 [#30](https://github.com/yeray06/Retroconver/issues/30) | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
-| **Amistades:** solicitudes recibidas (aceptar o rechazar) y enviadas (cancelar), lista de amigos en el perfil y botón de amistad para el perfil de otra persona | `data/repository/AmistadesRepository.kt`, `ui/screens/perfil/Amistades.kt` | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) | 🟡 ([#155](https://github.com/yeray06/Retroconver/pull/155)): falta lo que depende de las pantallas de David (abajo) |
+| **Amistades:** buscar amigos por nombre y pedirles amistad, solicitudes recibidas (aceptar o rechazar) y enviadas (cancelar), lista de amigos en el perfil, muro solo con lo tuyo y lo de tus amigos, y botón de amistad listo para el perfil de otra persona | `data/repository/AmistadesRepository.kt`, `ui/screens/perfil/Amistades.kt`, `ui/screens/perfil/BuscarAmigos.kt` | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) | ✅ ([#155](https://github.com/yeray06/Retroconver/pull/155), [#160](https://github.com/yeray06/Retroconver/pull/160)) |
 | **Migraciones de Room:** al actualizar la app se conserva la copia local | `data/local/Migraciones.kt` | Entrega final | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
 | **APK firmado** y Release en GitHub al subir una etiqueta `v*` | `.github/workflows/release.yml` | EF-01.1 [#83](https://github.com/yeray06/Retroconver/issues/83) | ✅ Preparado: falta crear la clave ([Publicar una versión](#publicar-una-versión-apk-firmado)) |
-| 193 pruebas automáticas, revisión de accesibilidad, diseño y usabilidad, Android lint sin avisos e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#143](https://github.com/yeray06/Retroconver/pull/143), [#156](https://github.com/yeray06/Retroconver/pull/156)) |
+| 229 pruebas automáticas, revisión de accesibilidad, diseño y usabilidad, Android lint sin avisos e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#143](https://github.com/yeray06/Retroconver/pull/143), [#156](https://github.com/yeray06/Retroconver/pull/156)) |
 | De la entrega 3: perfil con edición validada, Photo Picker sin permisos, reescalado a 720p, nueva publicación y muro | `ui/screens/perfil/`, `ui/screens/muro/`, `data/imagenes/` | Entrega 3 | ✅ |
 
 ### Qué falta
@@ -142,13 +144,14 @@ Lo que ya está hecho les deja el camino preparado:
 - El patrón para pasar un módulo al servidor está en [docs/arquitectura.md](docs/arquitectura.md), apartado 2.
 - `UsuarioRepository.guardarDelServidor()` guarda los autores del muro.
 - Los álbumes de otra persona se abren con `RutasGaleria.albumesDe(id)`.
-- En el perfil de otra persona (E4-08.1) basta con reutilizar `PerfilContenido`, que ya sale con su tema y su tipografía, y añadir `BotonAmistad(idPersona = id)` y `TarjetaAmigos(...)`. Después, el muro de amigos de EX-04 es filtrar el muro (E4-06) con `AmistadesRepository.circulo()`.
+- En el perfil de otra persona (E4-08.1) basta con reutilizar `PerfilContenido`, que ya sale con su tema y su tipografía, y añadir `BotonAmistad(idPersona = id)` y `TarjetaAmigos(...)`.
+- Para el buscador de personas (E4-08.2) ya está `UsuarioRepository.buscar(texto)`, que usa el buscador de amigos.
 
 ### Qué falla o tiene límites
 
 - **Comentarios:** hasta 300 caracteres. Se ven y se escriben en el detalle de la publicación; el contador del muro sale de los comentarios descargados.
 - **Muro:** se descargan las 50 publicaciones más recientes al abrirlo o al deslizar hacia abajo; no hay tiempo real ni paginación.
-- **Amistades:** hasta que esté el perfil de otra persona (E4-08.1) no se puede enviar una solicitud desde la app. Para probarlas, la solicitud se crea en el panel de Supabase (paso 6 de abajo). El muro sigue enseñando a todos hasta que se filtre (E4-06).
+- **Amistades:** el muro enseña solo lo tuyo y lo de tus amigos (EX-04). Sin amigos, solo se ven tus publicaciones: el muro vacío dice cómo buscarlos. El buscador devuelve las 20 primeras personas por orden alfabético.
 - Las fotos se suben **en segundo plano** con WorkManager: siguen aunque se salga del álbum o se cierre la app ([#147](https://github.com/yeray06/Retroconver/issues/147)). Si se reinicia el móvil a mitad, puede que alguna no se pueda leer ya; la app dice cuántas no se han subido.
 - Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1. La app dice «No se ha podido usar esa foto». Desde Android 9 funcionan.
 - Si se borra una imagen del servidor sin conexión, puede quedar el archivo en *Storage* sin usar. No se ve en ningún sitio y no afecta a la app.
@@ -195,13 +198,14 @@ Primero abre el proyecto y **conecta la app con el servidor** como se explica en
 2. Elige un tema (por ejemplo **Noche**) y una tipografía (**Máquina de escribir**). La vista previa cambia al momento, antes de guardar.
 3. **Guardar**: el perfil se ve con ese tema y esa letra. En *Table Editor → perfiles* salen `tema = noche` y `tipografia = maquina`.
 
-### 6. Amistades (EX-04)
+### 6. Amistades y muro de amigos (EX-04)
 
-Hasta que esté el perfil de otra persona (E4-08, David) la solicitud se crea desde el panel:
+Hace falta una segunda cuenta (en otro móvil o emulador, o cerrando sesión y entrando con ella).
 
-1. Crea una segunda cuenta en la app (o usa la del compañero) y copia su id de *Authentication → Users*.
-2. En *Table Editor → amistades → Insert row*, pon `solicitante_id` = el id de la otra cuenta y `destinatario_id` = el tuyo. Deja `aceptada` en `false`.
-3. En la app, **Perfil** (desliza hacia abajo o vuelve a entrar): sale **Solicitudes de amistad** con esa persona. **Aceptar** la pasa a **Amigos (1)**; **Rechazar** la borra. En el panel, `aceptada` cambia a `true` o la fila desaparece.
+1. Con la cuenta B, publica algo. Con la cuenta A, en el **Muro** no sale: todavía no sois amigos.
+2. Con la cuenta A: **Perfil → Buscar amigos**, escribe parte del nombre de B y **Buscar**. Pulsa **Añadir**: pasa a «Solicitud enviada» y sale en **Solicitudes enviadas** del perfil. En el panel, *Table Editor → amistades* tiene la fila con `aceptada = false`.
+3. Con la cuenta B: **Perfil** → en **Solicitudes de amistad** sale A. **Aceptar** la pasa a **Amigos (1)** (**Rechazar** la borraría).
+4. Con la cuenta A, en el **Muro** (desliza hacia abajo) ya sale la publicación de B.
 
 ### Cuentas de prueba
 

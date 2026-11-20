@@ -7,6 +7,8 @@ import com.retroconver.data.remote.CambioAvatarDto
 import com.retroconver.data.remote.CambioEstiloDto
 import com.retroconver.data.remote.CambiosPerfilDto
 import com.retroconver.data.remote.ConfiguracionSupabase
+import com.retroconver.data.remote.contiene
+import com.retroconver.data.remote.distinto
 import com.retroconver.data.remote.PerfilDto
 import com.retroconver.data.remote.PerfilService
 import com.retroconver.data.remote.ResultadoRed
@@ -75,6 +77,23 @@ class UsuarioRepository(
     suspend fun refrescarActual(): ResultadoRed<Unit> {
         val id = idActual() ?: return ResultadoRed.SesionCaducada
         return refrescar(id)
+    }
+
+    /**
+     * Busca personas por su nombre para pedirles amistad (EX-04, #129): las [LIMITE_BUSQUEDA]
+     * primeras por orden alfabético cuyo nombre contiene [texto], sin contar la cuenta de la
+     * sesión. Se guardan en Room como el resto de perfiles. Sin texto no se pregunta al servidor.
+     */
+    suspend fun buscar(texto: String): ResultadoRed<List<UsuarioEntity>> {
+        val consulta = texto.trim()
+        if (consulta.isEmpty()) return ResultadoRed.Correcto(emptyList())
+        val yo = idActual() ?: return ResultadoRed.SesionCaducada
+        return llamarAlServidor { perfilService.buscar(contiene(consulta), distinto(yo), LIMITE_BUSQUEDA) }
+            .map { filas ->
+                val perfiles = filas.map { it.aEntidad(configuracion) }
+                usuarioDao.guardarTodos(perfiles)
+                perfiles
+            }
     }
 
     /**
@@ -181,5 +200,8 @@ class UsuarioRepository(
     private companion object {
         /** Código de Postgres para «sin permiso» (lo traduce MensajesRed). */
         const val CODIGO_SIN_PERMISO = "42501"
+
+        /** Cuántas personas devuelve como mucho el buscador de amigos. */
+        const val LIMITE_BUSQUEDA = 20
     }
 }

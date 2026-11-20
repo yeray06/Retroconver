@@ -9,6 +9,7 @@ import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.PerfilDto
 import com.retroconver.data.remote.PerfilService
 import com.retroconver.data.remote.ResultadoRed
+import com.retroconver.data.remote.contiene
 import com.retroconver.data.sesion.SesionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -243,7 +244,41 @@ class UsuarioRepositoryTest {
         assertEquals("Dani", room.perfiles.value[YO]?.nombre)
     }
 
+    // ---------- Buscar amigos (EX-04) ----------
+
+    @Test
+    fun buscarPideLosNombresQueContienenElTextoSinElPerfilPropio() = runBlocking<Unit> {
+        responder(200, """[{"id":"$ANA","nombre":"Ana","creado_en":"2026-11-02T09:00:00+00:00"}]""")
+
+        val resultado = repositorio.buscar("  an ")
+
+        val peticion = servidor.takeRequest()
+        assertEquals("ilike.*an*", peticion.requestUrl?.queryParameter("nombre"))
+        assertEquals("neq.$YO", peticion.requestUrl?.queryParameter("id"))
+        assertEquals("nombre.asc", peticion.requestUrl?.queryParameter("order"))
+        assertEquals("20", peticion.requestUrl?.queryParameter("limit"))
+        assertEquals(listOf("Ana"), (resultado as ResultadoRed.Correcto).datos.map { it.nombre })
+        assertEquals("Ana", room.perfiles.value[ANA]?.nombre)
+    }
+
+    @Test
+    fun buscarSinTextoNoPreguntaAlServidor() = runBlocking<Unit> {
+        val antes = servidor.requestCount
+
+        val resultado = repositorio.buscar("   ")
+
+        assertEquals(ResultadoRed.Correcto(emptyList<UsuarioEntity>()), resultado)
+        assertEquals(antes, servidor.requestCount)
+    }
+
+    @Test
+    fun losComodinesQueSeEscribenSeBuscanComoTexto() {
+        assertEquals("ilike.*Ana*", contiene("Ana"))
+        assertEquals("ilike.*50\\%\\_a*", contiene("50%_*a"))
+    }
+
     private companion object {
         const val YO = "6f1c2a1e-0000-4000-8000-000000000001"
+        const val ANA = "6f1c2a1e-0000-4000-8000-000000000002"
     }
 }

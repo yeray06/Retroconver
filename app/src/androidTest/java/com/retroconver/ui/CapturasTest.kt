@@ -37,6 +37,7 @@ import com.retroconver.data.local.PublicacionConAutor
 import com.retroconver.data.local.PublicacionEntity
 import com.retroconver.data.local.SolicitudConPersona
 import com.retroconver.data.local.UsuarioEntity
+import com.retroconver.data.repository.RelacionAmistad
 import com.retroconver.navigation.BarraNavegacion
 import com.retroconver.navigation.Destino
 import com.retroconver.ui.components.RetroHeader
@@ -52,10 +53,13 @@ import com.retroconver.ui.screens.galeria.FotoUiState
 import com.retroconver.ui.screens.galeria.ProgresoSubida
 import com.retroconver.ui.screens.muro.MuroContenido
 import com.retroconver.ui.screens.perfil.AmistadesDelPerfil
+import com.retroconver.ui.screens.perfil.BuscarAmigosContenido
+import com.retroconver.ui.screens.perfil.BuscarAmigosUiState
 import com.retroconver.ui.screens.perfil.EditarPerfilContenido
 import com.retroconver.ui.screens.perfil.ErroresPerfil
 import com.retroconver.ui.screens.perfil.PerfilContenido
 import com.retroconver.ui.screens.perfil.PerfilUiState
+import com.retroconver.ui.screens.perfil.PersonaEncontrada
 import com.retroconver.ui.theme.RetroconverTheme
 import com.retroconver.ui.theme.TemaPerfil
 import com.retroconver.ui.theme.TipografiaPerfil
@@ -119,6 +123,7 @@ class CapturasTest {
     private val ana = UsuarioEntity(id = "ana", nombre = "Ana", fechaAlta = Instant.EPOCH)
     private val bea = UsuarioEntity(id = "bea", nombre = "Bea", fechaAlta = Instant.EPOCH)
     private val dani = UsuarioEntity(id = "dani", nombre = "Dani", fechaAlta = Instant.EPOCH)
+    private val marta = UsuarioEntity(id = "marta", nombre = "Marta", fechaAlta = Instant.EPOCH)
 
     private val colores = listOf(
         0xFF0056B3 to 0xFF8AD4FF,
@@ -255,6 +260,7 @@ class CapturasTest {
             alCambiarFoto = {},
             alEditar = {},
             alCerrarSesion = {},
+            alBuscarAmigos = {},
         )
     }
 
@@ -339,6 +345,27 @@ class CapturasTest {
             estado = FotoUiState(foto = fotos()[1], tituloAlbum = londres.titulo, esMia = true),
             alVolver = {},
             alBorrar = {},
+        )
+    }
+
+    @Test
+    fun buscarAmigos() = capturar("10-buscar-amigos", Destino.PERFIL) {
+        BuscarAmigosContenido(
+            texto = "a",
+            estado = BuscarAmigosUiState(
+                resultados = listOf(
+                    PersonaEncontrada(ana, RelacionAmistad.Amigos("a1")),
+                    PersonaEncontrada(bea, RelacionAmistad.SolicitudRecibida("s1")),
+                    PersonaEncontrada(dani, RelacionAmistad.Amigos("a2")),
+                    PersonaEncontrada(marta, RelacionAmistad.Ninguna),
+                ),
+            ),
+            alCambiarTexto = {},
+            alBuscar = {},
+            alPedir = {},
+            alAceptar = {},
+            alCerrar = {},
+            modifier = Modifier.padding(16.dp),
         )
     }
 }

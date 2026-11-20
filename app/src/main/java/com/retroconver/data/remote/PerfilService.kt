@@ -21,6 +21,17 @@ interface PerfilService {
     @GET("rest/v1/perfiles?select=*")
     suspend fun obtener(@Query("id") filtroId: String): List<PerfilDto>
 
+    /**
+     * Perfiles cuyo nombre cumple [filtroNombre] ([contiene]), por orden alfabético y sin el de
+     * [filtroId] (`neq.{id}`, el propio). Es el buscador de amigos (EX-04, #129).
+     */
+    @GET("rest/v1/perfiles?select=*&order=nombre.asc")
+    suspend fun buscar(
+        @Query("nombre") filtroNombre: String,
+        @Query("id") filtroId: String,
+        @Query("limit") limite: Int,
+    ): List<PerfilDto>
+
     /** Cambia nombre, biografía y estado. Devuelve la fila ya cambiada (o vacía si no es tuya). */
     @Headers("Prefer: return=representation")
     @PATCH("rest/v1/perfiles")
@@ -39,6 +50,19 @@ interface PerfilService {
 
 /** Filtro de PostgREST «columna igual a [valor]»: `igual(id)` → `eq.{id}`. */
 fun igual(valor: String): String = "eq.$valor"
+
+/** Filtro de PostgREST «columna distinta de [valor]»: `distinto(id)` → `neq.{id}`. */
+fun distinto(valor: String): String = "neq.$valor"
+
+/**
+ * Filtro de PostgREST «la columna contiene [texto]», sin distinguir mayúsculas: `ilike.*texto*`.
+ * Los comodines de SQL que escriba la persona (`%`, `_`) se buscan como texto y el `*` se quita,
+ * porque PostgREST lo convierte en comodín.
+ */
+fun contiene(texto: String): String {
+    val literal = texto.replace("*", "").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return "ilike.*$literal*"
+}
 
 /** Fila de `perfiles` tal como la devuelve el servidor (supabase/esquema.sql). */
 @Serializable

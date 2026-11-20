@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <!-- Muro: estado vacío -->
     <string name="muro_vacio_titulo">El muro está vacío</string>
-    <string name="muro_vacio_mensaje">Rompe el hielo y publica tu primer momento.</string>
+    <string name="muro_vacio_mensaje">Publica tu primer momento o busca a tus amigos en tu perfil («Buscar amigos») para ver lo que publican.</string>
 
     <!-- Muro: tarjeta de publicación -->
     <string name="imagen_de_publicacion">Imagen publicada por %1$s</string>
