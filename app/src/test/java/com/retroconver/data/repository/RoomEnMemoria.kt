@@ -9,6 +9,11 @@ import com.retroconver.data.local.ComentarioDao
 import com.retroconver.data.local.ComentarioEntity
 import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.local.GaleriaDao
+import com.retroconver.data.local.MeGustaDao
+import com.retroconver.data.local.MeGustaEntity
+import com.retroconver.data.local.MensajeDirectoConPersonas
+import com.retroconver.data.local.MensajeDirectoDao
+import com.retroconver.data.local.MensajeDirectoEntity
 import com.retroconver.data.local.MensajeConAutor
 import com.retroconver.data.local.MensajeDao
 import com.retroconver.data.local.MensajeEntity
@@ -190,9 +195,29 @@ internal class ComentarioDaoEnMemoria(private val perfiles: UsuarioDaoEnMemoria)
         }
 }
 
+internal class MeGustaDaoEnMemoria : MeGustaDao() {
+
+    val meGusta = MutableStateFlow<Set<MeGustaEntity>>(emptySet())
+
+    override suspend fun dar(meGusta: MeGustaEntity) {
+        this.meGusta.value = this.meGusta.value + meGusta
+    }
+
+    override suspend fun quitar(publicacionId: String, usuarioId: String) {
+        meGusta.value = meGusta.value - MeGustaEntity(publicacionId, usuarioId)
+    }
+
+    override suspend fun darTodos(meGusta: List<MeGustaEntity>) = meGusta.forEach { dar(it) }
+
+    override suspend fun quitarDe(publicaciones: List<String>) {
+        meGusta.value = meGusta.value.filterNot { it.publicacionId in publicaciones }.toSet()
+    }
+}
+
 internal class PublicacionDaoEnMemoria(
     private val perfiles: UsuarioDaoEnMemoria,
     private val comentarios: ComentarioDaoEnMemoria,
+    private val meGusta: MeGustaDaoEnMemoria = MeGustaDaoEnMemoria(),
 ) : PublicacionDao() {
 
     val publicaciones = MutableStateFlow<Map<String, PublicacionEntity>>(emptyMap())
@@ -205,10 +230,11 @@ internal class PublicacionDaoEnMemoria(
         publicaciones.value = publicaciones.value + (publicacion.id to publicacion)
     }
 
-    /** Como en Room, borrar una publicación borra en cascada sus comentarios. */
+    /** Como en Room, borrar una publicación borra en cascada sus comentarios y sus «Me gusta». */
     override suspend fun eliminar(id: String) {
         publicaciones.value = publicaciones.value - id
         comentarios.comentarios.value = comentarios.comentarios.value.filterValues { it.publicacionId != id }
+        meGusta.meGusta.value = meGusta.meGusta.value.filterNot { it.publicacionId == id }.toSet()
     }
 
     override suspend fun borrarDesdeQueYaNoEstan(desde: Instant, conservar: List<String>) {
@@ -225,21 +251,30 @@ internal class PublicacionDaoEnMemoria(
         todas: Collection<PublicacionEntity>,
         autores: Map<String, com.retroconver.data.local.UsuarioEntity>,
         comentarios: Map<String, ComentarioEntity>,
+        meGusta: Set<MeGustaEntity>,
+        miId: String,
     ): List<PublicacionConAutor> = todas
         .sortedWith(compareByDescending<PublicacionEntity> { it.timestamp }.thenByDescending { it.id })
         .mapNotNull { publicacion ->
             autores[publicacion.usuarioId]?.let { autor ->
-                PublicacionConAutor(publicacion, autor, comentarios.values.count { it.publicacionId == publicacion.id })
+                val suyos = meGusta.filter { it.publicacionId == publicacion.id }
+                PublicacionConAutor(
+                    publicacion,
+                    autor,
+                    comentarios.values.count { it.publicacionId == publicacion.id },
+                    numMeGusta = suyos.size,
+                    meGustaMio = suyos.any { it.usuarioId == miId },
+                )
             }
         }
 
-    override fun observarTodas(): Flow<List<PublicacionConAutor>> =
-        combine(publicaciones, perfiles.perfiles, comentarios.comentarios) { todas, autores, coments ->
-            conAutor(todas.values, autores, coments)
+    override fun observarTodas(miId: String): Flow<List<PublicacionConAutor>> =
+        combine(publicaciones, perfiles.perfiles, comentarios.comentarios, meGusta.meGusta) { todas, autores, coments, gustas ->
+            conAutor(todas.values, autores, coments, gustas, miId)
         }
 
-    override fun observarPorId(id: String): Flow<PublicacionConAutor?> =
-        observarTodas().map { lista -> lista.firstOrNull { it.publicacion.id == id } }
+    override fun observarPorId(id: String, miId: String): Flow<PublicacionConAutor?> =
+        observarTodas(miId).map { lista -> lista.firstOrNull { it.publicacion.id == id } }
 }
 
 internal class MensajeDaoEnMemoria(private val perfiles: UsuarioDaoEnMemoria) : MensajeDao() {
@@ -267,4 +302,42 @@ internal class MensajeDaoEnMemoria(private val perfiles: UsuarioDaoEnMemoria) : 
     override suspend fun borrarLosQueYaNoEstan(perfilId: String, conservar: List<String>) {
         mensajes.value = mensajes.value.filterValues { it.perfilId != perfilId || it.id in conservar }
     }
+}
+
+internal class MensajeDirectoDaoEnMemoria(private val perfiles: UsuarioDaoEnMemoria) : MensajeDirectoDao() {
+
+    val mensajes = MutableStateFlow<Map<String, MensajeDirectoEntity>>(emptyMap())
+
+    override suspend fun guardar(mensajes: List<MensajeDirectoEntity>) {
+        this.mensajes.value = this.mensajes.value + mensajes.associateBy { it.id }
+    }
+
+    private fun conPersonas(
+        lista: Collection<MensajeDirectoEntity>,
+        personas: Map<String, UsuarioEntity>,
+    ): List<MensajeDirectoConPersonas> = lista.mapNotNull { m ->
+        val remitente = personas[m.remitenteId] ?: return@mapNotNull null
+        val destinatario = personas[m.destinatarioId] ?: return@mapNotNull null
+        MensajeDirectoConPersonas(m, remitente, destinatario)
+    }
+
+    override fun observarMios(miId: String): Flow<List<MensajeDirectoConPersonas>> =
+        combine(mensajes, perfiles.perfiles) { todos, personas ->
+            conPersonas(
+                todos.values
+                    .filter { it.remitenteId == miId || it.destinatarioId == miId }
+                    .sortedWith(compareByDescending<MensajeDirectoEntity> { it.fechaCreacion }.thenByDescending { it.id }),
+                personas,
+            )
+        }
+
+    override fun observarConversacion(miId: String, otroId: String): Flow<List<MensajeDirectoConPersonas>> =
+        combine(mensajes, perfiles.perfiles) { todos, personas ->
+            conPersonas(
+                todos.values
+                    .filter { setOf(it.remitenteId, it.destinatarioId) == setOf(miId, otroId) }
+                    .sortedWith(compareBy<MensajeDirectoEntity> { it.fechaCreacion }.thenBy { it.id }),
+                personas,
+            )
+        }
 }

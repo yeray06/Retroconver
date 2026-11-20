@@ -18,4 +18,23 @@
     <!-- Sección Mensajes -->
     <string name="mensajes_titulo">Tu tablón</string>
     <string name="mensajes_explicacion">Aquí ves lo que te escriben en tu perfil. Para escribir en el tablón de otra persona, entra en su perfil.</string>
+
+    <!-- Mensajes directos (EX-01, #28) -->
+    <string name="directos_titulo">Conversaciones privadas</string>
+    <string name="directos_explicacion">Solo las veis tú y la otra persona. Para empezar una, entra en el perfil de un amigo y pulsa «Mensaje privado».</string>
+    <string name="directos_vacio">Todavía no tienes conversaciones.</string>
+    <string name="directos_abrir">Abrir la conversación con %1$s</string>
+    <string name="directos_tu">Tú: %1$s</string>
+    <string name="directos_mensaje_privado">Mensaje privado</string>
+    <string name="directos_chat_con">Chat con %1$s</string>
+    <string name="directos_chat">Conversación</string>
+    <string name="directos_escribir">Escribe un mensaje</string>
+    <string name="directos_enviar">Enviar</string>
+    <string name="directos_enviando">Enviando…</string>
+    <string name="directos_zumbido">¡Zumbido!</string>
+    <string name="directos_zumbido_boton">Enviar un zumbido</string>
+    <string name="directos_zumbido_texto">¡Zumbido!</string>
+    <string name="directos_zumbido_recibido">%1$s te ha enviado un zumbido</string>
+    <string name="directos_conversacion_vacia">Todavía no os habéis escrito. ¡Saluda!</string>
+    <string name="directos_solo_amigos">Solo puedes escribir a tus amigos. Envíale una solicitud de amistad desde su perfil.</string>
 </resources>

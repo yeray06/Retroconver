@@ -2,6 +2,7 @@ package com.retroconver.data.repository
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.retroconver.data.local.ComentarioEntity
+import com.retroconver.data.local.MeGustaEntity
 import com.retroconver.data.local.PublicacionEntity
 import com.retroconver.data.local.UsuarioEntity
 import com.retroconver.data.remote.AlmacenamientoService
@@ -47,7 +48,8 @@ class PublicacionRepositoryTest {
     private lateinit var sesion: SesionRepository
     private val perfiles = UsuarioDaoEnMemoria()
     private val comentariosRoom = ComentarioDaoEnMemoria(perfiles)
-    private val publicacionesRoom = PublicacionDaoEnMemoria(perfiles, comentariosRoom)
+    private val meGustaRoom = MeGustaDaoEnMemoria()
+    private val publicacionesRoom = PublicacionDaoEnMemoria(perfiles, comentariosRoom, meGustaRoom)
     private lateinit var repositorio: PublicacionRepository
 
     @Before
@@ -83,6 +85,7 @@ class PublicacionRepositoryTest {
             almacenamiento = retrofit.create(AlmacenamientoService::class.java),
             sesion = sesion,
             configuracion = configuracion,
+            meGustaDao = meGustaRoom,
         )
     }
 
@@ -104,10 +107,12 @@ class PublicacionRepositoryTest {
         minuto: Int = 0,
         imagen: String? = null,
         comentarios: String = "",
+        meGusta: List<String> = emptyList(),
     ) = """{"id":"$id","autor_id":"$autor","texto":"Texto $id",
         "imagen_ruta":${imagen?.let { "\"$it\"" } ?: "null"},
         "creada_en":"2026-11-12T10:${"%02d".format(minuto)}:00+00:00",
-        "autor":${perfilJson(autor, nombre)},"comentarios":[$comentarios]}"""
+        "autor":${perfilJson(autor, nombre)},"comentarios":[$comentarios],
+        "me_gusta":[${meGusta.joinToString(",") { "{\"publicacion_id\":\"$id\",\"usuario_id\":\"$it\"}" }}]}"""
 
     private fun imagen(nombre: String = "foto.jpg") =
         ImagenParaSubir(carpeta.newFile(nombre).apply { writeBytes(byteArrayOf(1, 2, 3)) }, 1280, 720)
@@ -422,6 +427,105 @@ class PublicacionRepositoryTest {
 
         assertEquals("42501", (resultado as ResultadoRed.ErrorServidor).codigo)
         assertEquals(1, repositorio.publicacion("p1").first()!!.numComentarios)
+    }
+
+    // ---------- «Me gusta» (EX-05, #130) y respuestas (EX-02, #29) ----------
+
+    @Test
+    fun alRefrescarSeGuardanLosMeGustaYSeSabeCualesSonMios() = runBlocking<Unit> {
+        responder(200, "[${publicacionJson("p1", meGusta = listOf(YO, ANA))},${publicacionJson("p2", minuto = 1, meGusta = listOf(ANA))}]")
+
+        repositorio.refrescar()
+
+        val muro = repositorio.publicaciones().first().associateBy { it.publicacion.id }
+        assertEquals(2, muro.getValue("p1").numMeGusta)
+        assertTrue(muro.getValue("p1").meGustaMio)
+        assertEquals(1, muro.getValue("p2").numMeGusta)
+        assertFalse(muro.getValue("p2").meGustaMio)
+    }
+
+    @Test
+    fun siAlguienQuitaSuMeGustaDesdeOtroMovilDesapareceAlRefrescar() = runBlocking<Unit> {
+        responder(200, "[${publicacionJson("p1", meGusta = listOf(YO, ANA))}]")
+        repositorio.refrescar()
+        responder(200, "[${publicacionJson("p1", meGusta = listOf(YO))}]")
+
+        repositorio.refrescar()
+
+        assertEquals(1, repositorio.publicacion("p1").first()!!.numMeGusta)
+    }
+
+    @Test
+    fun darMeGustaLoEnviaAlServidorYSubeElContador() = runBlocking<Unit> {
+        publicacionEnRoom("p1")
+        responder(201, """[{"publicacion_id":"p1","usuario_id":"$YO"}]""")
+
+        val resultado = repositorio.cambiarMeGusta("p1", darlo = true)
+
+        assertTrue(resultado is ResultadoRed.Correcto)
+        val peticion = servidor.takeRequest()
+        assertEquals("POST", peticion.method)
+        assertEquals("/rest/v1/me_gusta", peticion.ruta())
+        assertTrue(peticion.body.readUtf8().contains("\"publicacion_id\":\"p1\""))
+        val publicacion = repositorio.publicacion("p1").first()!!
+        assertEquals(1, publicacion.numMeGusta)
+        assertTrue(publicacion.meGustaMio)
+    }
+
+    @Test
+    fun siYaLeHabiaDadoMeGustaDesdeOtroMovilSeDaPorBueno() = runBlocking<Unit> {
+        publicacionEnRoom("p1")
+        responder(409, """{"code":"23505","message":"duplicate key value"}""")
+
+        val resultado = repositorio.cambiarMeGusta("p1", darlo = true)
+
+        assertTrue(resultado is ResultadoRed.Correcto)
+        assertEquals(1, repositorio.publicacion("p1").first()!!.numMeGusta)
+    }
+
+    @Test
+    fun quitarMeGustaBorraSoloElMio() = runBlocking<Unit> {
+        publicacionEnRoom("p1")
+        meGustaRoom.dar(MeGustaEntity("p1", YO))
+        meGustaRoom.dar(MeGustaEntity("p1", ANA))
+        responder(200, """[{"publicacion_id":"p1","usuario_id":"$YO"}]""")
+
+        repositorio.cambiarMeGusta("p1", darlo = false)
+
+        val peticion = servidor.takeRequest()
+        assertEquals("DELETE", peticion.method)
+        assertEquals("eq.p1", peticion.requestUrl?.queryParameter("publicacion_id"))
+        assertEquals("eq.$YO", peticion.requestUrl?.queryParameter("usuario_id"))
+        val publicacion = repositorio.publicacion("p1").first()!!
+        assertEquals(1, publicacion.numMeGusta)
+        assertFalse(publicacion.meGustaMio)
+    }
+
+    @Test
+    fun sinConexionElMeGustaNoCambia() = runBlocking<Unit> {
+        publicacionEnRoom("p1")
+        val puertoCerrado = ServerSocket(0).use { it.localPort }
+        val sinRed = crearRepositorio(ConfiguracionSupabase("http://127.0.0.1:$puertoCerrado", "clave"))
+
+        val resultado = sinRed.cambiarMeGusta("p1", darlo = true)
+
+        assertEquals(ResultadoRed.SinConexion, resultado)
+        assertEquals(0, repositorio.publicacion("p1").first()!!.numMeGusta)
+    }
+
+    @Test
+    fun responderAUnComentarioEnviaElComentarioAlQueResponde() = runBlocking<Unit> {
+        publicacionEnRoom("p1")
+        responder(
+            201,
+            """[{"id":"c2","publicacion_id":"p1","autor_id":"$YO","texto":"¡Claro!","respuesta_a":"c1",
+                "creado_en":"2026-11-12T10:05:00+00:00","autor":${perfilJson(YO, "Yeray")}}]""",
+        )
+
+        repositorio.comentar("p1", "¡Claro!", respuestaA = "c1")
+
+        assertTrue(servidor.takeRequest().body.readUtf8().contains("\"respuesta_a\":\"c1\""))
+        assertEquals("c1", repositorio.comentarios("p1").first().single().comentario.respuestaA)
     }
 
     private companion object {

@@ -95,6 +95,33 @@ class MigracionesTest {
         }
     }
 
+    @Test
+    fun de8a9SeCreanMeGustaRespuestasYMensajesDirectos() {
+        ayudante.createDatabase(NOMBRE, 8).use { db ->
+            insertarPerfil(db)
+            db.execSQL("INSERT INTO publicaciones (id, usuarioId, texto, timestamp) VALUES ('p1', 'yo', 'Hola', 0)")
+            db.execSQL("INSERT INTO comentarios (id, publicacionId, usuarioId, texto, timestamp) VALUES ('c1', 'p1', 'yo', 'Uno', 0)")
+        }
+
+        ayudante.runMigrationsAndValidate(NOMBRE, 9, true, MIGRACION_8_9).use { db ->
+            db.query("SELECT respuestaA FROM comentarios WHERE id = 'c1'").use { fila ->
+                assertTrue(fila.moveToFirst())
+                assertTrue("Los comentarios de antes no son respuestas", fila.isNull(0))
+            }
+            db.execSQL("INSERT INTO usuarios (id, nombre, fechaAlta) VALUES ('ana', 'Ana', 0)")
+            db.execSQL("INSERT INTO me_gusta (publicacionId, usuarioId) VALUES ('p1', 'ana')")
+            db.execSQL(
+                "INSERT INTO mensajes_directos (id, remitenteId, destinatarioId, texto, zumbido, fechaCreacion) " +
+                    "VALUES ('d1', 'yo', 'ana', 'Hola', 0, 0)",
+            )
+            db.query("SELECT (SELECT COUNT(*) FROM me_gusta), (SELECT COUNT(*) FROM mensajes_directos)").use { fila ->
+                fila.moveToFirst()
+                assertEquals(1, fila.getInt(0))
+                assertEquals(1, fila.getInt(1))
+            }
+        }
+    }
+
     /** Lo que hace la app al abrirse después de actualizarla: Room con todas las migraciones. */
     @Test
     fun laAppAbreUnaCopiaDeLaVersion5SinBorrarla() = runBlocking {

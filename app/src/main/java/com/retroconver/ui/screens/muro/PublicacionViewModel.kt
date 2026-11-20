@@ -29,6 +29,10 @@ data class FormularioComentario(
     val enviando: Boolean = false,
     /** No se ha podido enviar: id del mensaje (sin conexión, sin permiso…), o `null`. */
     val errorEnvio: Int? = null,
+    /** Comentario al que se responde (EX-02, #29), o `null` si es un comentario normal. */
+    val respuestaA: String? = null,
+    /** Nombre de quien escribió el comentario al que se responde, para decirlo encima del campo. */
+    val respuestaANombre: String? = null,
 )
 
 /** Borrado de lo propio en el detalle (RF-29 y #67). */
@@ -131,9 +135,30 @@ class PublicacionViewModel(
         }
     }
 
-    /** Cambia el texto del comentario y quita los errores de antes. */
+    /** Cambia el texto del comentario y quita los errores de antes. Si se estaba respondiendo, se sigue. */
     fun cambiarTexto(valor: String) {
-        formulario.value = FormularioComentario(texto = valor)
+        formulario.update { it.copy(texto = valor, error = null, errorEnvio = null) }
+    }
+
+    /** Lo siguiente que se envíe será una respuesta a [comentario] (EX-02, #29). */
+    fun responderA(comentario: ComentarioConAutor) {
+        formulario.update {
+            it.copy(respuestaA = comentario.comentario.id, respuestaANombre = comentario.autor.nombre, errorEnvio = null)
+        }
+    }
+
+    /** Lo siguiente que se envíe vuelve a ser un comentario normal. */
+    fun cancelarRespuesta() {
+        formulario.update { it.copy(respuestaA = null, respuestaANombre = null) }
+    }
+
+    /** Da o quita mi «Me gusta» a esta publicación (EX-05, #130). El contador cambia solo. */
+    fun cambiarMeGusta() {
+        val publicacion = estado.value.publicacion ?: return
+        viewModelScope.launch {
+            val resultado = repositorio.cambiarMeGusta(publicacion.publicacion.id, darlo = !publicacion.meGustaMio)
+            error.value = (resultado as? ResultadoRed.Fallo)?.mensaje()
+        }
     }
 
     /** Valida el texto y, si está bien, lo envía al servidor (sin espacios en los bordes). Sin conexión no se envía nada y se conserva lo escrito. */
@@ -147,7 +172,7 @@ class PublicacionViewModel(
         }
         formulario.value = actual.copy(error = null, errorEnvio = null, enviando = true)
         viewModelScope.launch {
-            formulario.value = when (val resultado = repositorio.comentar(publicacionId, actual.texto.trim())) {
+            formulario.value = when (val resultado = repositorio.comentar(publicacionId, actual.texto.trim(), actual.respuestaA)) {
                 is ResultadoRed.Correcto -> FormularioComentario()
                 is ResultadoRed.Fallo -> actual.copy(errorEnvio = resultado.mensaje())
             }

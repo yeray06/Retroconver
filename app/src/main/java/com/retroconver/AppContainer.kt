@@ -16,12 +16,14 @@ import com.retroconver.data.remote.ClienteSupabase
 import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.FuenteDeToken
 import com.retroconver.data.remote.GaleriaService
+import com.retroconver.data.remote.MensajesDirectosService
 import com.retroconver.data.remote.MensajesService
 import com.retroconver.data.remote.MonitorConexion
 import com.retroconver.data.remote.PerfilService
 import com.retroconver.data.remote.PublicacionService
 import com.retroconver.data.repository.AmistadesRepository
 import com.retroconver.data.repository.GaleriaRepository
+import com.retroconver.data.repository.MensajesDirectosRepository
 import com.retroconver.data.repository.MensajesRepository
 import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
@@ -96,6 +98,7 @@ class AppContainer(context: Context) {
             almacenamientoService,
             sesionRepository,
             configuracionSupabase,
+            baseDeDatos.meGustaDao(),
         )
     }
 
@@ -143,7 +146,7 @@ class AppContainer(context: Context) {
     /** Imágenes del bucket `imagenes`. */
     val almacenamientoService: AlmacenamientoService by lazy { retrofit.create(AlmacenamientoService::class.java) }
 
-    /** Tablas `publicaciones` y `comentarios`. */
+    /** Tablas `publicaciones`, `comentarios` y `me_gusta`. */
     private val publicacionService: PublicacionService by lazy { retrofit.create(PublicacionService::class.java) }
 
     /** Tablas `albumes` y `fotos`. */
@@ -175,6 +178,14 @@ class AppContainer(context: Context) {
     /** Tablón de mensajes de cada perfil (E4-09, #22), con su copia en Room. */
     val mensajesRepository: MensajesRepository by lazy {
         MensajesRepository(baseDeDatos.mensajeDao(), mensajesService, usuarioRepository)
+    }
+
+    /** Tabla `mensajes_directos`. */
+    private val mensajesDirectosService: MensajesDirectosService by lazy { retrofit.create(MensajesDirectosService::class.java) }
+
+    /** Mensajes directos entre amigos (EX-01, #28), con su copia en Room. */
+    val mensajesDirectosRepository: MensajesDirectosRepository by lazy {
+        MensajesDirectosRepository(baseDeDatos.mensajeDirectoDao(), mensajesDirectosService, usuarioRepository)
     }
 
     /** Subidas de fotos en segundo plano con WorkManager (#147). */

@@ -4,6 +4,7 @@ import com.retroconver.data.local.AlbumEntity
 import com.retroconver.data.local.AmistadEntity
 import com.retroconver.data.local.ComentarioEntity
 import com.retroconver.data.local.FotoEntity
+import com.retroconver.data.local.MensajeDirectoEntity
 import com.retroconver.data.local.MensajeEntity
 import com.retroconver.data.local.PublicacionEntity
 import com.retroconver.data.local.UsuarioEntity
@@ -12,6 +13,7 @@ import com.retroconver.data.remote.AmistadDto
 import com.retroconver.data.remote.ComentarioDto
 import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.FotoDto
+import com.retroconver.data.remote.MensajeDirectoDto
 import com.retroconver.data.remote.MensajeDto
 import com.retroconver.data.remote.PerfilDto
 import com.retroconver.data.remote.PublicacionDto
@@ -84,6 +86,7 @@ fun ComentarioDto.aEntidad(): ComentarioEntity = ComentarioEntity(
     usuarioId = autorId,
     texto = texto,
     timestamp = instanteDelServidor(creadoEn),
+    respuestaA = respuestaA,
 )
 
 /** Pasa una fila de `mensajes` a Room (E4-09, #72). */
@@ -92,5 +95,15 @@ fun MensajeDto.aEntidad(): MensajeEntity = MensajeEntity(
     perfilId = perfilId,
     autorId = autorId,
     texto = texto,
+    fechaCreacion = instanteDelServidor(creadoEn),
+)
+
+/** Pasa una fila de `mensajes_directos` a Room (EX-01, #28). Las dos personas se guardan aparte. */
+fun MensajeDirectoDto.aEntidad(): MensajeDirectoEntity = MensajeDirectoEntity(
+    id = id,
+    remitenteId = remitenteId,
+    destinatarioId = destinatarioId,
+    texto = texto,
+    zumbido = zumbido,
     fechaCreacion = instanteDelServidor(creadoEn),
 )

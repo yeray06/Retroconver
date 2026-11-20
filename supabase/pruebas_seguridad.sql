@@ -1,5 +1,5 @@
 -- =====================================================================
--- Retroconver · prueba de las políticas de seguridad (E4-02.2, #112)
+-- Retroconver · prueba de las políticas de seguridad (E4-02.2, #112; extras EX-01, EX-02 y EX-05)
 --
 -- Crea dos cuentas temporales (A y B, sin contraseña, no sirven para entrar),
 -- comprueba que cada una solo puede tocar lo suyo y las borra al terminar.
@@ -123,6 +123,14 @@ begin
         informe := informe || 'B no puede cambiar quién pidió la amistad'::text;
     end;
 
+    -- Mensajes directos (EX-01): mientras la amistad no está aceptada, no se puede escribir
+    begin
+        insert into public.mensajes_directos (destinatario_id, texto) values (a, 'Hola A');
+        raise exception 'FALLO: B ha enviado un mensaje directo a A sin ser amigos';
+    exception when insufficient_privilege then
+        informe := informe || 'B no puede enviar mensajes directos a A sin ser amigos'::text;
+    end;
+
     update public.amistades set aceptada = true where id = amis;
     get diagnostics filas = row_count;
     if filas <> 1 then raise exception 'FALLO: B no ha podido aceptar la solicitud de A'; end if;
@@ -133,6 +141,20 @@ begin
 
     insert into public.mensajes (perfil_id, texto) values (a, 'Hola A, soy B') returning id into msj;
     informe := informe || 'B puede escribir en el tablón de A'::text;
+
+    -- «Me gusta» (EX-05): en nombre propio sí, en nombre de otra cuenta no
+    insert into public.me_gusta (publicacion_id) values (pub);
+    informe := informe || 'B puede dar «Me gusta» a la publicación de A'::text;
+    begin
+        insert into public.me_gusta (publicacion_id, usuario_id) values (pub, a);
+        raise exception 'FALLO: B ha dado «Me gusta» en nombre de A';
+    exception when insufficient_privilege then
+        informe := informe || 'B no puede dar «Me gusta» en nombre de A'::text;
+    end;
+
+    -- Mensajes directos: ya son amigos
+    insert into public.mensajes_directos (destinatario_id, texto, zumbido) values (a, '¡Zumbido!', true);
+    informe := informe || 'B puede enviar un mensaje directo (un zumbido) a su amigo A'::text;
 
     begin
         insert into public.fotos (album_id, ruta) values (alb, b::text || '/prueba.jpg');
@@ -148,6 +170,16 @@ begin
     get diagnostics filas = row_count;
     if filas <> 1 then raise exception 'FALLO: A no ha podido borrar un mensaje de su tablón'; end if;
     informe := informe || 'A puede borrar un mensaje que B dejó en su tablón'::text;
+
+    if (select count(*) from public.mensajes_directos where destinatario_id = a) <> 1 then
+        raise exception 'FALLO: A no ve el mensaje directo que le ha enviado B';
+    end if;
+    informe := informe || 'A ve el mensaje directo que le envía B'::text;
+
+    delete from public.me_gusta where publicacion_id = pub and usuario_id = b;
+    get diagnostics filas = row_count;
+    if filas <> 0 then raise exception 'FALLO: A ha quitado el «Me gusta» de B'; end if;
+    informe := informe || 'A no puede quitar el «Me gusta» de B'::text;
 
     -- ---------- Sin sesión ----------
     execute 'reset role';
@@ -167,6 +199,13 @@ begin
         null;
     end;
     informe := informe || 'Sin sesión no se ve ninguna amistad'::text;
+    begin
+        select count(*) into filas from public.mensajes_directos;
+        if filas <> 0 then raise exception 'FALLO: sin sesión se ven mensajes directos'; end if;
+    exception when insufficient_privilege then
+        null;
+    end;
+    informe := informe || 'Sin sesión no se ve ningún mensaje directo'::text;
 
     -- ---------- Limpieza ----------
     execute 'reset role';

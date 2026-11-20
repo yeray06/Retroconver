@@ -34,11 +34,14 @@ import com.retroconver.data.local.ComentarioConAutor
 import com.retroconver.data.local.ComentarioEntity
 import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.local.MensajeConAutor
+import com.retroconver.data.local.MensajeDirectoConPersonas
+import com.retroconver.data.local.MensajeDirectoEntity
 import com.retroconver.data.local.MensajeEntity
 import com.retroconver.data.local.PublicacionConAutor
 import com.retroconver.data.local.PublicacionEntity
 import com.retroconver.data.local.SolicitudConPersona
 import com.retroconver.data.local.UsuarioEntity
+import com.retroconver.data.repository.Conversacion
 import com.retroconver.data.repository.RelacionAmistad
 import com.retroconver.ui.screens.acceso.ErrorAcceso
 import com.retroconver.ui.screens.acceso.ErroresAcceso
@@ -51,10 +54,15 @@ import com.retroconver.ui.screens.galeria.AlbumesUiState
 import com.retroconver.ui.screens.galeria.FalloSubida
 import com.retroconver.ui.screens.galeria.FotoContenido
 import com.retroconver.ui.screens.galeria.FotoUiState
+import com.retroconver.ui.screens.mensajes.ChatContenido
+import com.retroconver.ui.screens.mensajes.ChatUiState
+import com.retroconver.ui.screens.mensajes.ConversacionesContenido
+import com.retroconver.ui.screens.mensajes.ConversacionesUiState
 import com.retroconver.ui.screens.mensajes.MensajesContenido
 import com.retroconver.ui.screens.mensajes.TablonContenido
 import com.retroconver.ui.screens.mensajes.TablonUiState
 import com.retroconver.ui.screens.muro.BorradoUi
+import com.retroconver.ui.screens.muro.FormularioComentario
 import com.retroconver.ui.screens.muro.MuroContenido
 import com.retroconver.ui.screens.muro.PublicacionContenido
 import com.retroconver.ui.screens.muro.PublicacionUiState
@@ -814,5 +822,142 @@ class AccesibilidadTest {
         regla.onNodeWithContentDescription(texto(R.string.fondo_menta)).performScrollTo().performClick()
         assertEquals(FondoPerfil.MENTA, elegido)
         regla.onNode(hasContentDescription(texto(R.string.fondo_menta)) and isSelected()).assertExists()
+    }
+
+    // ---------- Extras: «Me gusta», respuestas y mensajes directos (EX-05, EX-02 y EX-01) ----------
+
+    @Test
+    fun muroConMeGustaQueSePuedenPulsar() = comprobar {
+        MuroContenido(
+            publicaciones = listOf(
+                publicacion("p1", ana, comentarios = 2).copy(numMeGusta = 3, meGustaMio = true),
+                publicacion("p2", bea),
+            ),
+            alAbrirPerfil = {},
+            alCambiarMeGusta = {},
+        )
+    }
+
+    @Test
+    fun pulsarElCorazonDaMeGustaAEsaPublicacion() {
+        var pulsada: String? = null
+        regla.setContent {
+            RetroconverTheme {
+                MuroContenido(
+                    publicaciones = listOf(publicacion("p1", ana), publicacion("p2", bea).copy(meGustaMio = true, numMeGusta = 1)),
+                    alCambiarMeGusta = { pulsada = it.publicacion.id },
+                )
+            }
+        }
+        regla.onNode(conAccionDeClic(texto(R.string.me_gusta_quitar))).performClick()
+        assertEquals("p2", pulsada)
+    }
+
+    @Test
+    fun detalleConRespuestasYRespondiendoAUnComentario() = comprobar {
+        PublicacionContenido(
+            estado = PublicacionUiState(
+                publicacion = publicacion("p1", yo, comentarios = 2),
+                comentarios = listOf(
+                    ComentarioConAutor(
+                        ComentarioEntity("r1", "p1", "yo", "¡Te espero!", Instant.parse("2026-11-18T12:00:00Z"), respuestaA = "c1"),
+                        yo,
+                    ),
+                    ComentarioConAutor(ComentarioEntity("c1", "p1", "ana", "¡Allí estaré!", Instant.parse("2026-11-18T11:00:00Z")), ana),
+                ),
+                actualizando = false,
+                borrado = BorradoUi(miId = "yo"),
+                formulario = FormularioComentario(texto = "Yo también", respuestaA = "c1", respuestaANombre = "Ana"),
+            ),
+            alVolver = {},
+            alActualizar = {},
+            alAbrirPerfil = {},
+            alCambiarMeGusta = {},
+            alResponder = {},
+        )
+    }
+
+    @Test
+    fun responderDiceAQuienSeResponde() {
+        var respondido: String? = null
+        regla.setContent {
+            RetroconverTheme {
+                PublicacionContenido(
+                    estado = PublicacionUiState(
+                        publicacion = publicacion("p1", yo, comentarios = 1),
+                        comentarios = listOf(
+                            ComentarioConAutor(ComentarioEntity("c1", "p1", "ana", "¡Allí estaré!", Instant.parse("2026-11-18T11:00:00Z")), ana),
+                        ),
+                        actualizando = false,
+                    ),
+                    alVolver = {},
+                    alActualizar = {},
+                    alResponder = { respondido = it.comentario.id },
+                )
+            }
+        }
+        regla.onNodeWithContentDescription(texto(R.string.comentario_responder_a, "Ana")).performScrollTo().performClick()
+        assertEquals("c1", respondido)
+    }
+
+    private fun directo(id: String, de: UsuarioEntity, para: UsuarioEntity, textoMensaje: String, zumbido: Boolean = false) =
+        MensajeDirectoConPersonas(
+            MensajeDirectoEntity(id, de.id, para.id, textoMensaje, zumbido, Instant.parse("2026-11-20T10:00:00Z")),
+            de,
+            para,
+        )
+
+    @Test
+    fun seccionMensajesConConversacionesPrivadas() = comprobar {
+        MensajesContenido(
+            miId = "yo",
+            tablon = {},
+            conversaciones = {
+                ConversacionesContenido(
+                    estado = ConversacionesUiState(
+                        miId = "yo",
+                        conversaciones = listOf(
+                            Conversacion(ana, directo("d2", yo, ana, "¿Vienes luego?")),
+                            Conversacion(bea, directo("d1", bea, yo, "¡Zumbido!", zumbido = true)),
+                        ),
+                    ),
+                    alAbrirChat = {},
+                )
+            },
+        )
+    }
+
+    @Test
+    fun chatConMensajesZumbidoYError() = comprobar {
+        ChatContenido(
+            estado = ChatUiState(
+                persona = ana,
+                miId = "yo",
+                mensajes = listOf(
+                    directo("d1", ana, yo, "¡Hola! ¿Qué tal?"),
+                    directo("d2", yo, ana, "Muy bien, ¿y tú?"),
+                    directo("d3", ana, yo, "¡Zumbido!", zumbido = true),
+                ),
+                error = R.string.directos_solo_amigos,
+            ),
+            texto = "Te escribo",
+            alCambiarTexto = {},
+            alEnviar = {},
+            alZumbido = {},
+            alVolver = {},
+            avisoZumbido = "Ana",
+        )
+    }
+
+    @Test
+    fun chatVacio() = comprobar {
+        ChatContenido(
+            estado = ChatUiState(persona = bea, miId = "yo"),
+            texto = "",
+            alCambiarTexto = {},
+            alEnviar = {},
+            alZumbido = {},
+            alVolver = {},
+        )
     }
 }

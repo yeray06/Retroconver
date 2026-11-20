@@ -217,7 +217,10 @@ erDiagram
 - **Límites de texto con `CHECK`**, los mismos que valida la app. Así no se guardan datos fuera de límite aunque alguien llame al servidor sin pasar por la app.
 - **Perfil automático.** Un *trigger* sobre `auth.users` crea la fila de `perfiles` al registrarse, con el nombre que se escribió en el formulario de registro.
 - **Contadores calculados.** El número de comentarios de una publicación y el de fotos de un álbum se calculan en la consulta, no se guardan.
-- `contadorLikes` y `esZumbido` del diagrama de la entrega 2 no se crean: son los extras EX-05 y EX-01.
+- `contadorLikes` del diagrama de la entrega 2 no se crea como columna: el contador de «Me gusta» (EX-05, RF-30) se calcula contando las filas de `me_gusta`, que tiene una fila por persona y publicación (clave primaria de las dos, así nadie cuenta dos veces). `esZumbido` es la columna `zumbido` de `mensajes_directos` (EX-01).
+- **Respuestas** (EX-02, RF-15): `comentarios.respuesta_a` apunta al comentario respondido, con borrado en cascada. En Room es `respuestaA`, sin clave foránea: al sincronizar se quitan las que ya no están.
+- **Mensajes directos** (EX-01, RF-24): `mensajes_directos` con `remitente_id`, `destinatario_id`, `texto` (1 a 300) y `zumbido`. Solo los leen sus dos personas y solo se escriben a un amigo (la política mira `amistades` aceptadas). No se editan ni se borran.
+- **Room versión 9** (`MIGRACION_8_9`): tablas `me_gusta` y `mensajes_directos` y columna `comentarios.respuestaA`.
 - **Entrega final.** `perfiles.tipografia` guarda la tipografía del perfil (EX-03, RF-32). Solo acepta `normal`, `clasica`, `maquina` y `manuscrita`. `tema` guarda la clave del tema clásico (`clasico`, `noche`, `lima` o `chicle`); si no se conoce, la app usa el clásico.
 - **Amistades** (EX-04, RF-31): una fila por pareja, con un índice único sobre la pareja ordenada (`least`, `greatest`), así no puede haber dos solicitudes entre las mismas personas pida quien pida. Nadie se pide amistad a sí mismo (`CHECK`).
 

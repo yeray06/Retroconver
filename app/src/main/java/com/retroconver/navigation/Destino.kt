@@ -55,6 +55,18 @@ object RutasPersonas {
     fun perfil(personaId: String) = "perfil/persona/$personaId"
 }
 
+/**
+ * Chat privado con otra persona (EX-01, #28). Se abre desde la lista de conversaciones de la
+ * sección Mensajes o con «Mensaje privado» en el perfil de un amigo.
+ */
+object RutasMensajes {
+    const val ARG_PERSONA = "personaId"
+
+    const val CHAT = "mensajes/chat/{$ARG_PERSONA}"
+
+    fun chat(personaId: String) = "mensajes/chat/$personaId"
+}
+
 /** Pantallas de acceso, que se ven cuando no hay sesión (E4-04.2). Empieza en [INICIO]. */
 object RutasAcceso {
     const val INICIO = "acceso/inicio"

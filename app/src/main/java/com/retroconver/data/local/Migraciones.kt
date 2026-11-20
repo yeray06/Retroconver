@@ -55,8 +55,33 @@ val MIGRACION_7_8 = object : Migration(7, 8) {
     }
 }
 
+/**
+ * 8 → 9: los extras de Muro y Mensajes. «Me gusta» (EX-05, #130), respuestas a comentarios
+ * (EX-02, #29) y mensajes directos (EX-01, #28).
+ */
+val MIGRACION_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `me_gusta` (`publicacionId` TEXT NOT NULL, `usuarioId` TEXT NOT NULL, " +
+                "PRIMARY KEY(`publicacionId`, `usuarioId`), " +
+                "FOREIGN KEY(`publicacionId`) REFERENCES `publicaciones`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_me_gusta_usuarioId` ON `me_gusta` (`usuarioId`)")
+        db.execSQL("ALTER TABLE comentarios ADD COLUMN respuestaA TEXT")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `mensajes_directos` (`id` TEXT NOT NULL, `remitenteId` TEXT NOT NULL, " +
+                "`destinatarioId` TEXT NOT NULL, `texto` TEXT NOT NULL, `zumbido` INTEGER NOT NULL, " +
+                "`fechaCreacion` INTEGER NOT NULL, PRIMARY KEY(`id`), " +
+                "FOREIGN KEY(`remitenteId`) REFERENCES `usuarios`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE, " +
+                "FOREIGN KEY(`destinatarioId`) REFERENCES `usuarios`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_mensajes_directos_remitenteId` ON `mensajes_directos` (`remitenteId`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_mensajes_directos_destinatarioId` ON `mensajes_directos` (`destinatarioId`)")
+    }
+}
+
 /** Todas las migraciones, en orden. Se registran en AppContainer. */
-val MIGRACIONES: Array<Migration> = arrayOf(MIGRACION_5_6, MIGRACION_6_7, MIGRACION_7_8)
+val MIGRACIONES: Array<Migration> = arrayOf(MIGRACION_5_6, MIGRACION_6_7, MIGRACION_7_8, MIGRACION_8_9)
 
 /** Versiones sin servidor: desde ellas se borra la copia y se crea de nuevo. */
 val VERSIONES_SIN_MIGRACION: IntArray = intArrayOf(1, 2, 3, 4)

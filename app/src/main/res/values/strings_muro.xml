@@ -37,4 +37,17 @@
     <string name="muro_borrar_comentario_explicacion">No se puede deshacer.</string>
     <string name="muro_borrar_confirmar">Borrar</string>
     <string name="muro_borrar_cancelar">Cancelar</string>
+
+    <!-- «Me gusta» (EX-05, #130) -->
+    <string name="me_gusta_dar">Me gusta</string>
+    <string name="me_gusta_quitar">Quitar el Me gusta</string>
+    <string name="me_gusta_descripcion">%1$d Me gusta</string>
+
+    <!-- Respuestas a comentarios (EX-02, #29) -->
+    <string name="comentario_responder">Responder</string>
+    <string name="comentario_responder_a">Responder a %1$s</string>
+    <string name="comentario_respondiendo_a">Respondiendo a %1$s</string>
+    <string name="comentario_cancelar_respuesta">Cancelar respuesta</string>
+    <string name="comentario_etiqueta_respuesta">Escribe tu respuesta</string>
+    <string name="comentario_es_respuesta">Respuesta de %1$s</string>
 </resources>

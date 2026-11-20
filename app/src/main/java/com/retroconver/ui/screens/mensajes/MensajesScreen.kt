@@ -33,13 +33,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 /**
- * Sección Mensajes (E4-09, #22): el tablón de la cuenta de la sesión, con lo que le han escrito
- * otras personas. Para escribir en el tablón de alguien se entra en su perfil.
+ * Sección Mensajes (E4-09, #22): las conversaciones privadas (EX-01, #28) y el tablón de la cuenta
+ * de la sesión, con lo que le han escrito otras personas. Para escribir en el tablón de alguien se entra en su perfil.
  */
 @Composable
-fun MensajesScreen(viewModel: MensajesViewModel = viewModel(factory = MensajesViewModel.Factory)) {
+fun MensajesScreen(
+    alAbrirChat: (String) -> Unit = {},
+    viewModel: MensajesViewModel = viewModel(factory = MensajesViewModel.Factory),
+) {
     val miId by viewModel.miId.collectAsStateWithLifecycle()
-    MensajesContenido(miId = miId, tablon = { id -> Tablon(idPerfil = id) })
+    MensajesContenido(
+        miId = miId,
+        tablon = { id -> Tablon(idPerfil = id) },
+        conversaciones = { Conversaciones(alAbrirChat = alAbrirChat) },
+    )
 }
 
 /** Explicación arriba y debajo el tablón de [miId] (nada hasta que se sabe qué cuenta es). */
@@ -48,6 +55,7 @@ internal fun MensajesContenido(
     miId: String?,
     tablon: @Composable (String) -> Unit,
     modifier: Modifier = Modifier,
+    conversaciones: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
@@ -69,6 +77,8 @@ internal fun MensajesContenido(
                 color = RetroGrayText,
             )
         }
+        // Conversaciones privadas (EX-01, #28) encima del tablón
+        conversaciones?.invoke()
         if (miId != null) tablon(miId)
     }
 }

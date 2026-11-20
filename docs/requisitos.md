@@ -6,7 +6,7 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 
 > **Cambio de alcance en la entrega 4** (E4-01, [#109](https://github.com/yeray06/Retroconver/issues/109)). Hasta la entrega 3 todo se guardaba en el móvil y había un único usuario local. Así no era una red social: nadie más podía comentar ni escribir en tu tablón. Desde la entrega 4 hay cuentas de verdad y los datos se comparten en un servidor **Supabase** (plan gratuito). El móvil guarda una copia en Room para funcionar sin conexión. Los requisitos afectados están marcados con *(E4)*.
 >
-> **Entrega final.** Se han hecho dos extras: los temas clásicos y las tipografías del perfil (RF-32, EX-03) y las amistades (RF-31, EX-04). Las amistades se piden desde el buscador del perfil propio o desde el perfil de otra persona. También están hechos todos los imprescindibles que faltaban en la entrega 4: perfiles de otras personas y lista de personas (RF-26 y RF-27), tablón (RF-21 a RF-23) y color de fondo (RF-08). Quedan sin hacer tres extras: RF-15, RF-24 y RF-30. Los marcados con *(EF)* son nuevos o cambian en la entrega final.
+> **Entrega final.** Se han hecho los cinco extras: los temas clásicos y las tipografías del perfil (RF-32, EX-03), las amistades (RF-31, EX-04), «Me gusta» (RF-30, EX-05), las respuestas a comentarios (RF-15, EX-02) y los mensajes directos con zumbido entre amigos (RF-24, EX-01). Las amistades se piden desde el buscador del perfil propio o desde el perfil de otra persona. También están hechos todos los imprescindibles que faltaban en la entrega 4: perfiles de otras personas y lista de personas (RF-26 y RF-27), tablón (RF-21 a RF-23) y color de fondo (RF-08). Los marcados con *(EF)* son nuevos o cambian en la entrega final.
 
 ## Requisitos funcionales
 
@@ -45,8 +45,8 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 | RF-29 | *(E4)* Puede borrar sus propias publicaciones, con su imagen. | Imprescindible | E4-06.1 [#124](https://github.com/yeray06/Retroconver/issues/124) |
 | RF-13 | Puede abrir una publicación y ver sus comentarios por orden de fecha. | Imprescindible | E4-07.1 [#66](https://github.com/yeray06/Retroconver/issues/66) |
 | RF-14 | Puede comentar cualquier publicación. La tarjeta del muro muestra cuántos comentarios tiene. | Imprescindible | E4-07.2 [#67](https://github.com/yeray06/Retroconver/issues/67) |
-| RF-15 | Puede responder a un comentario concreto. | Extra | EX-02 [#29](https://github.com/yeray06/Retroconver/issues/29) |
-| RF-30 | *(E4)* Puede dar «Me gusta» a una publicación, y la tarjeta muestra el contador. | Extra | EX-05 [#130](https://github.com/yeray06/Retroconver/issues/130) |
+| RF-15 | Puede responder a un comentario concreto. *(EF)* Hecho: las respuestas salen sangradas debajo del comentario (un nivel). | Extra | EX-02 [#29](https://github.com/yeray06/Retroconver/issues/29) |
+| RF-30 | *(E4)* Puede dar «Me gusta» a una publicación, y la tarjeta muestra el contador. *(EF)* Hecho: cada persona cuenta una vez y lo puede quitar. | Extra | EX-05 [#130](https://github.com/yeray06/Retroconver/issues/130) |
 
 ### Galería
 
@@ -65,7 +65,7 @@ Requisitos de la primera versión, agrupados por módulo. Cada requisito enlaza 
 | RF-21 | Cada perfil tiene un tablón con los mensajes recibidos, del más reciente al más antiguo. *(EF)* El propio también se ve en la sección Mensajes. | Imprescindible | E4-09.2 [#73](https://github.com/yeray06/Retroconver/issues/73) |
 | RF-22 | *(E4)* La persona usuaria puede escribir en el tablón de cualquier persona, también en el suyo. No se permite un mensaje vacío. | Imprescindible | E4-09.3 [#74](https://github.com/yeray06/Retroconver/issues/74) |
 | RF-23 | *(E4)* Puede borrar, tras confirmarlo, los mensajes que ha escrito y cualquier mensaje de su propio tablón. | Imprescindible | E4-09.3 [#74](https://github.com/yeray06/Retroconver/issues/74) |
-| RF-24 | Puede mantener conversaciones privadas con otras personas de la red, con zumbido como en MSN. | Extra | EX-01 [#28](https://github.com/yeray06/Retroconver/issues/28) |
+| RF-24 | Puede mantener conversaciones privadas con otras personas de la red, con zumbido como en MSN. *(EF)* Hecho: solo entre amigos; el zumbido hace temblar el chat y vibrar el móvil. | Extra | EX-01 [#28](https://github.com/yeray06/Retroconver/issues/28) |
 
 ## Requisitos no funcionales
 
@@ -89,6 +89,6 @@ Los bocetos (E2-04) incluían cosas que no estaban en el alcance. Se decidieron 
 | En los bocetos | Decisión |
 |---|---|
 | Pantalla de inicio de sesión (`docs/diseño/recorrido.md`) | **Sí.** Cuentas de verdad con Supabase Auth: registro, inicio de sesión y cierre de sesión (E4-04) |
-| Pestaña «Chats» con conversaciones privadas y zumbidos | La pestaña Mensajes es el **tablón** del perfil (E4-09). El chat privado con zumbido queda como extra (EX-01) |
-| Botón «Me gusta» con contador | **Extra** (EX-05) |
+| Pestaña «Chats» con conversaciones privadas y zumbidos | La pestaña Mensajes es el **tablón** del perfil (E4-09) y, encima, las **conversaciones privadas** con zumbido (EX-01, hechas en la entrega final) |
+| Botón «Me gusta» con contador | **Extra** (EX-05), hecho en la entrega final |
 | Contactos y publicaciones de amigos | Con servidor, el muro muestra a **todas las personas de la red** (E4-06). Las amistades quedan como extra (EX-04): hechas en la entrega final, con el muro solo de amigos |
