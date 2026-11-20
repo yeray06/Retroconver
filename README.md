@@ -15,9 +15,10 @@ Red social para Android con la estética y la sencillez de las redes de finales 
 | Guía de estilo y bocetos | [docs/estilo.md](docs/estilo.md) · [docs/diseño/](docs/diseño/) |
 | Navegación y recorrido principal | [docs/navegacion.md](docs/navegacion.md) · [docs/recorrido.md](docs/recorrido.md) |
 | Cómo trabajamos | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Versión candidata (entrega 4) | Etiqueta [`entrega-4`](https://github.com/yeray06/Retroconver/tree/entrega-4) en `main` |
+| Versión final (APK firmado) | [Release `v1.0`](https://github.com/yeray06/Retroconver/releases/tag/v1.0) |
 | Pruebas y revisión de accesibilidad | [docs/pruebas.md](docs/pruebas.md) |
-| Memoria (Word) | [docs/memoria/Retroconver_Memoria_v4.docx](docs/memoria/Retroconver_Memoria_v4.docx) |
+| Memoria final (Word) | [docs/memoria/Retroconver_Memoria_Final.docx](docs/memoria/Retroconver_Memoria_Final.docx) |
+| Presentación y guion de la demo | [docs/presentacion/](docs/presentacion/) |
 
 ## Equipo
 
