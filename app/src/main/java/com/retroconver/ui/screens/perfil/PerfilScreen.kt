@@ -35,6 +35,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.retroconver.R
@@ -67,6 +69,9 @@ fun PerfilScreen(
     alAbrirPerfil: ((String) -> Unit)? = null,
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    // Cada vez que se vuelve a la pantalla (también al cambiar de sección o volver a la app):
+    // así salen las solicitudes de amistad y los cambios hechos desde otro móvil
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.actualizar() }
     val elegirFoto = rememberSelectorDeImagen { uri -> viewModel.cambiarAvatar(uri) }
     var preguntarCerrarSesion by rememberSaveable { mutableStateOf(false) }
     var buscarAmigos by rememberSaveable { mutableStateOf(false) }

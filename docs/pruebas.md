@@ -210,6 +210,7 @@ Lo automático no sustituye a probarlo con la mano. Hay que hacerlo antes de la 
 | *(EF)* Tocar el avatar o el nombre de quien publica abre su perfil; tocar el resto de la tarjeta abre la publicación | Es lo que se espera de una red social, y TalkBack los anuncia como dos botones distintos |
 | *(EF)* El perfil de otra persona es el mismo diseño que el propio, con su tema y su fondo, pero sin «Editar perfil» ni «Cerrar sesión» | No se ofrece lo que no se puede hacer; si es el propio, se abre el propio con sus botones |
 | *(EF)* Borrar un mensaje del tablón pide confirmación, y solo sale en los mensajes que se pueden borrar | No se deshace, y no se ofrece en mensajes ajenos |
+| *(EF)* El perfil propio, el de otra persona y el tablón se descargan otra vez cada vez que se vuelve a la pantalla (al cambiar de sección, al volver atrás o al volver a la app) | La barra inferior conserva cada sección: sin esto, las solicitudes de amistad y los mensajes nuevos no salían hasta cerrar la app |
 | *(EF)* El campo del tablón usa los colores del tema del perfil y tiene contador de caracteres | En el tema Noche el texto se ve sobre la tarjeta oscura, y se sabe cuánto queda |
 | *(EF)* Los colores de fondo son cuadrados de 48 dp con el nombre para TalkBack | Se eligen viendo el color, y se pueden pulsar y oír igual que el resto de opciones |
 | *(EF)* «No se ha podido subir la foto» con una sola foto, en vez de «1 de 1 fotos» | Texto natural en los dos casos (plural de Android) |
