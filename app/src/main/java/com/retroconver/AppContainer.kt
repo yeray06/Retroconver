@@ -16,11 +16,13 @@ import com.retroconver.data.remote.ClienteSupabase
 import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.FuenteDeToken
 import com.retroconver.data.remote.GaleriaService
+import com.retroconver.data.remote.MensajesService
 import com.retroconver.data.remote.MonitorConexion
 import com.retroconver.data.remote.PerfilService
-import com.retroconver.data.repository.AmistadesRepository
 import com.retroconver.data.remote.PublicacionService
+import com.retroconver.data.repository.AmistadesRepository
 import com.retroconver.data.repository.GaleriaRepository
+import com.retroconver.data.repository.MensajesRepository
 import com.retroconver.data.repository.PublicacionRepository
 import com.retroconver.data.repository.UsuarioRepository
 import com.retroconver.data.sesion.RenovadorDeSesion
@@ -165,6 +167,14 @@ class AppContainer(context: Context) {
     /** Amistades y solicitudes (EX-04, #129), con su copia en Room. */
     val amistadesRepository: AmistadesRepository by lazy {
         AmistadesRepository(baseDeDatos.amistadDao(), amistadesService, usuarioRepository, sesionRepository)
+    }
+
+    /** Tabla `mensajes`. */
+    private val mensajesService: MensajesService by lazy { retrofit.create(MensajesService::class.java) }
+
+    /** Tablón de mensajes de cada perfil (E4-09, #22), con su copia en Room. */
+    val mensajesRepository: MensajesRepository by lazy {
+        MensajesRepository(baseDeDatos.mensajeDao(), mensajesService, usuarioRepository)
     }
 
     /** Subidas de fotos en segundo plano con WorkManager (#147). */

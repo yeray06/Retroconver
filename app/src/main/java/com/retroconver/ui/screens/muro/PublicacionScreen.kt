@@ -58,6 +58,7 @@ import com.retroconver.ui.theme.RetroTextDark
 fun PublicacionScreen(
     alVolver: () -> Unit,
     viewModel: PublicacionViewModel = viewModel(factory = PublicacionViewModel.Factory),
+    alAbrirPerfil: ((String) -> Unit)? = null,
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     PublicacionContenido(
@@ -68,6 +69,7 @@ fun PublicacionScreen(
         alComentar = viewModel::comentar,
         alBorrarPublicacion = viewModel::borrarPublicacion,
         alBorrarComentario = viewModel::borrarComentario,
+        alAbrirPerfil = alAbrirPerfil,
     )
 }
 
@@ -82,6 +84,7 @@ internal fun PublicacionContenido(
     alComentar: () -> Unit = {},
     alBorrarPublicacion: () -> Unit = {},
     alBorrarComentario: (String) -> Unit = {},
+    alAbrirPerfil: ((String) -> Unit)? = null,
 ) {
     var preguntarPublicacion by rememberSaveable { mutableStateOf(false) }
     var comentarioABorrar by rememberSaveable { mutableStateOf<String?>(null) }
@@ -128,7 +131,7 @@ internal fun PublicacionContenido(
                 val publicacion = estado.publicacion
                 when {
                     publicacion != null -> {
-                        item { PublicacionCard(publicacion) }
+                        item { PublicacionCard(publicacion, alAbrirAutor = alAbrirPerfil) }
                         // Solo se borra lo propio (RF-29); el servidor lo comprueba también
                         if (publicacion.autor.id == estado.borrado.miId) {
                             item {

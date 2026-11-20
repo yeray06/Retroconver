@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
+    <!-- Tablón de mensajes (E4-09, #22) -->
+    <string name="tablon_titulo">Tablón (%1$d)</string>
+    <string name="tablon_escribir">Escribe en el tablón</string>
+    <string name="tablon_contador">%1$d/%2$d</string>
+    <string name="tablon_demasiado_largo" tools:ignore="PluralsCandidate">Máximo %1$d caracteres.</string>
+    <string name="tablon_publicar">Publicar en el tablón</string>
+    <string name="tablon_publicando">Publicando…</string>
+    <string name="tablon_vacio">Todavía no hay mensajes. ¡Escribe el primero!</string>
+    <string name="tablon_borrar">Borrar</string>
+    <string name="tablon_borrando">Borrando…</string>
+    <string name="tablon_borrar_de">Borrar el mensaje de %1$s</string>
+    <string name="tablon_borrar_pregunta">¿Borrar este mensaje?</string>
+    <string name="tablon_borrar_explicacion">Desaparecerá del tablón para todo el mundo. No se puede deshacer.</string>
+    <string name="tablon_cancelar">Cancelar</string>
+
+    <!-- Sección Mensajes -->
+    <string name="mensajes_titulo">Tu tablón</string>
+    <string name="mensajes_explicacion">Aquí ves lo que te escriben en tu perfil. Para escribir en el tablón de otra persona, entra en su perfil.</string>
+</resources>

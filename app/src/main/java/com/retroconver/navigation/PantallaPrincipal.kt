@@ -1,6 +1,7 @@
 package com.retroconver.navigation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -32,11 +33,19 @@ fun PantallaPrincipal(hayConexion: Boolean = true) {
                 titulo = stringResource(R.string.logo_cabecera),
                 accion = {
                     if (enMuro) {
-                        RetroHeaderBoton(
-                            texto = stringResource(R.string.muro_boton_mas),
-                            descripcion = stringResource(R.string.muro_nueva_publicacion),
-                            onClick = { navController.navigate(RutasMuro.NUEVA) { launchSingleTop = true } },
-                        )
+                        Row {
+                            // Personas de la red (E4-08.2): para encontrar a alguien y abrir su perfil
+                            RetroHeaderBoton(
+                                texto = stringResource(R.string.personas_boton),
+                                descripcion = stringResource(R.string.personas_abrir),
+                                onClick = { navController.navigate(RutasPersonas.LISTA) { launchSingleTop = true } },
+                            )
+                            RetroHeaderBoton(
+                                texto = stringResource(R.string.muro_boton_mas),
+                                descripcion = stringResource(R.string.muro_nueva_publicacion),
+                                onClick = { navController.navigate(RutasMuro.NUEVA) { launchSingleTop = true } },
+                            )
+                        }
                     }
                 },
             )

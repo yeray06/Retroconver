@@ -12,6 +12,7 @@ import com.retroconver.RetroconverApp
 import com.retroconver.data.remote.ResultadoRed
 import com.retroconver.data.remote.mensaje
 import com.retroconver.data.repository.UsuarioRepository
+import com.retroconver.ui.theme.FondoPerfil
 import com.retroconver.ui.theme.TemaPerfil
 import com.retroconver.ui.theme.TipografiaPerfil
 import kotlinx.coroutines.flow.filterNotNull
@@ -19,8 +20,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
- * Formulario para editar nombre, biografía y estado (E3-06.2, #54), y el tema y la tipografía
- * del perfil (EX-03, #30).
+ * Formulario para editar nombre, biografía y estado (E3-06.2, #54), el tema y la tipografía
+ * del perfil (EX-03, #30) y su color de fondo (E4-11, #76).
  *
  * Los campos de texto son estado de Compose (`mutableStateOf`) y no `StateFlow`, como
  * recomienda Google para los `TextField`: así el cursor no salta mientras se escribe.
@@ -40,8 +41,12 @@ class EditarPerfilViewModel(private val usuarios: UsuarioRepository) : ViewModel
     var tipografia by mutableStateOf(TipografiaPerfil.NORMAL)
         private set
 
+    /** Color de fondo elegido (E4-11, #76), o `null` para usar el del tema. */
+    var fondo by mutableStateOf<FondoPerfil?>(null)
+        private set
+
     /** Los que había al abrir el formulario: si no cambian, no se vuelven a enviar. */
-    private var estiloGuardado = TemaPerfil.CLASICO to TipografiaPerfil.NORMAL
+    private var estiloGuardado = Triple<TemaPerfil, TipografiaPerfil, FondoPerfil?>(TemaPerfil.CLASICO, TipografiaPerfil.NORMAL, null)
 
     /** Errores que se muestran debajo de cada campo. Se calculan al pulsar «Guardar». */
     var errores by mutableStateOf(ErroresPerfil())
@@ -71,7 +76,8 @@ class EditarPerfilViewModel(private val usuarios: UsuarioRepository) : ViewModel
             estado = usuario.estado
             tema = TemaPerfil.deClave(usuario.tema)
             tipografia = TipografiaPerfil.deClave(usuario.tipografia)
-            estiloGuardado = tema to tipografia
+            fondo = FondoPerfil.deClave(usuario.colorFondo)
+            estiloGuardado = Triple(tema, tipografia, fondo)
             cargado = true
         }
     }
@@ -105,6 +111,11 @@ class EditarPerfilViewModel(private val usuarios: UsuarioRepository) : ViewModel
         errorGuardar = null
     }
 
+    fun cambiarFondo(valor: FondoPerfil?) {
+        fondo = valor
+        errorGuardar = null
+    }
+
     /**
      * Valida y, si todo está bien, guarda en el servidor sin los espacios de los bordes
      * (E4-05.2, #122). Si no se puede (sin conexión, por ejemplo), se queda en el formulario
@@ -120,9 +131,10 @@ class EditarPerfilViewModel(private val usuarios: UsuarioRepository) : ViewModel
         viewModelScope.launch {
             var respuesta = usuarios.actualizarPerfil(nombre.trim(), biografia.trim(), estado.trim())
             // El aspecto solo se envía si ha cambiado
-            if (respuesta is ResultadoRed.Correcto && (tema to tipografia) != estiloGuardado) {
-                respuesta = usuarios.cambiarEstilo(tema.clave, tipografia.clave)
-                if (respuesta is ResultadoRed.Correcto) estiloGuardado = tema to tipografia
+            val estilo = Triple(tema, tipografia, fondo)
+            if (respuesta is ResultadoRed.Correcto && estilo != estiloGuardado) {
+                respuesta = usuarios.cambiarEstilo(tema.clave, tipografia.clave, fondo?.clave)
+                if (respuesta is ResultadoRed.Correcto) estiloGuardado = estilo
             }
             when (respuesta) {
                 is ResultadoRed.Correcto -> guardado = true

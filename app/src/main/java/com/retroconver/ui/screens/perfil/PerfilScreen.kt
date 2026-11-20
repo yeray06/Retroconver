@@ -43,7 +43,9 @@ import com.retroconver.ui.components.Avatar
 import com.retroconver.ui.components.RetroButton
 import com.retroconver.ui.components.RetroCard
 import com.retroconver.ui.components.rememberSelectorDeImagen
+import com.retroconver.ui.screens.mensajes.Tablon
 import com.retroconver.ui.theme.EstiloDePerfil
+import com.retroconver.ui.theme.FondoPerfil
 import com.retroconver.ui.theme.LocalColoresPerfil
 import com.retroconver.ui.theme.RetroTextDark
 import com.retroconver.ui.theme.RetroconverTheme
@@ -81,6 +83,7 @@ fun PerfilScreen(
         alBorrarSolicitud = viewModel::borrarSolicitud,
         alAbrirPerfil = alAbrirPerfil,
         alBuscarAmigos = { buscarAmigos = true },
+        tablon = { id -> Tablon(idPerfil = id) },
     )
     if (buscarAmigos) {
         BuscarAmigosDialog(alCerrar = { buscarAmigos = false })
@@ -112,7 +115,13 @@ private fun ConfirmarCerrarSesion(alConfirmar: () -> Unit, alCancelar: () -> Uni
     )
 }
 
-/** Dibuja el perfil a partir del estado: nada mientras carga, y la ficha cuando llega el usuario. */
+/**
+ * Dibuja el perfil a partir del estado: nada mientras carga, y la ficha cuando llega el usuario.
+ *
+ * Con [esPropio] en `false` es el perfil de otra persona (E4-08.1, #127): sin cambiar la foto,
+ * editar, solicitudes ni cerrar sesión, y con [accionesDeOtraPersona] debajo de su nombre (el
+ * botón de amistad y sus álbumes). [tablon] dibuja el tablón de mensajes del perfil (E4-09).
+ */
 @Composable
 internal fun PerfilContenido(
     estado: PerfilUiState,
@@ -125,15 +134,22 @@ internal fun PerfilContenido(
     alBorrarSolicitud: (String) -> Unit = {},
     alAbrirPerfil: ((String) -> Unit)? = null,
     alBuscarAmigos: (() -> Unit)? = null,
+    esPropio: Boolean = true,
+    accionesDeOtraPersona: @Composable () -> Unit = {},
+    tablon: (@Composable (idPerfil: String) -> Unit)? = null,
 ) {
     val usuario = estado.usuario
     if (usuario == null) {
         // Sin copia en Room y sin poder descargarlo (por ejemplo, sin red justo después de entrar)
-        estado.errorCarga?.let { PerfilNoDisponible(it, alReintentar, alCerrarSesion, modifier) }
+        estado.errorCarga?.let { PerfilNoDisponible(it, alReintentar, alCerrarSesion.takeIf { esPropio }, modifier) }
         return
     }
-    // Cada perfil se ve con el tema y la tipografía que ha elegido su dueño (EX-03, #30)
-    EstiloDePerfil(TemaPerfil.deClave(usuario.tema), TipografiaPerfil.deClave(usuario.tipografia)) {
+    // Cada perfil se ve con el tema, la tipografía (EX-03, #30) y el fondo (E4-11) que ha elegido su dueño
+    EstiloDePerfil(
+        TemaPerfil.deClave(usuario.tema),
+        TipografiaPerfil.deClave(usuario.tipografia),
+        FondoPerfil.deClave(usuario.colorFondo),
+    ) {
         val colores = LocalColoresPerfil.current
         Column(
             modifier = modifier
@@ -143,7 +159,7 @@ internal fun PerfilContenido(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            CabeceraPerfil(usuario, estado, alCambiarFoto, alEditar)
+            CabeceraPerfil(usuario, estado, alCambiarFoto, alEditar, esPropio, accionesDeOtraPersona)
             TarjetaEstado(usuario.estado)
             RetroCard(modifier = Modifier.fillMaxWidth(), color = colores.tarjeta, borde = colores.bordeTarjeta) {
                 Text(
@@ -160,37 +176,45 @@ internal fun PerfilContenido(
                 }
             }
             // Amistades (EX-04, #129): primero lo que hay que contestar
-            TarjetaSolicitudes(
-                recibidas = estado.amistades.recibidas,
-                enviadas = estado.amistades.enviadas,
-                enCurso = estado.amistades.enCurso,
-                error = estado.amistades.error,
-                alAceptar = alAceptarAmistad,
-                alBorrar = alBorrarSolicitud,
-            )
+            if (esPropio) {
+                TarjetaSolicitudes(
+                    recibidas = estado.amistades.recibidas,
+                    enviadas = estado.amistades.enviadas,
+                    enCurso = estado.amistades.enCurso,
+                    error = estado.amistades.error,
+                    alAceptar = alAceptarAmistad,
+                    alBorrar = alBorrarSolicitud,
+                )
+            }
             TarjetaAmigos(
                 amigos = estado.amistades.amigos,
-                vacio = stringResource(R.string.amistades_sin_amigos),
+                vacio = stringResource(if (esPropio) R.string.amistades_sin_amigos else R.string.personas_sin_amigos),
                 alAbrirPerfil = alAbrirPerfil,
-                alBuscar = alBuscarAmigos,
+                alBuscar = alBuscarAmigos.takeIf { esPropio },
             )
-            // Al final del perfil, apartado, para no pulsarlo sin querer
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                RetroButton(
-                    texto = stringResource(if (estado.cerrandoSesion) R.string.perfil_cerrando_sesion else R.string.perfil_cerrar_sesion),
-                    onClick = { if (!estado.cerrandoSesion) alCerrarSesion() },
-                )
+            tablon?.invoke(usuario.id)
+            if (esPropio) {
+                // Al final del perfil, apartado, para no pulsarlo sin querer
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    RetroButton(
+                        texto = stringResource(if (estado.cerrandoSesion) R.string.perfil_cerrando_sesion else R.string.perfil_cerrar_sesion),
+                        onClick = { if (!estado.cerrandoSesion) alCerrarSesion() },
+                    )
+                }
             }
         }
     }
 }
 
-/** No hay copia del perfil y no se ha podido descargar: el motivo, para reintentar o salir. */
+/**
+ * No hay copia del perfil y no se ha podido descargar: el motivo, para reintentar o salir.
+ * En el perfil de otra persona no hay [alCerrarSesion].
+ */
 @Composable
 private fun PerfilNoDisponible(
     mensaje: Int,
     alReintentar: () -> Unit,
-    alCerrarSesion: () -> Unit,
+    alCerrarSesion: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(16.dp)) {
@@ -204,19 +228,26 @@ private fun PerfilNoDisponible(
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 RetroButton(texto = stringResource(R.string.perfil_reintentar), onClick = alReintentar)
-                RetroButton(texto = stringResource(R.string.perfil_cerrar_sesion), onClick = alCerrarSesion)
+                if (alCerrarSesion != null) {
+                    RetroButton(texto = stringResource(R.string.perfil_cerrar_sesion), onClick = alCerrarSesion)
+                }
             }
         }
     }
 }
 
-/** Avatar grande con el nombre, la fecha de alta y los botones del perfil. */
+/**
+ * Avatar grande con el nombre, la fecha de alta y los botones del perfil propio, o las
+ * [accionesDeOtraPersona] si es el de otra persona.
+ */
 @Composable
 private fun CabeceraPerfil(
     usuario: UsuarioEntity,
     estado: PerfilUiState,
     alCambiarFoto: () -> Unit,
     alEditar: () -> Unit,
+    esPropio: Boolean,
+    accionesDeOtraPersona: @Composable () -> Unit,
 ) {
     val colores = LocalColoresPerfil.current
     RetroCard(modifier = Modifier.fillMaxWidth(), color = colores.tarjeta, borde = colores.bordeTarjeta) {
@@ -238,22 +269,26 @@ private fun CabeceraPerfil(
             }
         }
         Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            RetroButton(
-                texto = stringResource(if (estado.guardandoFoto) R.string.perfil_guardando_foto else R.string.perfil_cambiar_foto),
-                onClick = alCambiarFoto,
-            )
-            RetroButton(texto = stringResource(R.string.perfil_editar), onClick = alEditar)
-        }
-        if (estado.errorFoto != null) {
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = stringResource(estado.errorFoto),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colores.error,
-                // TalkBack lo lee en cuanto aparece
-                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-            )
+        if (!esPropio) {
+            accionesDeOtraPersona()
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                RetroButton(
+                    texto = stringResource(if (estado.guardandoFoto) R.string.perfil_guardando_foto else R.string.perfil_cambiar_foto),
+                    onClick = alCambiarFoto,
+                )
+                RetroButton(texto = stringResource(R.string.perfil_editar), onClick = alEditar)
+            }
+            if (estado.errorFoto != null) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = stringResource(estado.errorFoto),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colores.error,
+                    // TalkBack lo lee en cuanto aparece
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                )
+            }
         }
     }
 }

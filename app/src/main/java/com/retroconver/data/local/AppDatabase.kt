@@ -22,8 +22,9 @@ import androidx.room.TypeConverters
         AlbumEntity::class,
         FotoEntity::class,
         AmistadEntity::class,
+        MensajeEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)
@@ -38,6 +39,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun galeriaDao(): GaleriaDao
 
     abstract fun amistadDao(): AmistadDao
+
+    abstract fun mensajeDao(): MensajeDao
 
     companion object {
         /** Nombre del fichero de la base de datos en el móvil. */
