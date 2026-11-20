@@ -37,7 +37,7 @@ Exposición de Retroconver (EF-02, [#27](https://github.com/yeray06/Retroconver/
 | 7 | A | En el **Tablón** de B escribe «¡Hola desde la demo!» **→ Publicar en el tablón** | El mensaje arriba del tablón |
 | 8 | B | **Mensajes** | El mensaje de A; B lo puede borrar |
 | 9 | B | **Perfil → Editar perfil → Aspecto**: tema **Noche** y fondo **Verde menta → Guardar** | La vista previa cambia antes de guardar |
-| 10 | A | Vuelve al perfil de B y desliza | El perfil de B con el tema nuevo |
+| 10 | A | Pulsa **Volver** y abre otra vez el perfil de B | El perfil de B con el tema nuevo (se descarga al abrirlo) |
 | 11 | A | Activa el **modo avión** | Franja amarilla «Sin conexión»; se sigue viendo todo |
 
 ## Ensayo
