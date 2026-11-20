@@ -32,22 +32,25 @@ Exposición de Retroconver (EF-02, [#27](https://github.com/yeray06/Retroconver/
 | 2 | B | **Perfil → Solicitudes de amistad → Aceptar** | B pasa a **Amigos (1)** |
 | 3 | B | **Muro → + →** texto y la foto **→ Publicar** | La publicación arriba del muro |
 | 4 | A | Desliza el muro hacia abajo | Sale la foto de B (antes de ser amigos no salía) |
-| 5 | A | Abre la publicación y comenta | El comentario y el contador suben |
+| 5 | A | Pulsa **♡** en la publicación de B, ábrela y comenta | **♥ 1** en rojo; el comentario y el contador suben |
 | 6 | A | Toca el nombre de B | Su perfil, con su tema y su fondo |
 | 7 | A | En el **Tablón** de B escribe «¡Hola desde la demo!» **→ Publicar en el tablón** | El mensaje arriba del tablón |
-| 8 | B | **Mensajes** | El mensaje de A; B lo puede borrar |
-| 9 | B | **Perfil → Editar perfil → Aspecto**: tema **Noche** y fondo **Verde menta → Guardar** | La vista previa cambia antes de guardar |
-| 10 | A | Pulsa **Volver** y abre otra vez el perfil de B | El perfil de B con el tema nuevo (se descarga al abrirlo) |
-| 11 | A | Activa el **modo avión** | Franja amarilla «Sin conexión»; se sigue viendo todo |
+| 8 | B | **Mensajes** | El mensaje de A en el tablón; B lo puede borrar |
+| 9 | A | En el perfil de B, **Mensaje privado**: «¿Has visto el tablón?» **→ Enviar** | El mensaje a la derecha, en azul |
+| 10 | B | **Mensajes → Conversaciones privadas →** A, y pulsa **Enviar un zumbido** | El chat de los dos tiembla y vibra; «B te ha enviado un zumbido» |
+| 11 | B | **Perfil → Editar perfil → Aspecto**: tema **Noche** y fondo **Verde menta → Guardar** | La vista previa cambia antes de guardar |
+| 12 | A | Pulsa **Volver** y abre otra vez el perfil de B | El perfil de B con el tema nuevo (se descarga al abrirlo) |
+| 13 | A | Activa el **modo avión** | Franja amarilla «Sin conexión»; se sigue viendo todo |
 
 ## Ensayo
 
-Ensayado con cronómetro: hay que quedar por debajo de 10 minutos. Si la demo se alarga, se saltan los pasos 9 y 10.
+Ensayado con cronómetro: hay que quedar por debajo de 10 minutos. Si la demo se alarga, se saltan los pasos 11 y 12.
 
 ## Preguntas que pueden hacer
 
 - **¿Por qué Supabase y no Firebase?** Gratis y sin tarjeta también para las imágenes, y es SQL con claves foráneas, como Room.
 - **¿Qué pasa sin conexión?** Las pantallas leen de Room: se ve lo último descargado. Para escribir hace falta red, y la app lo dice.
-- **¿Cómo evitáis que alguien borre lo de otro?** Con las políticas RLS del servidor: la clave de la app es pública, así que la seguridad no puede estar solo en la app. Lo prueba `supabase/pruebas_seguridad.sql` (22/22).
-- **¿Cómo sabéis que no rompéis nada?** 259 pruebas que pasan en cada Pull Request, con un emulador y comprobaciones de accesibilidad.
+- **¿Cómo evitáis que alguien borre lo de otro?** Con las políticas RLS del servidor: la clave de la app es pública, así que la seguridad no puede estar solo en la app. Lo prueba `supabase/pruebas_seguridad.sql` (29 comprobaciones, también que solo se pueda escribir por privado a un amigo).
+- **¿El chat es en tiempo real?** No: mientras está abierto pregunta al servidor cada 4 segundos. Con Supabase Realtime sería inmediato; está en las mejoras futuras.
+- **¿Cómo sabéis que no rompéis nada?** 287 pruebas que pasan en cada Pull Request, con un emulador y comprobaciones de accesibilidad.
 - **¿Por qué 720p?** Ahorra espacio y datos y encaja con la estética de los móviles de la época.

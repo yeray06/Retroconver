@@ -110,6 +110,8 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 | <img src="docs/capturas/06-aspecto-del-perfil.png" width="200" alt="Elegir tema y tipografía"> | <img src="docs/capturas/07-galeria.png" width="200" alt="Álbumes"> | <img src="docs/capturas/08-album.png" width="200" alt="Álbum subiendo fotos"> | <img src="docs/capturas/09-foto.png" width="200" alt="Foto a pantalla completa"> |
 | **Buscar amigos** | **Perfil de otra persona** | **Personas** | **Tablón** |
 | <img src="docs/capturas/10-buscar-amigos.png" width="200" alt="Buscar amigos y pedirles amistad"> | <img src="docs/capturas/11-perfil-de-otra-persona.png" width="200" alt="Perfil de otra persona con su tema, amigos y tablón"> | <img src="docs/capturas/12-personas.png" width="200" alt="Lista de personas con buscador"> | <img src="docs/capturas/13-tablon.png" width="200" alt="Tablón propio en la sección Mensajes"> |
+| **Respuestas y «Me gusta»** | **Chat con zumbido** | | |
+| <img src="docs/capturas/14-respuestas.png" width="200" alt="Publicación con «Me gusta», comentarios y una respuesta sangrada"> | <img src="docs/capturas/15-chat.png" width="200" alt="Chat privado con un zumbido"> | | |
 
 ### Qué funciona
 

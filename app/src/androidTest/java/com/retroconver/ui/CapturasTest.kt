@@ -32,8 +32,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.retroconver.R
 import com.retroconver.data.local.AlbumConPortada
 import com.retroconver.data.local.AlbumEntity
+import com.retroconver.data.local.ComentarioConAutor
+import com.retroconver.data.local.ComentarioEntity
 import com.retroconver.data.local.FotoEntity
 import com.retroconver.data.local.MensajeConAutor
+import com.retroconver.data.local.MensajeDirectoConPersonas
+import com.retroconver.data.local.MensajeDirectoEntity
 import com.retroconver.data.local.MensajeEntity
 import com.retroconver.data.local.PublicacionConAutor
 import com.retroconver.data.local.PublicacionEntity
@@ -53,10 +57,16 @@ import com.retroconver.ui.screens.galeria.AlbumesUiState
 import com.retroconver.ui.screens.galeria.FotoContenido
 import com.retroconver.ui.screens.galeria.FotoUiState
 import com.retroconver.ui.screens.galeria.ProgresoSubida
+import com.retroconver.ui.screens.mensajes.ChatContenido
+import com.retroconver.ui.screens.mensajes.ChatUiState
 import com.retroconver.ui.screens.mensajes.MensajesContenido
 import com.retroconver.ui.screens.mensajes.TablonContenido
 import com.retroconver.ui.screens.mensajes.TablonUiState
+import com.retroconver.ui.screens.muro.BorradoUi
+import com.retroconver.ui.screens.muro.FormularioComentario
 import com.retroconver.ui.screens.muro.MuroContenido
+import com.retroconver.ui.screens.muro.PublicacionContenido
+import com.retroconver.ui.screens.muro.PublicacionUiState
 import com.retroconver.ui.screens.perfil.AmistadesDelPerfil
 import com.retroconver.ui.screens.perfil.BotonAmistadContenido
 import com.retroconver.ui.screens.perfil.BotonAmistadUiState
@@ -247,13 +257,17 @@ class CapturasTest {
                     PublicacionEntity("p1", "yo", "¡Ya tenemos galería! Mirad las fotos del viaje a Londres.", imagenUri = fotos()[0].uri, timestamp = ahora),
                     autor = yo,
                     numComentarios = 3,
+                    numMeGusta = 4,
+                    meGustaMio = true,
                 ),
                 PublicacionConAutor(
                     PublicacionEntity("p2", "dani", "Esta noche quedada en el MSN, que nadie falte.", timestamp = ahora.minus(Duration.ofHours(2))),
                     autor = dani,
                     numComentarios = 1,
+                    numMeGusta = 2,
                 ),
             ),
+            alCambiarMeGusta = {},
         )
     }
 
@@ -457,6 +471,65 @@ class CapturasTest {
                     alBorrar = {},
                 )
             },
+        )
+    }
+
+    @Test
+    fun respuestas() = capturar("14-respuestas") {
+        PublicacionContenido(
+            estado = PublicacionUiState(
+                publicacion = PublicacionConAutor(
+                    PublicacionEntity("p2", "dani", "Esta noche quedada en el MSN, que nadie falte.", timestamp = ahora.minus(Duration.ofHours(2))),
+                    autor = dani,
+                    numComentarios = 3,
+                    numMeGusta = 2,
+                    meGustaMio = true,
+                ),
+                comentarios = listOf(
+                    ComentarioConAutor(
+                        ComentarioEntity("c3", "p2", "dani", "¡Eso! Llevad los emoticonos de siempre.", ahora.minus(Duration.ofMinutes(20)), respuestaA = "c1"),
+                        dani,
+                    ),
+                    ComentarioConAutor(ComentarioEntity("c2", "p2", "yo", "Yo llego un poco tarde.", ahora.minus(Duration.ofMinutes(50))), yo),
+                    ComentarioConAutor(ComentarioEntity("c1", "p2", "ana", "¡Allí estaré!", ahora.minus(Duration.ofMinutes(90))), ana),
+                ),
+                actualizando = false,
+                borrado = BorradoUi(miId = "yo"),
+                formulario = FormularioComentario(respuestaA = "c1", respuestaANombre = "Ana"),
+            ),
+            alVolver = {},
+            alActualizar = {},
+            alAbrirPerfil = {},
+            alCambiarMeGusta = {},
+            alResponder = {},
+        )
+    }
+
+    private fun directo(id: String, de: UsuarioEntity, para: UsuarioEntity, texto: String, minutos: Long, zumbido: Boolean = false) =
+        MensajeDirectoConPersonas(
+            MensajeDirectoEntity(id, de.id, para.id, texto, zumbido, ahora.minus(Duration.ofMinutes(minutos))),
+            de,
+            para,
+        )
+
+    @Test
+    fun chat() = capturar("15-chat") {
+        ChatContenido(
+            estado = ChatUiState(
+                persona = dani,
+                miId = "yo",
+                mensajes = listOf(
+                    directo("d1", dani, yo, "¿Has visto lo que te he puesto en el tablón?", 12),
+                    directo("d2", yo, dani, "¡Sí! Esta noche me conecto.", 10),
+                    directo("d3", dani, yo, "¡Zumbido!", 2, zumbido = true),
+                ),
+            ),
+            texto = "¡Ya voy!",
+            alCambiarTexto = {},
+            alEnviar = {},
+            alZumbido = {},
+            alVolver = {},
+            avisoZumbido = "Dani",
         )
     }
 }
