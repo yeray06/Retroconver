@@ -102,11 +102,10 @@ class PerfilViewModel(
         initialValue = PerfilUiState(),
     )
 
-    init {
-        actualizar()
-    }
-
-    /** Descarga el perfil y las amistades del servidor. La pantalla se actualiza sola porque lee de Room. */
+    /**
+     * Descarga el perfil y las amistades del servidor. La pantalla se actualiza sola porque lee de
+     * Room. La llama PerfilScreen cada vez que se vuelve a la pantalla.
+     */
     fun actualizar() {
         errorCarga.value = null
         viewModelScope.launch {

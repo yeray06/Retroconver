@@ -30,9 +30,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -85,6 +87,8 @@ data class TablonUiState(
 fun Tablon(idPerfil: String, modifier: Modifier = Modifier) {
     val viewModel: TablonViewModel = viewModel(key = "tablon-$idPerfil", factory = TablonViewModel.factory(idPerfil))
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    // Cada vez que se vuelve a la pantalla: así salen los mensajes nuevos sin cerrar la app
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.actualizar() }
     // El texto vive en la pantalla y no en el ViewModel, para que el cursor no salte al escribir
     var texto by rememberSaveable(idPerfil) { mutableStateOf("") }
     TablonContenido(
@@ -279,10 +283,12 @@ class TablonViewModel(
 
     init {
         viewModelScope.launch { miId.value = usuarios.idActual() }
-        actualizar()
     }
 
-    /** Descarga el tablón del servidor. Sin conexión se sigue viendo la última copia. */
+    /**
+     * Descarga el tablón del servidor. Sin conexión se sigue viendo la última copia. La llama
+     * [Tablon] cada vez que se vuelve a la pantalla en la que está.
+     */
     fun actualizar() {
         viewModelScope.launch {
             val resultado = mensajes.refrescar(idPerfil)

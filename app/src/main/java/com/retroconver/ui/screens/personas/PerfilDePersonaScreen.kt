@@ -9,8 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -60,6 +62,7 @@ fun PerfilDePersonaScreen(
     viewModel: PerfilDePersonaViewModel = viewModel(factory = PerfilDePersonaViewModel.Factory),
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.actualizar() }
     LaunchedEffect(estado.esMiPerfil) {
         if (estado.esMiPerfil) alEsMiPerfil()
     }
@@ -133,10 +136,12 @@ class PerfilDePersonaViewModel(
 
     init {
         viewModelScope.launch { esMio.value = usuarios.idActual() == idPersona }
-        actualizar()
     }
 
-    /** Descarga su perfil y sus amigos del servidor. La pantalla se actualiza sola porque lee de Room. */
+    /**
+     * Descarga su perfil y sus amigos del servidor. La pantalla se actualiza sola porque lee de
+     * Room. La llama PerfilDePersonaScreen cada vez que se vuelve a la pantalla.
+     */
     fun actualizar() {
         errorCarga.value = null
         viewModelScope.launch {
