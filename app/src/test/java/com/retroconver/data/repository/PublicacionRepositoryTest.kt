@@ -146,7 +146,7 @@ class PublicacionRepositoryTest {
         assertEquals("/rest/v1/publicaciones", peticion.ruta())
         assertEquals("creada_en.desc", peticion.requestUrl?.queryParameter("order"))
         assertEquals(PublicacionRepository.LIMITE_MURO.toString(), peticion.requestUrl?.queryParameter("limit"))
-        assertTrue(peticion.requestUrl?.queryParameter("select")!!.contains("autor:perfiles(*)"))
+        assertTrue(peticion.requestUrl?.queryParameter("select")!!.contains("autor:perfiles!autor_id(*)"))
         assertEquals("Los autores se guardan antes por la clave foránea", "Ana", perfiles.perfiles.value[ANA]?.nombre)
         val muro = repositorio.publicaciones().first()
         assertEquals(listOf("p2", "p1"), muro.map { it.publicacion.id })
@@ -526,6 +526,16 @@ class PublicacionRepositoryTest {
 
         assertTrue(servidor.takeRequest().body.readUtf8().contains("\"respuesta_a\":\"c1\""))
         assertEquals("c1", repositorio.comentarios("p1").first().single().comentario.respuestaA)
+    }
+
+    @Test
+    fun lasConsultasDicenQueRelacionUsarConPerfiles() = runBlocking<Unit> {
+        // Con me_gusta hay dos caminos entre publicaciones y perfiles: sin la pista, PGRST201
+        responder(200, "[]")
+        repositorio.refrescar()
+        val select = servidor.takeRequest().requestUrl!!.queryParameter("select")!!
+        assertTrue(select, select.contains("autor:perfiles!autor_id(*)"))
+        assertFalse(select, select.contains("perfiles(*)"))
     }
 
     private companion object {

@@ -13,7 +13,7 @@ import retrofit2.http.Query
  * Tablas `publicaciones` y `comentarios` del servidor (E4-06 y E4-07, #123 y #18).
  *
  * Al leer el muro se piden en la misma llamada el autor de cada publicación y sus comentarios
- * con sus autores (`select=*,autor:perfiles(*),comentarios(*,autor:perfiles(*))`): PostgREST
+ * con sus autores (`select=*,autor:perfiles!autor_id(*),comentarios(...)`): PostgREST
  * los une por las claves foráneas. Así el contador de comentarios del muro es correcto sin
  * abrir cada publicación. Las políticas de seguridad dejan leer todo con sesión y cambiar o
  * borrar solo lo propio.
@@ -37,7 +37,7 @@ interface PublicacionService {
 
     /** Crea una publicación de la cuenta de la sesión (el servidor pone el autor) y la devuelve con su autor. */
     @Headers("Prefer: return=representation")
-    @POST("rest/v1/publicaciones?select=*,autor:perfiles(*)")
+    @POST("rest/v1/publicaciones?select=*,autor:perfiles!autor_id(*)")
     suspend fun crear(@Body publicacion: NuevaPublicacionDto): List<PublicacionDto>
 
     /** Borra una publicación propia. Devuelve la fila borrada, o lista vacía si no era tuya. */
@@ -46,7 +46,7 @@ interface PublicacionService {
     suspend fun borrar(@Query("id") filtroId: String): List<PublicacionDto>
 
     /** Comentarios de una publicación con su autor. Filtro: `igual(idDeLaPublicacion)`. */
-    @GET("rest/v1/comentarios?select=*,autor:perfiles(*)&order=creado_en.desc")
+    @GET("rest/v1/comentarios?select=*,autor:perfiles!autor_id(*)&order=creado_en.desc")
     suspend fun comentariosDe(@Query("publicacion_id") filtroPublicacion: String): List<ComentarioDto>
 
     /** Borra un comentario propio. Devuelve la fila borrada, o lista vacía si no era tuyo. */
@@ -56,7 +56,7 @@ interface PublicacionService {
 
     /** Añade un comentario de la cuenta de la sesión y lo devuelve con su autor. */
     @Headers("Prefer: return=representation")
-    @POST("rest/v1/comentarios?select=*,autor:perfiles(*)")
+    @POST("rest/v1/comentarios?select=*,autor:perfiles!autor_id(*)")
     suspend fun comentar(@Body comentario: NuevoComentarioDto): List<ComentarioDto>
 
     /** Da «Me gusta» a una publicación en nombre de la cuenta de la sesión (EX-05, #130). */
@@ -74,7 +74,13 @@ interface PublicacionService {
 }
 
 /** Cada publicación con su autor, sus comentarios con sus autores y quién le ha dado «Me gusta». */
-private const val PUBLICACION_COMPLETA = "*,autor:perfiles(*),comentarios(*,autor:perfiles(*)),me_gusta(*)"
+/**
+ * Con `perfiles!autor_id` se dice qué relación usar: desde que existe `me_gusta`, PostgREST ve dos
+ * caminos entre publicaciones y perfiles (el autor y los «Me gusta») y sin la pista responde
+ * PGRST201 (300, relación ambigua).
+ */
+private const val PUBLICACION_COMPLETA =
+    "*,autor:perfiles!autor_id(*),comentarios(*,autor:perfiles!autor_id(*)),me_gusta(*)"
 
 /** Fila de `publicaciones` (supabase/esquema.sql), con su autor y sus comentarios si se han pedido. */
 @Serializable

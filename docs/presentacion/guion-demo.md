@@ -52,5 +52,5 @@ Ensayado con cronómetro: hay que quedar por debajo de 10 minutos. Si la demo se
 - **¿Qué pasa sin conexión?** Las pantallas leen de Room: se ve lo último descargado. Para escribir hace falta red, y la app lo dice.
 - **¿Cómo evitáis que alguien borre lo de otro?** Con las políticas RLS del servidor: la clave de la app es pública, así que la seguridad no puede estar solo en la app. Lo prueba `supabase/pruebas_seguridad.sql` (29 comprobaciones, también que solo se pueda escribir por privado a un amigo).
 - **¿El chat es en tiempo real?** No: mientras está abierto pregunta al servidor cada 4 segundos. Con Supabase Realtime sería inmediato; está en las mejoras futuras.
-- **¿Cómo sabéis que no rompéis nada?** 287 pruebas que pasan en cada Pull Request, con un emulador y comprobaciones de accesibilidad.
+- **¿Cómo sabéis que no rompéis nada?** 288 pruebas que pasan en cada Pull Request, con un emulador y comprobaciones de accesibilidad.
 - **¿Por qué 720p?** Ahorra espacio y datos y encaja con la estética de los móviles de la época.

@@ -11,7 +11,7 @@ Ninguna prueba usa el servidor de verdad: la red se prueba con **MockWebServer**
 
 ## 2. Pruebas automáticas
 
-**287 pruebas: 189 unitarias y 98 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 15 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
+**288 pruebas: 190 unitarias y 98 en el emulador.** Resultado: ✅ todas pasan en la CI. Además, `CapturasTest` dibuja 15 pantallas para el README; no es una prueba y solo se ejecuta cuando se piden las capturas.
 
 Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yeray06/Retroconver/pull/156)).
 
@@ -38,7 +38,7 @@ Android lint: **0 avisos** desde la entrega final ([#156](https://github.com/yer
 | `ValidacionComentarioTest` | Texto de un comentario: vacío, normal y límite del servidor (David) | 3 | #66 |
 | `MensajesRepositoryTest` | Tablón contra el servidor falso: descargar el de un perfil con sus autores, quitar lo borrado sin tocar otros tablones, escribir sin espacios de los bordes, sin permiso, borrar y sin conexión (David) | 6 | #72, #74 |
 | `ValidacionMensajeTest` | Texto de un mensaje del tablón: vacío, normal y límite del servidor (David) | 3 | #74 |
-| `PublicacionRepositoryTest` | Muro contra el servidor falso (David): descargar con autores, URL pública de la imagen, contador de comentarios, quitar lo borrado, sin conexión, publicar con y sin imagen y marcha atrás, comentar, borrar lo propio y no lo ajeno. *(EF)* Muro de amigos: con autores solo se piden y se enseñan los suyos. «Me gusta»: contador y el mío al descargar, quitar los que ya no están, dar (también si ya estaba, 23505), quitar solo el mío y sin conexión. Responder a un comentario | 29 | #123, #66, #67, #129, #130, #29 |
+| `PublicacionRepositoryTest` | Muro contra el servidor falso (David): descargar con autores, URL pública de la imagen, contador de comentarios, quitar lo borrado, sin conexión, publicar con y sin imagen y marcha atrás, comentar, borrar lo propio y no lo ajeno. *(EF)* Muro de amigos: con autores solo se piden y se enseñan los suyos. «Me gusta»: contador y el mío al descargar, quitar los que ya no están, dar (también si ya estaba, 23505), quitar solo el mío y sin conexión. Responder a un comentario. Las consultas dicen qué relación usar con `perfiles` (`perfiles!autor_id`) | 30 | #123, #66, #67, #129, #130, #29 |
 | `MensajesDirectosRepositoryTest` | *(EF)* Mensajes directos contra el servidor falso: descargar con las dos personas, una conversación por persona con su último mensaje, enviar sin espacios de los bordes, zumbido, sin ser amigos (42501) y sin conexión | 6 | #28 |
 | `HilosComentariosTest` | *(EF)* Respuestas: cada comentario con sus respuestas debajo en orden, respuesta a una respuesta en el mismo hilo y respuesta suelta si se borró el comentario | 4 | #29 |
 
