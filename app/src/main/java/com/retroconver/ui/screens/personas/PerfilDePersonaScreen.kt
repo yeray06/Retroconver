@@ -51,7 +51,7 @@ data class PerfilDePersonaUiState(
 /**
  * Perfil de otra persona (E4-08.1, #127): el mismo diseño que el propio, con su tema, su
  * tipografía y su fondo, pero sin botones de editar. Debajo de su nombre, el botón de amistad
- * (EX-04) y sus álbumes; abajo, su lista de amigos y su tablón (E4-09).
+ * (EX-04), sus álbumes y el chat privado (EX-01); abajo, su lista de amigos y su tablón (E4-09).
  */
 @Composable
 fun PerfilDePersonaScreen(
@@ -59,6 +59,7 @@ fun PerfilDePersonaScreen(
     alAbrirPerfil: (String) -> Unit,
     alVerAlbumes: (String) -> Unit,
     alEsMiPerfil: () -> Unit,
+    alMensajePrivado: (String) -> Unit = {},
     viewModel: PerfilDePersonaViewModel = viewModel(factory = PerfilDePersonaViewModel.Factory),
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -75,6 +76,8 @@ fun PerfilDePersonaScreen(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 BotonAmistad(idPersona = id)
                 RetroButton(texto = stringResource(R.string.personas_ver_albumes), onClick = { alVerAlbumes(id) })
+                // Mensajes directos (EX-01): el servidor solo deja escribir a amigos, y el chat lo explica si no lo sois
+                RetroButton(texto = stringResource(R.string.directos_mensaje_privado), onClick = { alMensajePrivado(id) })
             }
         },
         tablon = { id -> Tablon(idPerfil = id) },

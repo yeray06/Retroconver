@@ -2,6 +2,8 @@ package com.retroconver.data.repository
 
 import com.retroconver.data.local.ComentarioConAutor
 import com.retroconver.data.local.ComentarioDao
+import com.retroconver.data.local.MeGustaDao
+import com.retroconver.data.local.MeGustaEntity
 import com.retroconver.data.local.PublicacionConAutor
 import com.retroconver.data.local.PublicacionDao
 import com.retroconver.data.local.PublicacionEntity
@@ -10,6 +12,7 @@ import com.retroconver.data.remote.AlmacenamientoService
 import com.retroconver.data.remote.ComentarioDto
 import com.retroconver.data.remote.ConfiguracionSupabase
 import com.retroconver.data.remote.NuevaPublicacionDto
+import com.retroconver.data.remote.NuevoMeGustaDto
 import com.retroconver.data.remote.NuevoComentarioDto
 import com.retroconver.data.remote.PerfilDto
 import com.retroconver.data.remote.PublicacionDto
@@ -19,7 +22,10 @@ import com.retroconver.data.remote.exigirExito
 import com.retroconver.data.remote.igual
 import com.retroconver.data.remote.llamarAlServidor
 import com.retroconver.data.sesion.SesionRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -43,6 +49,7 @@ class PublicacionRepository(
     private val almacenamiento: AlmacenamientoService,
     private val sesion: SesionRepository,
     private val configuracion: ConfiguracionSupabase,
+    private val meGustaDao: MeGustaDao,
 ) {
 
     /**
@@ -52,11 +59,18 @@ class PublicacionRepository(
     fun publicacionesDe(autores: Set<String>): Flow<List<PublicacionConAutor>> =
         publicaciones().map { lista -> lista.filter { it.publicacion.usuarioId in autores } }
 
-    /** Todas las publicaciones con su autor y su número de comentarios, la más reciente primero. */
-    fun publicaciones(): Flow<List<PublicacionConAutor>> = publicacionDao.observarTodas()
+    /**
+     * Todas las publicaciones con su autor, su número de comentarios y sus «Me gusta», la más
+     * reciente primero. Primero se lee la cuenta de la sesión, para saber cuáles me gustan (EX-05).
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun publicaciones(): Flow<List<PublicacionConAutor>> =
+        flow { emit(idActual().orEmpty()) }.flatMapLatest { miId -> publicacionDao.observarTodas(miId) }
 
     /** Una publicación concreta; emite `null` si no existe. */
-    fun publicacion(id: String): Flow<PublicacionConAutor?> = publicacionDao.observarPorId(id)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun publicacion(id: String): Flow<PublicacionConAutor?> =
+        flow { emit(idActual().orEmpty()) }.flatMapLatest { miId -> publicacionDao.observarPorId(id, miId) }
 
     /** Comentarios de una publicación, el más reciente primero. */
     fun comentarios(publicacionId: String): Flow<List<ComentarioConAutor>> =
@@ -85,6 +99,7 @@ class PublicacionRepository(
             hayMasAntiguas = filas.size >= LIMITE_MURO,
         )
         publicaciones.forEach { guardarComentarios(it.id, it.comentarios) }
+        guardarMeGusta(publicaciones)
         return ResultadoRed.Correcto(Unit)
     }
 
@@ -103,6 +118,7 @@ class PublicacionRepository(
         guardarPerfiles(listOf(fila))
         publicacionDao.guardarUna(fila.aEntidad(configuracion))
         guardarComentarios(fila.id, fila.comentarios)
+        guardarMeGusta(listOf(fila))
         return ResultadoRed.Correcto(Unit)
     }
 
@@ -147,11 +163,12 @@ class PublicacionRepository(
     }
 
     /**
-     * Añade un comentario a una publicación (E4-07.2, #67). [texto] ya viene validado.
+     * Añade un comentario a una publicación (E4-07.2, #67). [texto] ya viene validado. Con
+     * [respuestaA] es una respuesta a ese comentario (EX-02, #29).
      * Se guarda en Room el comentario que devuelve el servidor y el contador del muro sube solo.
      */
-    suspend fun comentar(publicacionId: String, texto: String): ResultadoRed<String> {
-        val resultado = llamarAlServidor { servicio.comentar(NuevoComentarioDto(publicacionId, texto)) }
+    suspend fun comentar(publicacionId: String, texto: String, respuestaA: String? = null): ResultadoRed<String> {
+        val resultado = llamarAlServidor { servicio.comentar(NuevoComentarioDto(publicacionId, texto, respuestaA)) }
         if (resultado is ResultadoRed.Fallo) return resultado
         val comentario = (resultado as ResultadoRed.Correcto).datos.firstOrNull()
         if (comentario == null || comentario.autor == null) return ResultadoRed.ErrorServidor(403, CODIGO_SIN_PERMISO)
@@ -191,6 +208,24 @@ class PublicacionRepository(
         return ResultadoRed.Correcto(Unit)
     }
 
+    /**
+     * Da o quita el «Me gusta» de la cuenta de la sesión a una publicación (EX-05, #130): primero
+     * en el servidor y después en Room, y el contador cambia solo. Si ya estaba dado (por ejemplo,
+     * desde otro móvil), el servidor responde que ya existe y se da por bueno.
+     */
+    suspend fun cambiarMeGusta(publicacionId: String, darlo: Boolean): ResultadoRed<Unit> {
+        val miId = idActual() ?: return ResultadoRed.SesionCaducada
+        val resultado = if (darlo) {
+            llamarAlServidor { servicio.darMeGusta(NuevoMeGustaDto(publicacionId)) }
+        } else {
+            llamarAlServidor { servicio.quitarMeGusta(igual(publicacionId), igual(miId)) }
+        }
+        val yaEstaba = resultado is ResultadoRed.ErrorServidor && resultado.codigo == CODIGO_YA_EXISTE
+        if (resultado is ResultadoRed.Fallo && !yaEstaba) return resultado
+        if (darlo) meGustaDao.dar(MeGustaEntity(publicacionId, miId)) else meGustaDao.quitar(publicacionId, miId)
+        return ResultadoRed.Correcto(Unit)
+    }
+
     /** Id de la cuenta con sesión: la autora de lo que se publica. */
     suspend fun idActual(): String? = sesion.sesionActual()?.idCuenta
 
@@ -213,6 +248,14 @@ class PublicacionRepository(
         if (conAutor.isNotEmpty()) comentarioDao.guardar(conAutor.map { it.aEntidad() })
     }
 
+    /** Deja en Room los «Me gusta» de esas publicaciones igual que en el servidor (EX-05). */
+    private suspend fun guardarMeGusta(publicaciones: List<PublicacionDto>) {
+        meGustaDao.sincronizar(
+            publicaciones = publicaciones.map { it.id },
+            meGusta = publicaciones.flatMap { p -> p.meGusta.map { MeGustaEntity(p.id, it.usuarioId) } },
+        )
+    }
+
     private fun rutaNueva(cuenta: String, imagen: ImagenParaSubir): String {
         val esPng = imagen.fichero.extension.equals("png", ignoreCase = true)
         return "$cuenta/${UUID.randomUUID()}.${if (esPng) "png" else "jpg"}"
@@ -233,5 +276,8 @@ class PublicacionRepository(
 
         /** Código de Postgres para «sin permiso» (lo traduce MensajesRed). */
         private const val CODIGO_SIN_PERMISO = "42501"
+
+        /** Código de Postgres para «ya existe» (clave repetida). */
+        private const val CODIGO_YA_EXISTE = "23505"
     }
 }

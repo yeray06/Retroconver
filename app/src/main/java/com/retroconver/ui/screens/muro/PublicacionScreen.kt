@@ -14,26 +14,28 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,6 +72,9 @@ fun PublicacionScreen(
         alBorrarPublicacion = viewModel::borrarPublicacion,
         alBorrarComentario = viewModel::borrarComentario,
         alAbrirPerfil = alAbrirPerfil,
+        alCambiarMeGusta = viewModel::cambiarMeGusta,
+        alResponder = viewModel::responderA,
+        alCancelarRespuesta = viewModel::cancelarRespuesta,
     )
 }
 
@@ -85,6 +90,9 @@ internal fun PublicacionContenido(
     alBorrarPublicacion: () -> Unit = {},
     alBorrarComentario: (String) -> Unit = {},
     alAbrirPerfil: ((String) -> Unit)? = null,
+    alCambiarMeGusta: (() -> Unit)? = null,
+    alResponder: ((ComentarioConAutor) -> Unit)? = null,
+    alCancelarRespuesta: () -> Unit = {},
 ) {
     var preguntarPublicacion by rememberSaveable { mutableStateOf(false) }
     var comentarioABorrar by rememberSaveable { mutableStateOf<String?>(null) }
@@ -131,7 +139,7 @@ internal fun PublicacionContenido(
                 val publicacion = estado.publicacion
                 when {
                     publicacion != null -> {
-                        item { PublicacionCard(publicacion, alAbrirAutor = alAbrirPerfil) }
+                        item { PublicacionCard(publicacion, alAbrirAutor = alAbrirPerfil, alCambiarMeGusta = alCambiarMeGusta) }
                         // Solo se borra lo propio (RF-29); el servidor lo comprueba también
                         if (publicacion.autor.id == estado.borrado.miId) {
                             item {
@@ -158,12 +166,29 @@ internal fun PublicacionContenido(
                                 )
                             }
                         } else {
-                            items(estado.comentarios, key = { it.comentario.id }) { comentario ->
-                                ComentarioFila(
-                                    item = comentario,
-                                    puedeBorrar = comentario.autor.id == estado.borrado.miId,
-                                    alBorrar = { if (!estado.borrado.borrando) comentarioABorrar = comentario.comentario.id },
-                                )
+                            // Cada comentario con sus respuestas debajo, sangradas (EX-02, #29)
+                            items(hilosDeComentarios(estado.comentarios), key = { it.comentario.comentario.id }) { hilo ->
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    ComentarioFila(
+                                        item = hilo.comentario,
+                                        puedeBorrar = hilo.comentario.autor.id == estado.borrado.miId,
+                                        alBorrar = {
+                                            if (!estado.borrado.borrando) comentarioABorrar = hilo.comentario.comentario.id
+                                        },
+                                        alResponder = alResponder?.let { responder -> { responder(hilo.comentario) } },
+                                    )
+                                    hilo.respuestas.forEach { respuesta ->
+                                        ComentarioFila(
+                                            item = respuesta,
+                                            puedeBorrar = respuesta.autor.id == estado.borrado.miId,
+                                            alBorrar = {
+                                                if (!estado.borrado.borrando) comentarioABorrar = respuesta.comentario.id
+                                            },
+                                            esRespuesta = true,
+                                            modifier = Modifier.padding(start = 24.dp),
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -180,7 +205,7 @@ internal fun PublicacionContenido(
             }
         }
         if (estado.publicacion != null) {
-            CampoComentario(estado.formulario, alCambiarTexto, alComentar)
+            CampoComentario(estado.formulario, alCambiarTexto, alComentar, alCancelarRespuesta)
         }
     }
     if (preguntarPublicacion) {
@@ -225,6 +250,7 @@ private fun CampoComentario(
     formulario: FormularioComentario,
     alCambiarTexto: (String) -> Unit,
     alComentar: () -> Unit,
+    alCancelarRespuesta: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val errorEnvio = formulario.errorEnvio
@@ -234,11 +260,31 @@ private fun CampoComentario(
             .imePadding()
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
+        // Respondiendo a un comentario (EX-02): se dice a quién, y se puede volver a un comentario normal
+        formulario.respuestaANombre?.let { nombre ->
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.comentario_respondiendo_a, nombre),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = RetroTextDark,
+                    modifier = Modifier
+                        .weight(1f)
+                        .semantics { liveRegion = LiveRegionMode.Polite },
+                )
+                TextButton(onClick = alCancelarRespuesta) { Text(stringResource(R.string.comentario_cancelar_respuesta)) }
+            }
+        }
         // Si hay error, el mensaje sustituye al contador y el campo se marca en rojo
         OutlinedTextField(
             value = formulario.texto,
             onValueChange = alCambiarTexto,
-            label = { Text(stringResource(R.string.comentar_etiqueta)) },
+            label = {
+                Text(
+                    stringResource(
+                        if (formulario.respuestaA != null) R.string.comentario_etiqueta_respuesta else R.string.comentar_etiqueta,
+                    ),
+                )
+            },
             enabled = !formulario.enviando,
             isError = formulario.error != null || errorEnvio != null,
             supportingText = {
@@ -265,16 +311,27 @@ private fun CampoComentario(
     }
 }
 
-/** Un comentario: avatar, nombre, fecha y texto. */
+/**
+ * Un comentario: avatar, nombre, fecha y texto. Con [alResponder] lleva el botón «Responder»
+ * (EX-02); si [esRespuesta], va sangrado bajo su comentario y TalkBack dice que es una respuesta.
+ */
 @Composable
 private fun ComentarioFila(
     item: ComentarioConAutor,
     puedeBorrar: Boolean,
     alBorrar: () -> Unit,
     modifier: Modifier = Modifier,
+    alResponder: (() -> Unit)? = null,
+    esRespuesta: Boolean = false,
 ) {
-    // Con el botón de borrar no se junta todo en un elemento, para que TalkBack lo enseñe aparte
-    RetroCard(modifier = modifier.semantics(mergeDescendants = !puedeBorrar) {}) {
+    val hayBotones = puedeBorrar || alResponder != null
+    val descripcionRespuesta = stringResource(R.string.comentario_es_respuesta, item.autor.nombre)
+    // Con botones no se junta todo en un elemento, para que TalkBack los enseñe aparte
+    RetroCard(
+        modifier = modifier.semantics(mergeDescendants = !hayBotones) {
+            if (esRespuesta) stateDescription = descripcionRespuesta
+        },
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Avatar(nombre = item.autor.nombre, tamano = 28.dp, imagenUri = item.autor.avatarUri)
             Spacer(Modifier.width(8.dp))
@@ -299,9 +356,22 @@ private fun ComentarioFila(
             style = MaterialTheme.typography.bodyMedium,
             color = RetroTextDark,
         )
-        if (puedeBorrar) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                RetroButton(texto = stringResource(R.string.muro_borrar_comentario), onClick = alBorrar)
+        if (hayBotones) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+            ) {
+                if (alResponder != null) {
+                    val etiqueta = stringResource(R.string.comentario_responder_a, item.autor.nombre)
+                    RetroButton(
+                        texto = stringResource(R.string.comentario_responder),
+                        onClick = alResponder,
+                        modifier = Modifier.semantics { contentDescription = etiqueta },
+                    )
+                }
+                if (puedeBorrar) {
+                    RetroButton(texto = stringResource(R.string.muro_borrar_comentario), onClick = alBorrar)
+                }
             }
         }
     }

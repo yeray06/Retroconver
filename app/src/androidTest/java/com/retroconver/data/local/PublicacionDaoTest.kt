@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,7 +47,7 @@ class PublicacionDaoTest {
     private fun comentario(id: String, publicacionId: String, ms: Long = 1_000, texto: String = id) =
         ComentarioEntity(id = id, publicacionId = publicacionId, usuarioId = ANA, texto = texto, timestamp = Instant.ofEpochMilli(ms))
 
-    private suspend fun ids() = publicaciones.observarTodas().first().map { it.publicacion.id }
+    private suspend fun ids() = publicaciones.observarTodas(ANA).first().map { it.publicacion.id }
 
     @Test
     fun lasPublicacionesSalenDeMasRecienteAMasAntigua() = runBlocking {
@@ -53,7 +55,7 @@ class PublicacionDaoTest {
         publicaciones.insertar(publicacion("b", "tercera", ms = 3_000))
         publicaciones.insertar(publicacion("c", "segunda", ms = 2_000))
 
-        val textos = publicaciones.observarTodas().first().map { it.publicacion.texto }
+        val textos = publicaciones.observarTodas(ANA).first().map { it.publicacion.texto }
 
         assertEquals(listOf("tercera", "segunda", "primera"), textos)
     }
@@ -64,7 +66,7 @@ class PublicacionDaoTest {
         comentarios.insertar(comentario("c1", "p1"))
         comentarios.insertar(comentario("c2", "p1"))
 
-        val publicacion = publicaciones.observarPorId("p1").first()!!
+        val publicacion = publicaciones.observarPorId("p1", ANA).first()!!
 
         assertEquals("Ana", publicacion.autor.nombre)
         assertEquals(2, publicacion.numComentarios)
@@ -88,7 +90,7 @@ class PublicacionDaoTest {
 
         publicaciones.eliminar("p1")
 
-        assertNull(publicaciones.observarPorId("p1").first())
+        assertNull(publicaciones.observarPorId("p1", ANA).first())
         assertEquals(emptyList<ComentarioConAutor>(), comentarios.observarDePublicacion("p1").first())
     }
 
@@ -98,7 +100,7 @@ class PublicacionDaoTest {
 
         baseDeDatos.openHelper.writableDatabase.execSQL("DELETE FROM usuarios WHERE id = '$ANA'")
 
-        assertEquals(emptyList<PublicacionConAutor>(), publicaciones.observarTodas().first())
+        assertEquals(emptyList<PublicacionConAutor>(), publicaciones.observarTodas(ANA).first())
     }
 
     @Test
@@ -109,7 +111,7 @@ class PublicacionDaoTest {
         // Al refrescar el muro llega otra vez la misma publicación, editada
         publicaciones.guardar(listOf(publicacionDelServidor("texto editado")))
 
-        val muro = publicaciones.observarTodas().first()
+        val muro = publicaciones.observarTodas(ANA).first()
         assertEquals(1, muro.size)
         assertEquals("texto editado", muro.single().publicacion.texto)
         assertEquals(1, muro.single().numComentarios)
@@ -175,6 +177,50 @@ class PublicacionDaoTest {
         comentarios.eliminar("borrado")
 
         assertEquals(listOf("sigue"), comentarios.observarDePublicacion("p1").first().map { it.comentario.id })
+    }
+
+    // ---------- «Me gusta» (EX-05, #130) ----------
+
+    @Test
+    fun elMuroCuentaLosMeGustaYSabeSiEstaElMio() = runBlocking {
+        publicaciones.insertar(publicacion("p1"))
+        val meGusta = baseDeDatos.meGustaDao()
+        meGusta.dar(MeGustaEntity("p1", ANA))
+        meGusta.dar(MeGustaEntity("p1", "otra"))
+        meGusta.dar(MeGustaEntity("p1", ANA)) // una persona solo cuenta una vez
+
+        val deAna = publicaciones.observarPorId("p1", ANA).first()!!
+        val deOtraCuenta = publicaciones.observarPorId("p1", "nadie").first()!!
+
+        assertEquals(2, deAna.numMeGusta)
+        assertTrue(deAna.meGustaMio)
+        assertFalse(deOtraCuenta.meGustaMio)
+    }
+
+    @Test
+    fun sincronizarLosMeGustaQuitaLosQueYaNoEstanYBorrarLaPublicacionLosBorra() = runBlocking {
+        publicaciones.insertar(publicacion("p1"))
+        val meGusta = baseDeDatos.meGustaDao()
+        meGusta.dar(MeGustaEntity("p1", "otra"))
+
+        meGusta.sincronizar(listOf("p1"), listOf(MeGustaEntity("p1", ANA)))
+        val publicacion = publicaciones.observarPorId("p1", ANA).first()!!
+        assertEquals(1, publicacion.numMeGusta)
+        assertTrue(publicacion.meGustaMio)
+
+        publicaciones.eliminar("p1")
+        assertEquals(0, baseDeDatos.query("SELECT * FROM me_gusta", null).use { it.count })
+    }
+
+    @Test
+    fun unaRespuestaGuardaElComentarioAlQueResponde() = runBlocking {
+        publicaciones.insertar(publicacion("p1"))
+        comentarios.insertar(comentario("c1", "p1"))
+        comentarios.insertar(comentario("r1", "p1", ms = 2_000).copy(respuestaA = "c1"))
+
+        val guardada = comentarios.observarDePublicacion("p1").first().first { it.comentario.id == "r1" }
+
+        assertEquals("c1", guardada.comentario.respuestaA)
     }
 
     private fun publicacionDelServidor(texto: String) = PublicacionEntity(

@@ -63,27 +63,35 @@ abstract class PublicacionDao {
         guardar(publicaciones)
     }
 
-    /** Todas las publicaciones, la más reciente primero. El `id` desempata si coincide la fecha. */
+    /**
+     * Todas las publicaciones, la más reciente primero. El `id` desempata si coincide la fecha.
+     * [miId] es la cuenta de la sesión, para saber a cuáles les ha dado «Me gusta» (EX-05).
+     */
     @Transaction
     @Query(
         """
-        SELECT *,
-               (SELECT COUNT(*) FROM comentarios WHERE comentarios.publicacionId = publicaciones.id) AS numComentarios
+        SELECT *, $CONTADORES
         FROM publicaciones
         ORDER BY timestamp DESC, id DESC
         """,
     )
-    abstract fun observarTodas(): Flow<List<PublicacionConAutor>>
+    abstract fun observarTodas(miId: String): Flow<List<PublicacionConAutor>>
 
     /** Una publicación (para la pantalla de detalle). Emite `null` si no existe o se ha borrado. */
     @Transaction
     @Query(
         """
-        SELECT *,
-               (SELECT COUNT(*) FROM comentarios WHERE comentarios.publicacionId = publicaciones.id) AS numComentarios
+        SELECT *, $CONTADORES
         FROM publicaciones
         WHERE id = :id
         """,
     )
-    abstract fun observarPorId(id: String): Flow<PublicacionConAutor?>
+    abstract fun observarPorId(id: String, miId: String): Flow<PublicacionConAutor?>
 }
+
+/** Columnas calculadas de [PublicacionConAutor]: comentarios, «Me gusta» y si el mío está entre ellos. */
+private const val CONTADORES = """
+    (SELECT COUNT(*) FROM comentarios WHERE comentarios.publicacionId = publicaciones.id) AS numComentarios,
+    (SELECT COUNT(*) FROM me_gusta WHERE me_gusta.publicacionId = publicaciones.id) AS numMeGusta,
+    EXISTS (SELECT 1 FROM me_gusta WHERE me_gusta.publicacionId = publicaciones.id AND me_gusta.usuarioId = :miId) AS meGustaMio
+"""

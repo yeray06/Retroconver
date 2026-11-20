@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.retroconver.ui.screens.galeria.AlbumScreen
 import com.retroconver.ui.screens.galeria.AlbumesScreen
 import com.retroconver.ui.screens.galeria.FotoScreen
+import com.retroconver.ui.screens.mensajes.ChatScreen
 import com.retroconver.ui.screens.mensajes.MensajesScreen
 import com.retroconver.ui.screens.muro.MuroScreen
 import com.retroconver.ui.screens.muro.NuevaPublicacionScreen
@@ -85,7 +86,13 @@ fun RetroconverNavHost(
                 arguments = listOf(navArgument(RutasGaleria.ARG_FOTO) { type = NavType.StringType }),
             ) { FotoScreen(alVolver = { navController.popBackStack() }) }
         }
-        composable(Destino.MENSAJES.ruta) { MensajesScreen() }
+        val abrirChat: (String) -> Unit = { id -> navController.navigate(RutasMensajes.chat(id)) { launchSingleTop = true } }
+        composable(Destino.MENSAJES.ruta) { MensajesScreen(alAbrirChat = abrirChat) }
+        // Chat privado (EX-01, #28): fuera de las secciones, como los perfiles ajenos
+        composable(
+            RutasMensajes.CHAT,
+            arguments = listOf(navArgument(RutasMensajes.ARG_PERSONA) { type = NavType.StringType }),
+        ) { ChatScreen(alVolver = { navController.popBackStack() }) }
         // Personas y perfiles ajenos (E4-08): fuera de las secciones de la barra
         composable(RutasPersonas.LISTA) {
             PersonasScreen(alVolver = { navController.popBackStack() }, alAbrirPerfil = abrirPerfil)
@@ -98,6 +105,7 @@ fun RetroconverNavHost(
                 alVolver = { navController.popBackStack() },
                 alAbrirPerfil = abrirPerfil,
                 alVerAlbumes = { id -> navController.navigate(RutasGaleria.albumesDe(id)) },
+                alMensajePrivado = abrirChat,
                 // Si es el propio, se cambia por la sección Perfil, con sus botones de editar
                 alEsMiPerfil = {
                     navController.navigate(Destino.PERFIL.ruta) {

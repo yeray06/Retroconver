@@ -76,6 +76,17 @@ class MuroViewModel(
         }
     }
 
+    /**
+     * Da o quita mi «Me gusta» a una publicación (EX-05, #130). El contador cambia solo porque el
+     * muro lee de Room. Si falla (sin conexión…), se avisa arriba y no cambia nada.
+     */
+    fun cambiarMeGusta(item: PublicacionConAutor) {
+        viewModelScope.launch {
+            val resultado = repositorio.cambiarMeGusta(item.publicacion.id, darlo = !item.meGustaMio)
+            error.value = (resultado as? ResultadoRed.Fallo)?.mensaje()
+        }
+    }
+
     companion object {
         val Factory = viewModelFactory {
             initializer {

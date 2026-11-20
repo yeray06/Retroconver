@@ -240,7 +240,7 @@ class MuroViewModel(private val repo: PublicacionRepository) : ViewModel() {
 | Migraciones de Room | `MigrationTestHelper` con los esquemas de `app/schemas`: cada migración conserva los datos y el resultado es igual que el esquema nuevo |
 | Contraste de los temas del perfil | Prueba unitaria que calcula el contraste WCAG de cada texto en cada tema |
 | Sesión y cliente de red | Pruebas con **MockWebServer**, un servidor falso que devuelve respuestas preparadas: correctas, errores y token caducado |
-| Políticas de seguridad | `supabase/pruebas_seguridad.sql` con dos cuentas temporales: 22 comprobaciones de lo que cada una puede y no puede hacer |
+| Políticas de seguridad | `supabase/pruebas_seguridad.sql` con dos cuentas temporales: 29 comprobaciones de lo que cada una puede y no puede hacer |
 | Código | Android lint en cada PR, sin avisos |
 | Accesibilidad | Comprobaciones automáticas del Accessibility Test Framework en cada pantalla, y revisión con TalkBack y el Accessibility Scanner |
 

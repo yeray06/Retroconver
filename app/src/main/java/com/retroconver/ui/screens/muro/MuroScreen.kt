@@ -54,6 +54,7 @@ fun MuroScreen(
         alActualizar = viewModel::actualizar,
         alAbrirPublicacion = alAbrirPublicacion,
         alAbrirPerfil = alAbrirPerfil,
+        alCambiarMeGusta = viewModel::cambiarMeGusta,
     )
 }
 
@@ -71,6 +72,7 @@ internal fun MuroContenido(
     alActualizar: () -> Unit = {},
     alAbrirPublicacion: (String) -> Unit = {},
     alAbrirPerfil: ((String) -> Unit)? = null,
+    alCambiarMeGusta: ((PublicacionConAutor) -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         // Sin conexión ya avisa la franja amarilla; si hay copia, no hace falta repetirlo
@@ -98,7 +100,7 @@ internal fun MuroContenido(
                 publicaciones.isEmpty() -> LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item { MuroVacio(Modifier.fillParentMaxSize()) }
                 }
-                else -> ListaMuro(publicaciones, alAbrirPublicacion, alAbrirPerfil)
+                else -> ListaMuro(publicaciones, alAbrirPublicacion, alAbrirPerfil, alCambiarMeGusta)
             }
         }
     }
@@ -113,6 +115,7 @@ private fun ListaMuro(
     publicaciones: List<PublicacionConAutor>,
     alAbrirPublicacion: (String) -> Unit,
     alAbrirPerfil: ((String) -> Unit)?,
+    alCambiarMeGusta: ((PublicacionConAutor) -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     val etiquetaAbrir = stringResource(R.string.muro_abrir_publicacion)
@@ -135,6 +138,7 @@ private fun ListaMuro(
             PublicacionCard(
                 item = publicacion,
                 alAbrirAutor = alAbrirPerfil,
+                alCambiarMeGusta = alCambiarMeGusta?.let { cambiar -> { cambiar(publicacion) } },
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
                     .clickable(role = Role.Button, onClickLabel = etiquetaAbrir) {

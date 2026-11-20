@@ -83,7 +83,7 @@ class UsuarioDaoTest {
         // @Upsert actualiza la fila; un REPLACE la borraría y se llevaría las publicaciones en cascada
         usuarios.guardar(perfil(nombre = "Yeray S."))
 
-        assertEquals(1, baseDeDatos.publicacionDao().observarTodas().first().size)
+        assertEquals(1, baseDeDatos.publicacionDao().observarTodas("yo").first().size)
     }
 
     @Test

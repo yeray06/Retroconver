@@ -2,6 +2,7 @@
 -- Retroconver · esquema del servidor Supabase
 -- E4-02.1 (#111): tablas y relaciones · E4-02.2 (#112): seguridad e imágenes
 -- EX-03 (#30): tipografía del perfil · EX-04 (#129): amistades
+-- EX-05 (#130): «Me gusta» · EX-02 (#29): respuestas · EX-01 (#28): mensajes directos
 --
 -- Cómo usarlo: Supabase → SQL Editor → New query → pegar todo → Run.
 -- Se puede ejecutar las veces que haga falta: crea lo que falta y
@@ -302,3 +303,75 @@ drop policy if exists "imagenes: borrar de la carpeta propia" on storage.objects
 create policy "imagenes: borrar de la carpeta propia" on storage.objects
     for delete to authenticated
     using (bucket_id = 'imagenes' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+
+-- =====================================================================
+-- 5. Extras de Muro y Mensajes
+-- EX-05 (#130): «Me gusta» · EX-02 (#29): respuestas a comentarios
+-- EX-01 (#28): mensajes directos entre amigos, con zumbido
+-- =====================================================================
+
+-- «Me gusta»: una fila por persona y publicación (la clave impide contar dos veces)
+create table if not exists public.me_gusta (
+    publicacion_id uuid not null references public.publicaciones (id) on delete cascade,
+    usuario_id     uuid not null default auth.uid() references public.perfiles (id) on delete cascade,
+    creado_en      timestamptz not null default now(),
+    primary key (publicacion_id, usuario_id)
+);
+create index if not exists me_gusta_usuario_idx on public.me_gusta (usuario_id);
+
+-- Respuestas: el comentario al que se responde. Si se borra, se borran sus respuestas
+alter table public.comentarios add column if not exists respuesta_a uuid
+    references public.comentarios (id) on delete cascade;
+create index if not exists comentarios_respuesta_idx on public.comentarios (respuesta_a);
+
+-- Mensajes directos: solo los ven quien los envía y quien los recibe. Un zumbido hace temblar el chat
+create table if not exists public.mensajes_directos (
+    id              uuid primary key default gen_random_uuid(),
+    remitente_id    uuid not null default auth.uid() references public.perfiles (id) on delete cascade,
+    destinatario_id uuid not null references public.perfiles (id) on delete cascade,
+    texto           text not null check (char_length(btrim(texto)) between 1 and 300),
+    zumbido         boolean not null default false,
+    creado_en       timestamptz not null default now(),
+    check (remitente_id <> destinatario_id)
+);
+create index if not exists mensajes_directos_remitente_idx    on public.mensajes_directos (remitente_id, creado_en desc);
+create index if not exists mensajes_directos_destinatario_idx on public.mensajes_directos (destinatario_id, creado_en desc);
+
+-- Permisos: «Me gusta» se da y se quita; los mensajes directos no se cambian ni se borran
+revoke all on public.me_gusta, public.mensajes_directos from anon, authenticated;
+grant select, insert, delete on public.me_gusta to authenticated;
+grant select, insert on public.mensajes_directos to authenticated;
+
+alter table public.me_gusta          enable row level security;
+alter table public.mensajes_directos enable row level security;
+
+drop policy if exists "me_gusta: leer con sesión" on public.me_gusta;
+create policy "me_gusta: leer con sesión" on public.me_gusta
+    for select to authenticated using (true);
+drop policy if exists "me_gusta: dar en nombre propio" on public.me_gusta;
+create policy "me_gusta: dar en nombre propio" on public.me_gusta
+    for insert to authenticated with check ((select auth.uid()) = usuario_id);
+drop policy if exists "me_gusta: quitar el propio" on public.me_gusta;
+create policy "me_gusta: quitar el propio" on public.me_gusta
+    for delete to authenticated using ((select auth.uid()) = usuario_id);
+
+drop policy if exists "mensajes_directos: leer los propios" on public.mensajes_directos;
+create policy "mensajes_directos: leer los propios" on public.mensajes_directos
+    for select to authenticated
+    using ((select auth.uid()) in (remitente_id, destinatario_id));
+drop policy if exists "mensajes_directos: escribir a un amigo" on public.mensajes_directos;
+create policy "mensajes_directos: escribir a un amigo" on public.mensajes_directos
+    for insert to authenticated
+    with check (
+        (select auth.uid()) = remitente_id
+        and exists (
+            select 1 from public.amistades a
+            where a.aceptada
+              -- Con el nombre de la tabla: amistades también tiene destinatario_id
+              and least(a.solicitante_id, a.destinatario_id)
+                  = least(mensajes_directos.remitente_id, mensajes_directos.destinatario_id)
+              and greatest(a.solicitante_id, a.destinatario_id)
+                  = greatest(mensajes_directos.remitente_id, mensajes_directos.destinatario_id)
+        )
+    );
