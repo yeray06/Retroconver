@@ -65,10 +65,10 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 
 ### Si hay tiempo
 
-- Mensajes directos con zumbido, como en MSN (EX-01, [#28](https://github.com/yeray06/Retroconver/issues/28))
+- Mensajes directos con zumbido, como en MSN (EX-01, [#28](https://github.com/yeray06/Retroconver/issues/28)). **Hecho en la entrega final**
 - Amistades: solicitudes y muro solo con amigos (EX-04, [#129](https://github.com/yeray06/Retroconver/issues/129)). **Hecho en la entrega final**: buscar amigos, solicitudes, lista de amigos y muro solo con amigos
-- «Me gusta» en publicaciones (EX-05, [#130](https://github.com/yeray06/Retroconver/issues/130))
-- Comentarios anidados o respuestas (EX-02, [#29](https://github.com/yeray06/Retroconver/issues/29))
+- «Me gusta» en publicaciones (EX-05, [#130](https://github.com/yeray06/Retroconver/issues/130)). **Hecho en la entrega final**
+- Comentarios anidados o respuestas (EX-02, [#29](https://github.com/yeray06/Retroconver/issues/29)). **Hecho en la entrega final**
 - Temas clásicos y tipografías seleccionables por perfil (EX-03, [#30](https://github.com/yeray06/Retroconver/issues/30)). **Hecho en la entrega final**
 - Vídeos cortos, también limitados a 720p
 
@@ -97,7 +97,7 @@ Retroconver recupera esa experiencia en una aplicación Android sencilla, sin di
 
 ## Estado actual
 
-**Entrega final** (20/11/2026). Sobre la versión candidata de la entrega 4 se han añadido dos extras (temas clásicos y amistades), las migraciones de Room, la publicación del APK firmado desde la CI y un proyecto sin avisos de Android lint.
+**Entrega final** (20/11/2026). Sobre la versión candidata de la entrega 4 se han añadido los cinco extras (temas clásicos, amistades, «Me gusta», respuestas a comentarios y mensajes directos con zumbido), las migraciones de Room, la publicación del APK firmado desde la CI y un proyecto sin avisos de Android lint.
 
 ### Capturas
 
@@ -115,7 +115,7 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 
 | Qué | Dónde | Issue | Estado |
 |---|---|---|---|
-| Servidor Supabase (plan gratuito): tablas, políticas de seguridad (22/22 comprobaciones) e imágenes | `supabase/` | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ |
+| Servidor Supabase (plan gratuito): tablas, políticas de seguridad (29 comprobaciones en `pruebas_seguridad.sql`) e imágenes | `supabase/` | E4-02 [#110](https://github.com/yeray06/Retroconver/issues/110) | ✅ |
 | Cliente de red con Retrofit: errores traducidos al español y franja de «Sin conexión» | `data/remote/` | E4-03 [#113](https://github.com/yeray06/Retroconver/issues/113) | ✅ ([#137](https://github.com/yeray06/Retroconver/pull/137)) |
 | Registro, inicio de sesión que se mantiene al cerrar la app, renovación del token y cierre de sesión que borra los datos del móvil | `data/sesion/`, `ui/screens/acceso/` | E4-04 [#116](https://github.com/yeray06/Retroconver/issues/116) | ✅ ([#138](https://github.com/yeray06/Retroconver/pull/138)) |
 | Room como copia del servidor (ids UUID, `@Upsert`); perfil y avatar guardados en el servidor | `data/local/`, `data/repository/UsuarioRepository.kt` | E4-05 [#120](https://github.com/yeray06/Retroconver/issues/120) | ✅ ([#139](https://github.com/yeray06/Retroconver/pull/139), [#140](https://github.com/yeray06/Retroconver/pull/140)) |
@@ -127,6 +127,9 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 | **Color de fondo del perfil:** seis colores o el del tema, con vista previa | `ui/theme/EstiloPerfil.kt`, `ui/screens/perfil/EditarPerfilScreen.kt` | E4-11 [#23](https://github.com/yeray06/Retroconver/issues/23) | ✅ |
 | **Temas clásicos y tipografías del perfil:** cuatro temas (Clásico, Noche, Lima y Chicle) y cuatro tipografías, con vista previa. Quien visita el perfil lo ve así | `ui/theme/EstiloPerfil.kt`, `ui/screens/perfil/` | EX-03 [#30](https://github.com/yeray06/Retroconver/issues/30) | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
 | **Amistades:** buscar amigos por nombre y pedirles amistad, solicitudes recibidas (aceptar o rechazar) y enviadas (cancelar), lista de amigos en el perfil, muro solo con lo tuyo y lo de tus amigos, y botón de amistad listo para el perfil de otra persona | `data/repository/AmistadesRepository.kt`, `ui/screens/perfil/Amistades.kt`, `ui/screens/perfil/BuscarAmigos.kt` | EX-04 [#129](https://github.com/yeray06/Retroconver/issues/129) | ✅ ([#155](https://github.com/yeray06/Retroconver/pull/155), [#160](https://github.com/yeray06/Retroconver/pull/160)) |
+| **«Me gusta»:** botón ♥ con contador en cada publicación del muro y en su detalle. Cada persona cuenta una vez y lo puede quitar | `data/local/MeGustaEntity.kt`, `ui/screens/muro/PublicacionCard.kt` | EX-05 [#130](https://github.com/yeray06/Retroconver/issues/130) | ✅ |
+| **Respuestas a comentarios:** **Responder** en cada comentario; las respuestas salen sangradas debajo, de la más antigua a la más reciente | `ui/screens/muro/Hilos.kt`, `PublicacionScreen.kt` | EX-02 [#29](https://github.com/yeray06/Retroconver/issues/29) | ✅ |
+| **Mensajes directos con zumbido:** conversaciones privadas entre amigos (**Mensaje privado** en su perfil y **Conversaciones privadas** en Mensajes). **Zumbido** hace temblar el chat y vibrar el móvil, como en MSN | `data/repository/MensajesDirectosRepository.kt`, `ui/screens/mensajes/ChatScreen.kt` | EX-01 [#28](https://github.com/yeray06/Retroconver/issues/28) | ✅ |
 | **Migraciones de Room:** al actualizar la app se conserva la copia local | `data/local/Migraciones.kt` | Entrega final | ✅ ([#154](https://github.com/yeray06/Retroconver/pull/154)) |
 | **APK firmado** y Release en GitHub al subir una etiqueta `v*` | `.github/workflows/release.yml` | EF-01.1 [#83](https://github.com/yeray06/Retroconver/issues/83) | ✅ Preparado: falta crear la clave ([Publicar una versión](#publicar-una-versión-apk-firmado)) |
 | 259 pruebas automáticas, revisión de accesibilidad, diseño y usabilidad, Android lint sin avisos e integración continua | `app/src/test/`, `app/src/androidTest/`, [docs/pruebas.md](docs/pruebas.md) | E4-12 [#24](https://github.com/yeray06/Retroconver/issues/24) | ✅ ([#143](https://github.com/yeray06/Retroconver/pull/143), [#156](https://github.com/yeray06/Retroconver/pull/156)) |
@@ -134,13 +137,7 @@ Generadas en un emulador con el tamaño de un Pixel 6 por `CapturasTest` (datos 
 
 ### Qué falta
 
-Todo lo imprescindible está hecho. Quedan sin hacer tres extras, que se descartan al cerrar la entrega final:
-
-| Extra | Issue |
-|---|---|
-| Mensajes directos con zumbido, como en MSN | EX-01 [#28](https://github.com/yeray06/Retroconver/issues/28) |
-| Respuestas a un comentario | EX-02 [#29](https://github.com/yeray06/Retroconver/issues/29) |
-| «Me gusta» en publicaciones | EX-05 [#130](https://github.com/yeray06/Retroconver/issues/130) |
+Todo lo imprescindible y los cinco extras están hechos. Solo queda fuera lo que no se planificó: vídeos cortos, tiempo real y notificaciones (ver [Fuera de alcance](#fuera-de-alcance)).
 
 ### Qué falla o tiene límites
 
@@ -148,6 +145,8 @@ Todo lo imprescindible está hecho. Quedan sin hacer tres extras, que se descart
 - **Muro:** se descargan las 50 publicaciones más recientes al abrirlo o al deslizar hacia abajo; no hay tiempo real ni paginación.
 - **Amistades:** el muro enseña solo lo tuyo y lo de tus amigos (EX-04). Sin amigos, solo se ven tus publicaciones: el muro vacío dice cómo buscarlos. El buscador de amigos devuelve las 20 primeras personas por orden alfabético, y la lista de **Personas**, las 50 primeras.
 - **Tablón:** se descargan los 50 mensajes más recientes de cada perfil, de hasta 300 caracteres. Los mensajes no se editan: se borran y se vuelven a escribir.
+- **Mensajes directos:** solo entre amigos (lo comprueba el servidor). No hay tiempo real: el chat abierto pregunta al servidor cada 4 segundos y la lista de conversaciones se actualiza al volver a la pantalla. Se descargan los 200 mensajes más recientes, que no se editan ni se borran.
+- **Respuestas:** un solo nivel. Responder a una respuesta la pone en el mismo hilo.
 - Las fotos se suben **en segundo plano** con WorkManager: siguen aunque se salga del álbum o se cierre la app ([#147](https://github.com/yeray06/Retroconver/issues/147)). Si se reinicia el móvil a mitad, puede que alguna no se pueda leer ya; la app dice cuántas no se han subido.
 - Las fotos **HEIC** no se pueden leer en Android 8.0 y 8.1. La app dice «No se ha podido usar esa foto». Desde Android 9 funcionan.
 - Si se borra una imagen del servidor sin conexión, puede quedar el archivo en *Storage* sin usar. No se ve en ningún sitio y no afecta a la app.
@@ -156,7 +155,7 @@ Todo lo imprescindible está hecho. Quedan sin hacer tres extras, que se descart
 El estado al día de cada tarea está en el [tablero](https://github.com/users/yeray06/projects/2):
 - **Completadas:** columna *Hecho*. La issue está cerrada por su PR.
 - **Pendientes:** *Backlog*, *Por hacer*, *En curso* y *En revisión*.
-- **Descartadas:** se cierran como *not planned* con la etiqueta `wontfix`. Los extras que no dé tiempo a hacer (EX-01, EX-02 y EX-05, de David) se descartan así al cerrar la entrega final.
+- **Descartadas:** se cierran como *not planned* con la etiqueta `wontfix`.
 
 ## Cómo probar la app
 
@@ -220,13 +219,28 @@ Hace falta una segunda cuenta (en otro móvil o emulador, o cerrando sesión y e
 1. **Perfil → Editar perfil → Aspecto del perfil → Color de fondo**: elige **Verde menta**. La vista previa cambia al momento.
 2. **Guardar**: el fondo del perfil es verde menta, también al verlo desde otra cuenta. En *Table Editor → perfiles* sale `color_fondo = menta`. **El del tema** lo vuelve a dejar como estaba (`color_fondo` vacío).
 
+### 10. «Me gusta» y respuestas (EX-05 y EX-02)
+
+1. En el **Muro**, pulsa **♡ 0** en una publicación: pasa a **♥ 1** en rojo. Con la otra cuenta (amiga) sale **♡ 1**; si también lo pulsa, **♥ 2**. Pulsarlo otra vez lo quita. En *Table Editor → me_gusta* hay una fila por persona.
+2. Abre una publicación con comentarios y pulsa **Responder** en uno. Encima del campo sale «Respondiendo a …» (**Cancelar respuesta** vuelve a un comentario normal). Escribe y **Comentar**: la respuesta sale sangrada debajo del comentario. En *Table Editor → comentarios* tiene `respuesta_a` con el id del comentario.
+
+### 11. Mensajes directos y zumbido (EX-01)
+
+Hacen falta dos cuentas amigas (paso 6), mejor en dos móviles.
+
+1. Con la cuenta A, abre el perfil de B y pulsa **Mensaje privado**. Escribe «¡Hola!» y **Enviar**: sale a la derecha, en azul.
+2. Con la cuenta B, **Mensajes → Conversaciones privadas**: sale A con «¡Hola!». Ábrela: el mensaje sale a la izquierda. Contesta.
+3. En el chat de A aparece la respuesta en unos segundos, sin hacer nada.
+4. Con B, pulsa **Enviar un zumbido**: el chat de los dos tiembla, el móvil vibra y sale «B te ha enviado un zumbido».
+5. Con una tercera cuenta que no sea amiga de A, **Mensaje privado** a A dice que solo se puede escribir a amigos. En *Table Editor → mensajes_directos* solo están los de A y B.
+
 ### Cuentas de prueba
 
 Las dos cuentas de prueba para el profesor se dan en la entrega, no en el repositorio.
 
 ### Evidencias de Room, DataStore y el servidor
 
-- **Room.** En *App Inspection → Database Inspector* están las tablas `usuarios`, `publicaciones`, `comentarios`, `albumes`, `fotos` y `amistades`, con los ids UUID del servidor. Al cerrar sesión quedan vacías.
+- **Room.** En *App Inspection → Database Inspector* están las tablas `usuarios`, `publicaciones`, `comentarios`, `me_gusta`, `albumes`, `fotos`, `amistades`, `mensajes` y `mensajes_directos`, con los ids UUID del servidor. Al cerrar sesión quedan vacías.
 - **DataStore.** En *Device Explorer*, `files/datastore/sesion.preferences_pb` guarda los tokens y el id de la cuenta, nunca la contraseña. Lo comprueba `SesionRepositoryTest`.
 - **Servidor.** En el panel de Supabase: *Authentication* (cuentas), *Table Editor* (perfiles, álbumes y fotos) y *Storage → imagenes* (una carpeta por cuenta).
 - **Pruebas.** Lista y resultados en [docs/pruebas.md](docs/pruebas.md). Cada PR las pasa en GitHub (ver [Integración continua](#integración-continua-el-check-de-las-pr)).
