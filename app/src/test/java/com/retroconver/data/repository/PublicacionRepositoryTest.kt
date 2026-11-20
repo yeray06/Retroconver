@@ -146,7 +146,7 @@ class PublicacionRepositoryTest {
         assertEquals("/rest/v1/publicaciones", peticion.ruta())
         assertEquals("creada_en.desc", peticion.requestUrl?.queryParameter("order"))
         assertEquals(PublicacionRepository.LIMITE_MURO.toString(), peticion.requestUrl?.queryParameter("limit"))
-        assertTrue(peticion.requestUrl?.queryParameter("select")!!.contains("autor:perfiles(*)"))
+        assertTrue(peticion.requestUrl?.queryParameter("select")!!.contains("autor:perfiles!autor_id(*)"))
         assertEquals("Los autores se guardan antes por la clave foránea", "Ana", perfiles.perfiles.value[ANA]?.nombre)
         val muro = repositorio.publicaciones().first()
         assertEquals(listOf("p2", "p1"), muro.map { it.publicacion.id })
