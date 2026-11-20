@@ -528,6 +528,16 @@ class PublicacionRepositoryTest {
         assertEquals("c1", repositorio.comentarios("p1").first().single().comentario.respuestaA)
     }
 
+    @Test
+    fun lasConsultasDicenQueRelacionUsarConPerfiles() = runBlocking<Unit> {
+        // Con me_gusta hay dos caminos entre publicaciones y perfiles: sin la pista, PGRST201
+        responder(200, "[]")
+        repositorio.refrescar()
+        val select = servidor.takeRequest().requestUrl!!.queryParameter("select")!!
+        assertTrue(select, select.contains("autor:perfiles!autor_id(*)"))
+        assertFalse(select, select.contains("perfiles(*)"))
+    }
+
     private companion object {
         const val YO = "6f1c2a1e-0000-4000-8000-000000000001"
         const val ANA = "6f1c2a1e-0000-4000-8000-00000000000a"
